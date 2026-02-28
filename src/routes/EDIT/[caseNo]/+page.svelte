@@ -158,6 +158,8 @@
 		editPassword = '';
 		// Don't reset the form - preserve user's input
 	}
+
+	let isSubmitting = $state(false);
 </script>
 
 <div class="mx-auto max-w-2xl px-4 py-8">
@@ -200,6 +202,7 @@
 		method="POST"
 		action="?/update"
 		use:enhance={({ cancel }) => {
+			isSubmitting = true;
 			return async ({ result }) => {
 				if (result.type === 'failure') {
 					cancel();
@@ -207,11 +210,13 @@
 					showPasswordModal = false;
 					editPassword = '';
 					alert(result.data?.error || 'Wrong password');
+					isSubmitting = false;
 					return;
 				}
 				if (result.type === 'success') {
 					closePasswordModal();
 					goto('/', { replaceState: true });
+					isSubmitting = false;
 				}
 			};
 		}}
@@ -435,8 +440,9 @@
 							bind:value={editPassword}
 							class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
 							required
+							disabled={isSubmitting}
 							onkeydown={(e) => {
-								if (e.key === 'Enter' && editPassword && editForm) {
+								if (e.key === 'Enter' && editPassword && editForm && !isSubmitting) {
 									e.preventDefault();
 									// Update the hidden password field
 									const hiddenField = editForm.querySelector(
@@ -458,10 +464,10 @@
 							>
 							<button
 								type="button"
-								class="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-500"
-								disabled={!editPassword}
+								class="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+								disabled={!editPassword || isSubmitting}
 								onclick={() => {
-									if (editPassword && editForm) {
+									if (editPassword && editForm && !isSubmitting) {
 										// Update the hidden password field
 										const hiddenField = editForm.querySelector(
 											'input[name="confirm_password"]'
@@ -472,7 +478,7 @@
 										// Submit the original form
 										editForm.requestSubmit();
 									}
-								}}>Confirm Update</button
+								}}>{isSubmitting ? 'Updating...' : 'Confirm Update'}</button
 							>
 						</div>
 					</div>

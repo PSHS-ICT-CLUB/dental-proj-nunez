@@ -290,7 +290,7 @@
                 </div>
             </div>
 
-			<div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 items-end">
+			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
                 <div class="relative">
 					<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
                     <input
@@ -361,20 +361,20 @@
                 </div>
             </div>
 
-			<div class="grid grid-cols-1 gap-3 md:grid-cols-3 mt-3 pt-3 border-t border-gray-100 items-end">
-                <div class="flex items-center gap-2">
-                    <div class="flex-1">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-3 mt-3 pt-3 border-t border-gray-100 md:items-end">
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <div class="w-full sm:flex-1">
                         <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Start Date</label>
                         <input type="date" name="start_date" bind:value={startDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
                     </div>
-                    <div class="flex-1">
+                    <div class="w-full sm:flex-1">
                         <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">End Date</label>
                         <input type="date" name="end_date" bind:value={endDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <div class="flex-1">
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <div class="w-full sm:flex-1">
                         <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Filter by Month</label>
                         <select bind:value={selectedMonth} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                             <option value="">Select Month</option>
@@ -385,7 +385,7 @@
                             {/each}
                         </select>
                     </div>
-                    <div class="w-24">
+                    <div class="w-full sm:w-24">
                         <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Year</label>
                         <select bind:value={selectedYear} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                             {#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
@@ -395,13 +395,13 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex-1">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="w-full sm:flex-1">
                         <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Record ID</label>
                         <input type="number" name="record_id" bind:value={recordId} placeholder="Record #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
                     </div>
-                    <div class="flex items-center pt-[18px]">
-                        <label class="inline-flex items-center gap-2 cursor-pointer bg-red-50/50 hover:bg-red-50 px-2.5 py-1.5 rounded border border-red-100 transition-colors">
+                    <div class="flex items-center sm:pt-[18px]">
+                        <label class="inline-flex items-center gap-2 cursor-pointer bg-red-50/50 hover:bg-red-50 px-2.5 py-1.5 rounded border border-red-100 transition-colors w-full sm:w-auto justify-center">
                             <input type="checkbox" bind:checked={showDelete} class="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300" />
                             <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Show Delete</span>
                         </label>

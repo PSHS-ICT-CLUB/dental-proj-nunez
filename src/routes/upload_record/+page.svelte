@@ -2,7 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import type { PageProps } from './$types';
 	import CameraModal from '$lib/components/CameraModal.svelte';
-	import { deserialize } from '$app/forms';
+	import { deserialize, enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
 
@@ -255,18 +255,6 @@
 
 	let isSubmitting = $state(false);
 
-	function handleSubmit(e: SubmitEvent) {
-		if (isSubmitting) {
-			e.preventDefault();
-			return;
-		}
-
-		isSubmitting = true;
-		setTimeout(() => {
-			isSubmitting = false;
-		}, 2000); // Reset after 2 seconds
-	}
-
 	// Add these variables near the other state declarations at the top
 	let upper_unit: number = $state(1);
 	let upper_cost: number = $state(0);
@@ -288,7 +276,13 @@
 		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-4 sm:p-6 shadow-md md:max-w-[1200px]"
 		method="POST"
 		enctype="multipart/form-data"
-		onsubmit={handleSubmit}
+		use:enhance={() => {
+			isSubmitting = true;
+			return async ({ update }) => {
+				await update();
+				isSubmitting = false;
+			};
+		}}
 	>
 		<h2 class="text-center text-2xl font-semibold text-gray-800">Add New Record</h2>
 

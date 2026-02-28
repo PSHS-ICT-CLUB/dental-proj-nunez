@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
+	import { enhance } from '$app/forms';
 	let { data, form }: PageProps = $props();
 	const { record } = data;
 
@@ -59,6 +60,8 @@
 	// Initialize once when component mounts
 	initializeOrderItems();
 
+	let isSubmitting = $state(false);
+
 	// Banner state (show success / error returned from form actions)
 	let showBanner = $state(!!form?.success || !!form?.error);
 	let bannerMessage = $state(form?.success ?? form?.error ?? '');
@@ -79,7 +82,23 @@
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-gray-100">
-	<form method="POST" class="mb-4 w-full max-w-4xl rounded bg-white px-8 pt-6 pb-8 shadow-md">
+	<form
+		method="POST"
+		class="mb-4 w-full max-w-4xl rounded bg-white px-8 pt-6 pb-8 shadow-md"
+		use:enhance={() => {
+			isSubmitting = true;
+			return async ({ update }) => {
+				await update();
+				isSubmitting = false;
+				if (form?.success || form?.error) {
+					showBanner = true;
+					bannerMessage = form?.success ?? form?.error ?? '';
+					bannerType = form?.success ? 'success' : form?.error ? 'error' : null;
+					setTimeout(() => (showBanner = false), 4500);
+				}
+			};
+		}}
+	>
 		{#if showBanner}
 			<div
 				class={bannerType === 'success'
@@ -274,10 +293,11 @@
 		<input type="hidden" name="recordId" value={data.recordId} />
 		<div class="flex items-center justify-between">
 			<button
-				class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+				class="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 				type="submit"
+				disabled={isSubmitting}
 			>
-				Submit Payment
+				{isSubmitting ? 'Submitting...' : 'Submit Payment'}
 			</button>
 		</div>
 	</form>
