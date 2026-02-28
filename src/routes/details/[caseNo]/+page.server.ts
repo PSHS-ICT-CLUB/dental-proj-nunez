@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { records, doctors, clinics, orders, orderItems, history } from '$lib/server/db/schema';
+import { records, doctors, clinics, orders, orderItems, history, caseTypes } from '$lib/server/db/schema';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { sql, desc, eq } from 'drizzle-orm';
@@ -46,7 +46,21 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		// Get order items if order exists
 		const items = recordData[0].orderId
-			? await db.select().from(orderItems).where(eq(orderItems.orderId, recordData[0].orderId))
+			? await db
+				.select({
+					orderItemId: orderItems.orderItemId,
+					orderId: orderItems.orderId,
+					upOrDown: orderItems.upOrDown,
+					caseTypeId: orderItems.caseTypeId,
+					caseNo: orderItems.caseNo,
+					itemCost: orderItems.itemCost,
+					itemQuantity: orderItems.itemQuantity,
+					orderDescription: orderItems.orderDescription,
+					caseTypeName: caseTypes.caseTypeName
+				})
+				.from(orderItems)
+				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.where(eq(orderItems.orderId, recordData[0].orderId))
 			: [];
 
 		// Get the history for this case
@@ -56,10 +70,25 @@ export const load: PageServerLoad = async ({ params }) => {
 			.where(sql`${history.recordId} = ${params.caseNo}`)
 			.orderBy(desc(history.historyDate));
 
+		// Convert imageData Buffer to base64 string
+		const processedHistory = caseHistory.map(item => {
+			if (item.imageData) {
+				const base64Data = Buffer.from(item.imageData).toString('base64');
+				return {
+					...item,
+					imageData: `data:image/jpeg;base64,${base64Data}`
+				};
+			}
+			return {
+				...item,
+				imageData: null
+			};
+		});
+
 		return {
 			record: recordData[0],
 			orderItems: items,
-			history: caseHistory
+			history: processedHistory
 		};
 	} catch (e) {
 		console.error('Error fetching case details:', e);

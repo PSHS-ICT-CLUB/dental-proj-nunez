@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			.orderBy(desc(records.recordId))
 			.limit(1);
 
-		data = await db
+		const rawData = await db
 			.select({
 				historyId: history.historyId,
 				historyType: history.historyType,
@@ -42,6 +42,22 @@ export const load: PageServerLoad = async ({ params }) => {
 			.leftJoin(users, sql`${history.createdBy} = ${users.id}`)
 			.where(sql`${history.recordId} = ${caseNo}`)
 			.orderBy(desc(history.historyId));
+
+		// Convert imageData Buffer to base64 string
+		data = rawData.map(item => {
+			if (item.imageData) {
+				const base64Data = Buffer.from(item.imageData).toString('base64');
+				return {
+					...item,
+					imageData: `data:image/jpeg;base64,${base64Data}`
+				};
+			}
+			return {
+				...item,
+				imageData: null
+			};
+		});
+
 		console.log(recordData);
 	} catch (error) {
 		console.error('Error:', error);

@@ -1,0 +1,212 @@
+
+> dental-proj@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+
+====================================
+Loading svelte-check in workspace: c:\Users\Adrian\projects\dental-proj-nunez
+Getting Svelte diagnostics...
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:295:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div class="relative">
+					[35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Clinic</label>[36m
+                    <input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:326:21
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div>
+                    [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case Type</label>[36m
+                    <select name="case_type_id" bind:value={caseTypeId} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:336:21
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div>
+                    [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case No</label>[36m
+                    <input type="text" name="case_no" bind:value={caseNo} placeholder="Case #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:341:21
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div>
+                    [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Patient</label>[36m
+                    <input type="text" name="patient_name" bind:value={patientName} placeholder="Patient Name" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:346:21
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div>
+                    [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Payment</label>[36m
+                    <select name="payment_status" bind:value={paymentStatus} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:355:21
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                <div>
+                    [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Status</label>[36m
+                    <select name="remarks" bind:value={remarks} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:367:25
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                    <div class="w-full sm:flex-1">
+                        [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Start Date</label>[36m
+                        <input type="date" name="start_date" bind:value={startDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:371:25
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                    <div class="w-full sm:flex-1">
+                        [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">End Date</label>[36m
+                        <input type="date" name="end_date" bind:value={endDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:378:25
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                    <div class="w-full sm:flex-1">
+                        [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Filter by Month</label>[36m
+                        <select bind:value={selectedMonth} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:389:25
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                    <div class="w-full sm:w-24">
+                        [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Year</label>[36m
+                        <select bind:value={selectedYear} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:400:25
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                    <div class="w-full sm:flex-1">
+                        [35m<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Record ID</label>[36m
+                        <input type="number" name="record_id" bind:value={recordId} placeholder="Record #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\AMOUNT\[caseNo]\+page.svelte[39m:281:4
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m		<div class="mb-8">
+			[35m<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+				Balance / Excess Amount
+			</label>[36m
+			<div class="block w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-xl font-medium text-gray-700 shadow-sm relative overflow-hidden">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\OUT\[caseNo]\+page.svelte[39m:200:2
+[31mError[39m: `</form>` attempted to close an element that was not open
+https://svelte.dev/e/element_invalid_closing_tag (svelte)
+[36m		</div>
+	[35m[36m</form>
+</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\OUT\[caseNo]\+page.svelte[39m:200:2
+[31mError[39m: `</form>` attempted to close an element that was not open
+https://svelte.dev/e/element_invalid_closing_tag (ts)
+[36m		</div>
+	[35m[36m</form>
+</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\balance\+page.svelte[39m:167:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div>
+					[35m<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Start Date</label>[36m
+					<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\balance\+page.svelte[39m:176:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div>
+					[35m<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">End Date</label>[36m
+					<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\balance\+page.svelte[39m:185:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div>
+					[35m<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Case Type</label>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\balance\+page.svelte[39m:202:7
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m					<div class="flex-1">
+						[35m<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Quick Month Filter</label>[36m
+						<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\balance\+page.svelte[39m:217:7
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m					<div class="w-24">
+						[35m<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Year</label>[36m
+						<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\expenses\+page.svelte[39m:51:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div>
+					[35m<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Quick Month Filter</label
+					>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\expenses\+page.svelte[39m:68:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div>
+					[35m<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Year</label
+					>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\sales\+page.svelte[39m:579:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="col-span-1 sm:col-span-2 lg:col-span-2">
+				[35m<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					>Period</label
+				>[36m
+				<form method="POST" action="?/changeDate" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 print:hidden">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\sales\+page.svelte[39m:947:11
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m									<div class="flex-1 w-full">
+										[35m<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Staff Name</label>[36m
+										<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\sales\+page.svelte[39m:966:11
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m									<div class="flex-1 w-full">
+										[35m<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Amount (PHP)</label>[36m
+										<div class="relative">
+[39m
+
+====================================
+[31msvelte-check found 2 errors and 22 warnings in 6 files
+[39m

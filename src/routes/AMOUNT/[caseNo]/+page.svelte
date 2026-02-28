@@ -117,8 +117,8 @@
 			<h3 class="mb-4 text-lg font-semibold text-gray-900">Order Items</h3>
 			<div class="space-y-4">
 				{#each orderItems as item, i}
-					<div class="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 p-4">
-						<h1 class="col-span-5 text-sm font-bold text-gray-900">
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 rounded-lg border border-gray-200 p-4">
+						<h1 class="col-span-1 sm:col-span-2 lg:col-span-5 text-sm font-bold text-gray-900">
 							{item.upOrDown === 'up' ? 'Upper' : 'Lower'}
 						</h1>
 						<!-- Case Type -->
@@ -199,64 +199,77 @@
 
 		<input type="hidden" name="orderItems" value={JSON.stringify(orderItems)} />
 
-		<div class="mb-4">
-			<label for="total_amount" class="mb-2 block text-sm font-bold text-gray-700">
-				Total Amount
-			</label>
-			<input
-				type="number"
-				bind:value={total_amount}
-				name="total_amount"
-				placeholder="Enter total amount"
-				required
-				class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-			/>
-		</div>
-		<div class="mb-4">
-			<label for="paid_amount" class="mb-2 block text-sm font-bold text-gray-700">
-				Paid Amount
-			</label>
-			<input
-				type="number"
-				bind:value={paid_amount}
-				name="paid_amount"
-				placeholder="Enter paid amount"
-				required
-				class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-			/>
-		</div>
-		<div class="mb-4">
-			<label for="payment_method" class="mb-2 block text-sm font-bold text-gray-700">
-				Payment Method
-			</label>
-			<select
-				name="payment_method"
-				bind:value={payment_method}
-				class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-				required
-			>
-				<option value="cash">Cash</option>
-				<option value="gcash">GCash</option>
-				<option value="bank">Bank Transfer</option>
-				<option value="others">Others</option>
-			</select>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+			<!-- Total Amount Display -->
+			<div>
+				<label for="total_amount" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+					Total Amount
+				</label>
+				<div class="block w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-2xl font-bold text-gray-900 shadow-sm relative overflow-hidden">
+					<div class="absolute top-0 right-0 w-1.5 h-full bg-indigo-500"></div>
+					<span class="text-gray-400 font-medium mr-1 text-lg">₱</span>{total_amount?.toFixed(2) || '0.00'}
+				</div>
+				<input type="hidden" id="total_amount" name="total_amount" value={total_amount} />
+			</div>
+
+			<!-- Paid Amount Input -->
+			<div>
+				<label for="paid_amount" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+					Paid Amount
+				</label>
+				<div class="relative">
+					<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+						<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+					</div>
+					<input
+						type="number"
+						bind:value={paid_amount}
+						id="paid_amount"
+						name="paid_amount"
+						placeholder="0.00"
+						required
+						class="block w-full appearance-none rounded-md border border-gray-300 py-3 pl-8 pr-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-lg font-medium"
+					/>
+				</div>
+			</div>
 		</div>
 
-		{#if payment_method === 'others'}
-			<div class="mb-4">
-				<label for="other_payment_method" class="mb-2 block text-sm font-bold text-gray-700">
-					Specify Payment Method
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+			<!-- Payment Method -->
+			<div>
+				<label for="payment_method" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+					Payment Method
 				</label>
-				<input
-					type="text"
-					bind:value={other_payment_method}
-					name="other_payment_method"
-					placeholder="Enter payment method"
+				<select
+					name="payment_method"
+					bind:value={payment_method}
+					class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm font-medium"
 					required
-					class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-				/>
+				>
+					<option value="cash">Cash</option>
+					<option value="gcash">GCash</option>
+					<option value="bank">Bank Transfer</option>
+					<option value="others">Others</option>
+				</select>
 			</div>
-		{/if}
+
+			<!-- Specify Payment Method (if Others) -->
+			{#if payment_method === 'others'}
+				<div>
+					<label for="other_payment_method" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+						Specify Payment Method
+					</label>
+					<input
+						type="text"
+						bind:value={other_payment_method}
+						name="other_payment_method"
+						placeholder="Enter payment method"
+						required
+						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+					/>
+				</div>
+			{/if}
+		</div>
 
 		<input
 			hidden
@@ -264,22 +277,22 @@
 			value={payment_method === 'others' ? other_payment_method : payment_method}
 		/>
 
-		<div class="mb-6">
-			<label for="excess_payment" class="mb-2 block text-sm font-bold text-gray-700">
-				Excess Amount
+		<div class="mb-8">
+			<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+				Balance / Excess Amount
 			</label>
-			<input
-				type="text"
-				value={paid_amount && total_amount
-					? paid_amount - total_amount
-					: total_amount !== undefined
-						? -total_amount
-						: ''}
-				name="excess_payment"
-				placeholder="Excess amount"
-				disabled
-				class="focus:shadow-outline w-full cursor-not-allowed appearance-none rounded border bg-gray-200 px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-			/>
+			<div class="block w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-xl font-medium text-gray-700 shadow-sm relative overflow-hidden">
+				<div class="absolute top-0 right-0 w-1.5 h-full {paid_amount && total_amount && (paid_amount - total_amount) < 0 ? 'bg-red-500' : 'bg-green-500'}"></div>
+				<span class="text-gray-400 mr-1 text-base">₱</span>
+				{#if paid_amount && total_amount}
+					{(paid_amount - total_amount).toFixed(2)}
+				{:else if total_amount !== undefined}
+					{(-total_amount).toFixed(2)}
+				{:else}
+					0.00
+				{/if}
+			</div>
+			
 			<input
 				type="hidden"
 				value={paid_amount && total_amount

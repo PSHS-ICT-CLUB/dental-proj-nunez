@@ -6,16 +6,6 @@
 	let historyItems: any[] = $state(data.data);
 	let sortAscending = $state(false);
 
-	function bufferToImageUrlViaBase64(buffer: Buffer): string {
-		const uint8Array = new Uint8Array(buffer);
-		let binaryString = '';
-		uint8Array.forEach((byte) => {
-			binaryString += String.fromCharCode(byte);
-		});
-		const base64String = btoa(binaryString);
-		return `data:image/png;base64,${base64String}`;
-	}
-
 	function formatTimeToStandard(timeWithOffset: string): string {
 		const [timePart, offsetPart] = timeWithOffset.split('+');
 		const [hours, minutes, seconds] = timePart.split(':').map(Number);
@@ -88,11 +78,13 @@
 			Sort by Date ({sortAscending ? 'Oldest First' : 'Newest First'})
 		</button>
 	</div>
-	<div class="flex flex-col items-center justify-center space-y-4 p-6">
+	
+	<!-- History Timeline Feed -->
+	<div class="mx-auto flex w-full max-w-2xl flex-col space-y-6">
 		{#each historyItems as item}
 			<div
-				class={`w-fit rounded-lg border border-gray-200 p-4 shadow-sm ${
-					item.historyType === 'in' ? 'bg-green-100' : 'bg-red-200'
+				class={`w-full rounded-xl border border-gray-200/50 p-5 shadow-sm transition-all hover:shadow-md ${
+					item.historyType === 'in' ? 'bg-green-100/80' : 'bg-red-200/80'
 				}`}
 			>
 				<div class="flex items-start space-x-4">
@@ -114,11 +106,11 @@
 							<span class="text-blue-500">{formatTimeToStandard(item.historyTime)}</span>
 						</p>
 						{#if item.imageData}
-							<div class="mt-2 overflow-hidden rounded-md border border-gray-300">
+							<div class="mt-4 overflow-hidden rounded-lg border border-gray-200/60 bg-white/50 p-1">
 								<img
-									src={bufferToImageUrlViaBase64(item.imageData)}
-									alt="History"
-									class="block w-lg object-cover"
+									src={item.imageData}
+									alt="{item.historyType} History"
+									class="block max-h-96 w-full rounded object-contain"
 								/>
 							</div>
 						{:else}

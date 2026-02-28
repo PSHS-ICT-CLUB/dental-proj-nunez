@@ -72,7 +72,7 @@
 	<form
 		method="POST"
 		enctype="multipart/form-data"
-		class="flex w-full max-w-md flex-col items-start justify-center space-y-6 rounded border border-gray-300 bg-red-100 px-8 py-6"
+		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-gray-200 bg-red-50 px-4 py-6 sm:px-8 shadow-sm"
 		use:enhance={() => {
 			isSubmitting = true;
 			return async ({ update }) => {
@@ -83,64 +83,72 @@
 	>
 		<input type="hidden" name="recordId" value={record.recordId} />
 
-		<label for="date" class="w-full">
-			<span class="block text-sm font-medium text-gray-600">OUT Date</span>
-			<input
-				class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				type="date"
-				name="date"
-				placeholder="Date"
-				required
-				bind:value={date}
-			/>
-		</label>
-		<label for="time" class="w-full">
-			<span class="block text-sm font-medium text-gray-600">OUT Time</span>
-			<input
-				class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				type="time"
-				name="time"
-				placeholder="Time"
-				required
-				bind:value={time}
-			/>
-		</label>
-
-		<div class="w-full">
-			<span class="block text-sm font-medium text-gray-600">OUT Image</span>
-			<div class="mb-2 flex gap-2">
-				<button
-					type="button"
-					class="flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-					onclick={() => {
-						showCameraModal = true;
-					}}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="mr-2 h-5 w-5"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					Use Camera
-				</button>
-				<input
-					class="mt-1 w-full rounded-md border-2 border-dashed border-gray-400 px-2 py-3 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-					type="file"
-					name="out-img"
-					accept="image/*"
-					bind:this={in_file}
-					onchange={handleInImageChange}
-					multiple
-					required
-				/>
+		<div class="flex flex-col gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<label for="date" class="block text-sm font-medium text-gray-700">
+					OUT Date
+					<input
+						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						type="date"
+						name="date"
+						placeholder="Date"
+						required
+						bind:value={date}
+					/>
+				</label>
+				<label for="time" class="block text-sm font-medium text-gray-700">
+					OUT Time
+					<input
+						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						type="time"
+						name="time"
+						placeholder="Time"
+						required
+						bind:value={time}
+					/>
+				</label>
 			</div>
+
+			<div>
+				<span class="block text-sm font-medium text-gray-700 mb-2">OUT Image</span>
+				<div class="mb-4 flex flex-wrap gap-3">
+					<button
+						type="button"
+						class="flex items-center justify-center rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+						onclick={() => {
+							showCameraModal = true;
+						}}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="mr-2 h-5 w-5 text-gray-400"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+						Use Camera
+					</button>
+					<label
+						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-6 py-4 hover:border-indigo-500 hover:bg-indigo-50 text-sm text-gray-600 font-medium"
+					>
+						<span>Or click to upload files</span>
+						<input
+							type="file"
+							name="out-img"
+							accept="image/*"
+							bind:this={in_file}
+							onchange={handleInImageChange}
+							multiple
+							required
+							style="display: none;"
+						/>
+					</label>
+				</div>
 			{#if in_img_urls.length > 0}
 				<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
 					{#each in_img_urls as url, i}
@@ -163,28 +171,29 @@
 			{/if}
 		</div>
 
-		<div class="flex items-center gap-2">
-			<input
-				type="checkbox"
-				name="finished"
-				class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-			/>
-			<label for="finished" class="text-sm font-medium text-gray-700"> Mark as Finished </label>
-		</div>
+		<div class="flex items-center gap-2 py-2">
+				<input
+					type="checkbox"
+					name="finished"
+					class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+				/>
+				<label for="finished" class="text-sm font-medium text-gray-700"> Mark as Finished </label>
+			</div>
 
-		<div class="mt-4 flex w-full flex-col items-center justify-center gap-2">
-			<button
-				class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-				type="submit"
-				disabled={isSubmitting}
-			>
-				{isSubmitting ? 'Submitting...' : 'Add OUT'}
-			</button>
-			{#if form?.success}
-				<p class="font-semibold text-green-600">{form.success}</p>
-			{:else if form?.error}
-				<p class="text-red-500">Error: {form.error}</p>
-			{/if}
+			<div class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-gray-200 pt-6">
+				<button
+					class="w-full sm:w-auto rounded-md bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+					type="submit"
+					disabled={isSubmitting}
+				>
+					{isSubmitting ? 'Submitting...' : 'Add OUT'}
+				</button>
+				{#if form?.success}
+					<p class="font-semibold text-green-600 mt-2">{form.success}</p>
+				{:else if form?.error}
+					<p class="text-red-500 mt-2">Error: {form.error}</p>
+				{/if}
+			</div>
 		</div>
 	</form>
 </div>

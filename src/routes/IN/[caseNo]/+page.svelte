@@ -72,7 +72,7 @@
 	<form
 		method="POST"
 		enctype="multipart/form-data"
-		class="flex w-full max-w-md flex-row items-start justify-center space-x-6 rounded border border-gray-300 bg-green-200 px-8 py-6"
+		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-gray-200 bg-green-50 px-4 py-6 sm:px-8 shadow-sm"
 		use:enhance={() => {
 			isSubmitting = true;
 			return async ({ update }) => {
@@ -83,23 +83,23 @@
 	>
 		<input type="hidden" name="recordId" value={record.recordId} />
 
-		<label for="in-img" class="flex flex-col gap-3">
+		<div class="flex flex-col gap-4">
 			<!-- Date/Time inputs -->
-			<div>
-				<label for="date" class="mt-2 block text-sm font-medium text-gray-600">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<label for="date" class="block text-sm font-medium text-gray-700">
 					IN Date
 					<input
-						class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 						type="date"
 						name="date"
 						required
 						bind:value={date}
 					/>
 				</label>
-				<label for="time" class="mt-2 block text-sm font-medium text-gray-600">
+				<label for="time" class="block text-sm font-medium text-gray-700">
 					IN Time
 					<input
-						class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 						type="time"
 						name="time"
 						placeholder="Time"
@@ -111,18 +111,18 @@
 
 			<!-- Image upload section -->
 			<div>
-				<h2 class="text-lg font-medium text-gray-700">IN Image</h2>
-				<div class="mb-2 flex gap-2">
+				<span class="block text-sm font-medium text-gray-700 mb-2">IN Image</span>
+				<div class="mb-4 flex flex-wrap gap-3">
 					<button
 						type="button"
-						class="flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+						class="flex items-center justify-center rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 						onclick={() => {
 							showCameraModal = true;
 						}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="mr-2 h-5 w-5"
+							class="mr-2 h-5 w-5 text-gray-400"
 							viewBox="0 0 20 20"
 							fill="currentColor"
 						>
@@ -134,16 +134,21 @@
 						</svg>
 						Use Camera
 					</button>
-					<input
-						class="mt-1 w-full rounded-md border-2 border-dashed border-gray-400 px-2 py-3 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-						type="file"
-						name="in-img"
-						accept="image/*"
-						bind:this={in_file}
-						onchange={handleInImageChange}
-						multiple
-						required
-					/>
+					<label
+						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-6 py-4 hover:border-indigo-500 hover:bg-indigo-50 text-sm text-gray-600 font-medium"
+					>
+						<span>Or click to upload files</span>
+						<input
+							type="file"
+							name="in-img"
+							accept="image/*"
+							bind:this={in_file}
+							onchange={handleInImageChange}
+							multiple
+							required
+							style="display: none;"
+						/>
+					</label>
 				</div>
 				{#if in_img_urls.length > 0}
 					<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -165,22 +170,22 @@
 						{/each}
 					</div>
 				{/if}
-				<div class="mt-4 flex flex-col items-center justify-center gap-2">
+				<div class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-gray-200 pt-6">
 					<button
-						class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+						class="w-full sm:w-auto rounded-md bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
 						type="submit"
 						disabled={isSubmitting}
 					>
 						{isSubmitting ? 'Submitting...' : 'Add IN'}
 					</button>
 					{#if form?.success}
-						<p class="font-semibold text-green-600">{form.success}</p>
+						<p class="font-semibold text-green-600 mt-2">{form.success}</p>
 					{:else if form?.error}
-						<p class="text-red-500">Error: {form.error}</p>
+						<p class="text-red-500 mt-2">Error: {form.error}</p>
 					{/if}
 				</div>
 			</div>
-		</label>
+		</div>
 	</form>
 </div>
 
