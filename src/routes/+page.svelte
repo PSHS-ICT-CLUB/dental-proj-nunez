@@ -302,10 +302,6 @@
 	);
 
 	function openDeleteModal(id: number) {
-		if (!data.passwordIsSet) {
-			alert('No password is set. Please set a password first in the Change Password page.');
-			return;
-		}
 		modalDeleteRecordId = id;
 		deletePassword = '';
 		showPasswordModal = true;
@@ -998,19 +994,9 @@
 						</div>
 					</div>
 				</div>
-				{#if !data.passwordIsSet}
-					<div class="mt-3 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-						<p class="font-semibold">⚠️ No password is set</p>
-						<p class="mt-1">
-							You need to set a password before you can delete records. Please 
-							<a href="/change_password" class="underline font-medium">set a password</a> first.
-						</p>
-					</div>
-				{:else}
-					<p class="mt-3 text-sm text-gray-600">
-						Enter your password to confirm deletion of this record.
-					</p>
-				{/if}
+				<p class="mt-3 text-sm text-gray-600">
+					Enter your password to confirm deletion of this record.
+				</p>
 				<form
 					bind:this={deleteForm}
 					action="?/deleteRecord"
@@ -1021,8 +1007,7 @@
 							if (result.type === 'failure') {
 								cancel();
 								closeDeleteModal();
-								const errorMsg = (result.data as any)?.error || 'Wrong password';
-								alert(errorMsg);
+								alert('Wrong password');
 								return;
 							}
 							if (result.type === 'redirect') {
@@ -1034,32 +1019,28 @@
 					}}
 				>
 					<input type="hidden" name="record_id" value={modalDeleteRecordId} />
-					{#if data.passwordIsSet}
-						<label for="confirm_password" class="block text-sm font-medium text-gray-700"
-							>Password</label
-						>
-						<input
-							id="confirm_password"
-							name="confirm_password"
-							type="password"
-							bind:value={deletePassword}
-							class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
-							required
-						/>
-					{/if}
+					<label for="confirm_password" class="block text-sm font-medium text-gray-700"
+						>Password</label
+					>
+					<input
+						id="confirm_password"
+						name="confirm_password"
+						type="password"
+						bind:value={deletePassword}
+						class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
+						required
+					/>
 					<div class="mt-4 flex justify-end gap-2">
 						<button
 							type="button"
 							class="rounded bg-white px-3 py-1 text-sm"
 							onclick={closeDeleteModal}>Cancel</button
 						>
-						{#if data.passwordIsSet}
-							<button
-								type="submit"
-								class="rounded bg-red-600 px-3 py-1 text-sm text-white"
-								disabled={!deletePassword}>Confirm Delete</button
-							>
-						{/if}
+						<button
+							type="submit"
+							class="rounded bg-red-600 px-3 py-1 text-sm text-white"
+							disabled={!deletePassword}>Confirm Delete</button
+						>
 					</div>
 				</form>
 			</div>
