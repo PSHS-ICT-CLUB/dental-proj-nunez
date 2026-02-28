@@ -1,6 +1,14 @@
 import type { Actions, PageServerLoad } from '../$types';
 import { db } from '$lib/server/db';
-import { clinics, doctors, history, records, supply, orders, orderItems } from '$lib/server/db/schema';
+import {
+	clinics,
+	doctors,
+	history,
+	records,
+	supply,
+	orders,
+	orderItems
+} from '$lib/server/db/schema';
 import { desc, sql, and, eq, isNotNull, between } from 'drizzle-orm';
 import { convertFileToBytea } from '$lib';
 import { redirect } from '@sveltejs/kit';
@@ -14,176 +22,177 @@ import { redirect } from '@sveltejs/kit';
 
 // Function to format a Date object into the desired string format
 const timestampDate = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-  const offset = '+08'; // Assuming the timezone is +08
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+	const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+	const offset = '+08'; // Assuming the timezone is +08
 
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${offset}`;
+	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${offset}`;
 };
 const formatDate = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
 
-
-  return `${year}-${month}-${day}`;
+	return `${year}-${month}-${day}`;
 };
 export const load: PageServerLoad = async ({ url }) => {
-  const searchParams = url.searchParams;
-  const status = searchParams.get('status') || null;
-  const exactDate = searchParams.get('date');
-  // If remarks parameter exists but is empty string, show all (null)
-  // If remarks parameter doesn't exist, default to 'finished'
-  // If remarks parameter has a value, use that value
-  const remarksParam = searchParams.get('remarks');
-  const remarks = remarksParam === null ? 'finished' : remarksParam === '' ? null : remarksParam;
-  const clinicId = searchParams.get('clinic_id') || null;
-  // if (import.meta.env && import.meta.env.DEV && devMocks) {
-  //   // Use mock data in development
-  //   const recordData = devMocks.getMockRecords({ status, exactDate, remarks });
-  //   const supplies = devMocks.getMockSupplies({ exactDate });
+	const searchParams = url.searchParams;
+	const status = searchParams.get('status') || null;
+	const exactDate = searchParams.get('date');
+	// If remarks parameter exists but is empty string, show all (null)
+	// If remarks parameter doesn't exist, default to 'finished'
+	// If remarks parameter has a value, use that value
+	const remarksParam = searchParams.get('remarks');
+	const remarks = remarksParam === null ? 'finished' : remarksParam === '' ? null : remarksParam;
+	const clinicId = searchParams.get('clinic_id') || null;
+	// if (import.meta.env && import.meta.env.DEV && devMocks) {
+	//   // Use mock data in development
+	//   const recordData = devMocks.getMockRecords({ status, exactDate, remarks });
+	//   const supplies = devMocks.getMockSupplies({ exactDate });
 
-  //   const date = exactDate ? new Date(exactDate) : new Date();
-  //   return {
-  //     currentDate: exactDate,
-  //     currentMonth: date.getMonth() + 1,
-  //     currentYear: date.getFullYear(),
-  //     recordData,
-  //     supplies
-  //   };
-  // }
+	//   const date = exactDate ? new Date(exactDate) : new Date();
+	//   return {
+	//     currentDate: exactDate,
+	//     currentMonth: date.getMonth() + 1,
+	//     currentYear: date.getFullYear(),
+	//     recordData,
+	//     supplies
+	//   };
+	// }
 
-  if (exactDate) {
-    const date = new Date(exactDate);
-    // Build conditions array, filtering out undefined values
-    const conditions = [
-      sql`DATE(${records.dateDropoff}) = ${exactDate}`,
-      status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
-      remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
-      clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
-    ].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
-    
-    // Query for exact date with proper joins
-    const recordData = await db
-      .select({
-        record: records,
-        order: orders,
-        clinicName: clinics.clinicName,
-        items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
-        balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
-      })
-      .from(records)
-      .innerJoin(orders, eq(records.orderId, orders.orderId))
-      .innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
-      .innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
-      .innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-      .where(and(...conditions))
-      .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
+	if (exactDate) {
+		const date = new Date(exactDate);
+		// Build conditions array, filtering out undefined values
+		const conditions = [
+			sql`DATE(${records.dateDropoff}) = ${exactDate}`,
+			status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
+			remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
+			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
+		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
-    const supplies = await db
-      .select()
-      .from(supply)
-      .where(sql`DATE(supply_date) = ${exactDate}`);
+		// Query for exact date with proper joins
+		const recordData = await db
+			.select({
+				record: records,
+				order: orders,
+				clinicName: clinics.clinicName,
+				items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
+				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
+			})
+			.from(records)
+			.innerJoin(orders, eq(records.orderId, orders.orderId))
+			.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+			.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+			.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+			.where(and(...conditions))
+			.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
 
-    // Get all clinics for the filter dropdown
-    const allClinics = await db
-      .select({
-        clinicId: clinics.clinicId,
-        clinicName: clinics.clinicName
-      })
-      .from(clinics)
-      .orderBy(clinics.clinicName);
+		const supplies = await db
+			.select()
+			.from(supply)
+			.where(sql`DATE(supply_date) = ${exactDate}`);
 
-    return {
-      currentDate: exactDate,
-      currentMonth: date.getMonth() + 1,
-      currentYear: date.getFullYear(),
-      recordData,
-      supplies,
-      clinics: allClinics
-    };
-  } else {
-    const currentDate = new Date();
+		// Get all clinics for the filter dropdown
+		const allClinics = await db
+			.select({
+				clinicId: clinics.clinicId,
+				clinicName: clinics.clinicName
+			})
+			.from(clinics)
+			.orderBy(clinics.clinicName);
 
-    // Get month and year from URL params or use current date
-    const selectedYear = parseInt(searchParams.get('year') || currentDate.getFullYear().toString());
-    const selectedMonth = parseInt(searchParams.get('month') || (currentDate.getMonth() + 1).toString());
+		return {
+			currentDate: exactDate,
+			currentMonth: date.getMonth() + 1,
+			currentYear: date.getFullYear(),
+			recordData,
+			supplies,
+			clinics: allClinics
+		};
+	} else {
+		const currentDate = new Date();
 
-    // Get the first and last day of the selected month
-    const startDate = new Date(selectedYear, selectedMonth - 1, 1);
-    const endDate = new Date(selectedYear, selectedMonth, 0);
+		// Get month and year from URL params or use current date
+		const selectedYear = parseInt(searchParams.get('year') || currentDate.getFullYear().toString());
+		const selectedMonth = parseInt(
+			searchParams.get('month') || (currentDate.getMonth() + 1).toString()
+		);
 
-    // Build conditions array, filtering out undefined values
-    const conditions = [
-      isNotNull(records.dateDropoff),
-      sql`${records.dateDropoff} BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`,
-      status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
-      remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
-      clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
-    ].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
+		// Get the first and last day of the selected month
+		const startDate = new Date(selectedYear, selectedMonth - 1, 1);
+		const endDate = new Date(selectedYear, selectedMonth, 0);
 
-    const recordData = await db
-      .select({
-        record: records,
-        order: orders,
-        clinicName: clinics.clinicName,
-        items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
-        balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
-      })
-      .from(records)
-      .innerJoin(orders, eq(records.orderId, orders.orderId))
-      .innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
-      .innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
-      .innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-      .where(and(...conditions))
-      .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
-    // .where(sql`records.date_dropoff IS NOT NULL AND records.date_dropoff BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`)
-    // .where(status ? sql`(${orders.paymentStatus} = ${status})` : sql`TRUE`)
-    // .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
+		// Build conditions array, filtering out undefined values
+		const conditions = [
+			isNotNull(records.dateDropoff),
+			sql`${records.dateDropoff} BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`,
+			status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
+			remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
+			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
+		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
-    const supplies = await db
-      .select()
-      .from(supply)
-      .where(sql`supply_date BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`);
+		const recordData = await db
+			.select({
+				record: records,
+				order: orders,
+				clinicName: clinics.clinicName,
+				items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
+				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
+			})
+			.from(records)
+			.innerJoin(orders, eq(records.orderId, orders.orderId))
+			.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+			.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+			.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+			.where(and(...conditions))
+			.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
+		// .where(sql`records.date_dropoff IS NOT NULL AND records.date_dropoff BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`)
+		// .where(status ? sql`(${orders.paymentStatus} = ${status})` : sql`TRUE`)
+		// .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
 
-    // Get all clinics for the filter dropdown
-    const allClinics = await db
-      .select({
-        clinicId: clinics.clinicId,
-        clinicName: clinics.clinicName
-      })
-      .from(clinics)
-      .orderBy(clinics.clinicName);
+		const supplies = await db
+			.select()
+			.from(supply)
+			.where(sql`supply_date BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`);
 
-    return {
-      currentMonth: selectedMonth,
-      currentYear: selectedYear,
-      recordData,
-      supplies,
-      clinics: allClinics,
-    };
-  }
+		// Get all clinics for the filter dropdown
+		const allClinics = await db
+			.select({
+				clinicId: clinics.clinicId,
+				clinicName: clinics.clinicName
+			})
+			.from(clinics)
+			.orderBy(clinics.clinicName);
+
+		return {
+			currentMonth: selectedMonth,
+			currentYear: selectedYear,
+			recordData,
+			supplies,
+			clinics: allClinics
+		};
+	}
 };
 
 export const actions = {
-  changeDate: async ({ request }) => {
-    const data = await request.formData();
-    const exactDate = data.get('exact_date');
+	changeDate: async ({ request }) => {
+		const data = await request.formData();
+		const exactDate = data.get('exact_date');
 
-    if (exactDate) {
-      // Handle exact date query
-      const date = new Date(exactDate as string);
-      return redirect(303, `?date=${exactDate}`);
-    } else {
-      // Handle month/year query
-      const month = data.get('month');
-      const year = data.get('year');
-      return redirect(303, `?month=${month}&year=${year}`);
-    }
-  }
+		if (exactDate) {
+			// Handle exact date query
+			const date = new Date(exactDate as string);
+			return redirect(303, `?date=${exactDate}`);
+		} else {
+			// Handle month/year query
+			const month = data.get('month');
+			const year = data.get('year');
+			return redirect(303, `?month=${month}&year=${year}`);
+		}
+	}
 } satisfies Actions;

@@ -69,7 +69,8 @@
 			<h2 class="text-lg text-gray-700">
 				CLINIC: <span class="font-medium text-green-600">{data.recordData[0].clinicName}</span>
 			</h2>
-		</div><button
+		</div>
+		<button
 			class="mt-4 rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:outline-none"
 			onclick={toggleSort}
 		>

@@ -1,34 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1746344150838,
-      "tag": "0000_far_mephisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746350196317,
-      "tag": "0001_curly_bruce_banner",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746365023571,
-      "tag": "0002_busy_enchantress",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1762846706940,
-      "tag": "0003_crazy_jamie_braddock",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1746344150838,
+			"tag": "0000_far_mephisto",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1746350196317,
+			"tag": "0001_curly_bruce_banner",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1746365023571,
+			"tag": "0002_busy_enchantress",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1762846706940,
+			"tag": "0003_crazy_jamie_braddock",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1772256427461,
+			"tag": "0004_sloppy_storm",
+			"breakpoints": true
+		}
+	]
 }

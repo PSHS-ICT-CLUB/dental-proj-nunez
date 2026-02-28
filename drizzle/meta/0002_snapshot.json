@@ -1,238 +1,232 @@
 {
-  "id": "86c4e4d3-4a95-4511-9cef-70dbf887527d",
-  "prevId": "91d28c47-3679-4e2d-8c9b-36ff36cc0c5f",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.clinics": {
-      "name": "clinics",
-      "schema": "",
-      "columns": {
-        "clinic_id": {
-          "name": "clinic_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "clinic_name": {
-          "name": "clinic_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "clinics_clinic_name_unique": {
-          "name": "clinics_clinic_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clinic_name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.doctors": {
-      "name": "doctors",
-      "schema": "",
-      "columns": {
-        "doctor_id": {
-          "name": "doctor_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "doctor_name": {
-          "name": "doctor_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "clinic_id": {
-          "name": "clinic_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "doctors_clinic_id_clinics_clinic_id_fk": {
-          "name": "doctors_clinic_id_clinics_clinic_id_fk",
-          "tableFrom": "doctors",
-          "tableTo": "clinics",
-          "columnsFrom": [
-            "clinic_id"
-          ],
-          "columnsTo": [
-            "clinic_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.history": {
-      "name": "history",
-      "schema": "",
-      "columns": {
-        "history_id": {
-          "name": "history_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "history_type": {
-          "name": "history_type",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "history_date": {
-          "name": "history_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "history_time": {
-          "name": "history_time",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "image_data": {
-          "name": "image_data",
-          "type": "bytea",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "record_id": {
-          "name": "record_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.records": {
-      "name": "records",
-      "schema": "",
-      "columns": {
-        "record_id": {
-          "name": "record_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "case_type": {
-          "name": "case_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "case_no": {
-          "name": "case_no",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "date_pickup": {
-          "name": "date_pickup",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "time_pickup": {
-          "name": "time_pickup",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "doctor_name": {
-          "name": "doctor_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "clinic_name": {
-          "name": "clinic_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "patient_name": {
-          "name": "patient_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "total_amount": {
-          "name": "total_amount",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "paid_amount": {
-          "name": "paid_amount",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "excess_payment": {
-          "name": "excess_payment",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
-    "schemas": {},
-    "tables": {}
-  }
+	"id": "86c4e4d3-4a95-4511-9cef-70dbf887527d",
+	"prevId": "91d28c47-3679-4e2d-8c9b-36ff36cc0c5f",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.clinics": {
+			"name": "clinics",
+			"schema": "",
+			"columns": {
+				"clinic_id": {
+					"name": "clinic_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"clinic_name": {
+					"name": "clinic_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"clinics_clinic_name_unique": {
+					"name": "clinics_clinic_name_unique",
+					"nullsNotDistinct": false,
+					"columns": ["clinic_name"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.doctors": {
+			"name": "doctors",
+			"schema": "",
+			"columns": {
+				"doctor_id": {
+					"name": "doctor_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"doctor_name": {
+					"name": "doctor_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"clinic_id": {
+					"name": "clinic_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"doctors_clinic_id_clinics_clinic_id_fk": {
+					"name": "doctors_clinic_id_clinics_clinic_id_fk",
+					"tableFrom": "doctors",
+					"tableTo": "clinics",
+					"columnsFrom": ["clinic_id"],
+					"columnsTo": ["clinic_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.history": {
+			"name": "history",
+			"schema": "",
+			"columns": {
+				"history_id": {
+					"name": "history_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"history_type": {
+					"name": "history_type",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"history_date": {
+					"name": "history_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"history_time": {
+					"name": "history_time",
+					"type": "time",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"image_data": {
+					"name": "image_data",
+					"type": "bytea",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"record_id": {
+					"name": "record_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.records": {
+			"name": "records",
+			"schema": "",
+			"columns": {
+				"record_id": {
+					"name": "record_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"case_type": {
+					"name": "case_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"case_no": {
+					"name": "case_no",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"date_pickup": {
+					"name": "date_pickup",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"time_pickup": {
+					"name": "time_pickup",
+					"type": "time",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"doctor_name": {
+					"name": "doctor_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"clinic_name": {
+					"name": "clinic_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"patient_name": {
+					"name": "patient_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"total_amount": {
+					"name": "total_amount",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"paid_amount": {
+					"name": "paid_amount",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"excess_payment": {
+					"name": "excess_payment",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
 }

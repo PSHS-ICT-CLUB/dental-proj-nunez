@@ -6,104 +6,100 @@ import { desc, eq, sql } from 'drizzle-orm';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ params }) => {
-  try {
-    const recordData = await db
-      .select({
-        recordId: records.recordId,
-        datePickup: records.datePickup,
-        timePickup: records.timePickup,
-        dateDropoff: records.dateDropoff,
-        timeDropoff: records.timeDropoff,
-        doctorId: records.doctorId,
-        patientName: records.patientName,
-        description: records.description,
-        remarks: records.remarks,
-        doctorName: doctors.doctorName,
-        clinicId: doctors.clinicId,
-        clinicName: clinics.clinicName
-      })
-      .from(records)
-      .leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
-      .leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-      .where(sql`${records.recordId} = ${params.caseNo}`)
-      .limit(1);
+	try {
+		const recordData = await db
+			.select({
+				recordId: records.recordId,
+				datePickup: records.datePickup,
+				timePickup: records.timePickup,
+				dateDropoff: records.dateDropoff,
+				timeDropoff: records.timeDropoff,
+				doctorId: records.doctorId,
+				patientName: records.patientName,
+				description: records.description,
+				remarks: records.remarks,
+				doctorName: doctors.doctorName,
+				clinicId: doctors.clinicId,
+				clinicName: clinics.clinicName
+			})
+			.from(records)
+			.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
+			.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+			.where(sql`${records.recordId} = ${params.caseNo}`)
+			.limit(1);
 
-    if (!recordData || recordData.length === 0) {
-      throw error(404, 'Record not found');
-    }
+		if (!recordData || recordData.length === 0) {
+			throw error(404, 'Record not found');
+		}
 
-    const doctorsData = await db
-      .select()
-      .from(doctors)
+		const doctorsData = await db.select().from(doctors);
 
+		const clinicsData = await db.select().from(clinics).orderBy(desc(clinics.clinicName));
 
-    const clinicsData = await db
-      .select()
-      .from(clinics)
-      .orderBy(desc(clinics.clinicName));
+		const passwordIsSet = await isPasswordSet();
 
-    const passwordIsSet = await isPasswordSet();
-
-    return {
-      record: recordData[0],
-      doctors: doctorsData,
-      clinics: clinicsData,
-      passwordIsSet
-    };
-  } catch (e) {
-    console.error('Error fetching record:', e);
-    throw error(500, 'Failed to fetch record');
-  }
+		return {
+			record: recordData[0],
+			doctors: doctorsData,
+			clinics: clinicsData,
+			passwordIsSet
+		};
+	} catch (e) {
+		console.error('Error fetching record:', e);
+		throw error(500, 'Failed to fetch record');
+	}
 };
 
 export const actions = {
-  update: async ({ request }) => {
-    const formData = await request.formData();
-    const recordId = formData.get('recordId');
-    const doctorId = parseInt(formData.get('doctorId')?.toString() || '0');
-    const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
-    
-    // Check if password is set
-    const passwordIsSet = await isPasswordSet();
-    if (!passwordIsSet) {
-      return fail(400, { error: 'No password is set. Please set a password first in the Change Password page.' });
-    }
-    
-    // Verify password
-    if (!confirmPassword) {
-      return fail(400, { error: 'Password is required' });
-    }
-    
-    const ok = await verifyAdminPassword(confirmPassword);
-    if (!ok) {
-      return fail(400, { error: 'Wrong password' });
-    }
-    
-    console.log(formData)
-    try {
-      // Parse the recordId to ensure it's a number
-      const recordIdNum = parseInt(recordId?.toString() || '0');
-      if (!recordIdNum) throw new Error('Invalid record ID');
+	update: async ({ request }) => {
+		const formData = await request.formData();
+		const recordId = formData.get('recordId');
+		const doctorId = parseInt(formData.get('doctorId')?.toString() || '0');
+		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
-      await db
-        .update(records)
-        .set({
-          doctorId,
-          patientName: formData.get('patientName')?.toString(),
-          remarks: formData.get('remarks')?.toString(),
-        })
-        .where(eq(records.recordId, recordIdNum));
+		// Check if password is set
+		const passwordIsSet = await isPasswordSet();
+		if (!passwordIsSet) {
+			return fail(400, {
+				error: 'No password is set. Please set a password first in the Change Password page.'
+			});
+		}
 
-      return {
-        success: true,
-        message: 'Record updated successfully'
-      };
-    } catch (e) {
-      console.error('Error updating record:', e);
-      return {
-        success: false,
-        message: 'Failed to update record'
-      };
-    }
-  }
+		// Verify password
+		if (!confirmPassword) {
+			return fail(400, { error: 'Password is required' });
+		}
+
+		const ok = await verifyAdminPassword(confirmPassword);
+		if (!ok) {
+			return fail(400, { error: 'Wrong password' });
+		}
+
+		console.log(formData);
+		try {
+			// Parse the recordId to ensure it's a number
+			const recordIdNum = parseInt(recordId?.toString() || '0');
+			if (!recordIdNum) throw new Error('Invalid record ID');
+
+			await db
+				.update(records)
+				.set({
+					doctorId,
+					patientName: formData.get('patientName')?.toString(),
+					remarks: formData.get('remarks')?.toString()
+				} as any)
+				.where(eq(records.recordId, recordIdNum));
+
+			return {
+				success: true,
+				message: 'Record updated successfully'
+			};
+		} catch (e) {
+			console.error('Error updating record:', e);
+			return {
+				success: false,
+				message: 'Failed to update record'
+			};
+		}
+	}
 };

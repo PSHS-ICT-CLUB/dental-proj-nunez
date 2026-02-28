@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import type { PageProps } from './$types';
+	import CameraModal from '$lib/components/CameraModal.svelte';
+	import { deserialize } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
 
-	let allDoctors = $state(data?.doctors);
-	let allClinics = $state(data?.clinics);
+	let allDoctors = $state(data?.doctors || []);
+	let allClinics = $state(data?.clinics || []);
 	let filteredDoctors = $state(allDoctors);
 	let filteredClinics = $state(allClinics);
 
@@ -33,8 +35,8 @@
 	let show_in: boolean = $state(false);
 	let show_out: boolean = $state(false);
 
-	let doctorInputValue = $state(null);
-	let clinicInputValue = $state(null);
+	let doctorInputValue = $state('');
+	let clinicInputValue = $state('');
 	let showDoctorDropdown = $state(false);
 	let showClinicDropdown = $state(false);
 	let payment_method = $state('cash');
@@ -56,10 +58,12 @@
 	}
 
 	function filterDoctors() {
+		const query = (doctorInputValue || '').toLowerCase();
 		filteredDoctors = allDoctors.filter((doctor) =>
-			doctor.doctorName.toLowerCase().includes(doctorInputValue.toLowerCase())
+			doctor.clinicId === selectedClinic?.clinicId &&
+			doctor.doctorName.toLowerCase().includes(query)
 		);
-		showDoctorDropdown = doctorInputValue.length > 0 && filteredDoctors.length > 0;
+		showDoctorDropdown = true;
 	}
 
 	function selectDoctor(doctor: { doctorId: number; doctorName: string; clinicId: number }) {
@@ -69,10 +73,11 @@
 	}
 
 	function filterClinics() {
+		const query = (clinicInputValue || '').toLowerCase();
 		filteredClinics = allClinics.filter((clinic) =>
-			clinic.clinicName.toLowerCase().includes(clinicInputValue.toLowerCase())
+			clinic.clinicName.toLowerCase().includes(query)
 		);
-		showClinicDropdown = clinicInputValue.length > 0 && filteredClinics.length > 0;
+		showClinicDropdown = true;
 		// Reset doctor selection when clinic input changes
 		selectedDoctor = null;
 		doctorInputValue = '';
@@ -98,123 +103,94 @@
 
 	// Add these new state variables
 	let showCameraModal = $state(false);
-	let stream: MediaStream | null = $state(null);
-	let videoElement: HTMLVideoElement = $state();
-	let canvasElement: HTMLCanvasElement = $state();
-	let showSettingsModal = $state(false);
-	let availableCameras = $state<MediaDeviceInfo[]>([]);
-	let selectedCameraId = $state<string>('');
+
+	let isRegisteringClinic = $state(false);
+	let isRegisteringDoctor = $state(false);
+
+	async function registerClinic() {
+		if (!clinicInputValue || isRegisteringClinic) return;
+		isRegisteringClinic = true;
+		
+		const formData = new FormData();
+		formData.append('clinic_name', clinicInputValue);
+		
+		try {
+			const response = await fetch('/edit_info?/addClinic', {
+				method: 'POST',
+				body: formData,
+				headers: { 'x-sveltekit-action': 'true' }
+			});
+			const text = await response.text();
+			const result = deserialize(text);
+			
+			if (result.type === 'success' && result.data?.success) {
+				const newClinic = {
+					clinicId: result.data.clinicId as number,
+					clinicName: clinicInputValue,
+					value: (result.data.clinicId as number).toString(),
+					label: clinicInputValue
+				};
+				allClinics.push(newClinic);
+				filteredClinics = allClinics;
+				selectClinic(newClinic);
+			} else if (result.type === 'failure' && result.data?.error) {
+				alert(result.data.error.toString());
+			} else {
+				alert('Failed to register clinic');
+			}
+		} catch (err) {
+			console.error(err);
+			alert('An error occurred while registering the clinic.');
+		} finally {
+			isRegisteringClinic = false;
+		}
+	}
+
+	async function registerDoctor() {
+		if (!doctorInputValue || !selectedClinic || isRegisteringDoctor) return;
+		isRegisteringDoctor = true;
+		
+		const formData = new FormData();
+		formData.append('doctor_name', doctorInputValue);
+		formData.append('clinic_id', selectedClinic.clinicId.toString());
+		
+		try {
+			const response = await fetch('/edit_info?/addDoctor', {
+				method: 'POST',
+				body: formData,
+				headers: { 'x-sveltekit-action': 'true' }
+			});
+			const text = await response.text();
+			const result = deserialize(text);
+			
+			if (result.type === 'success' && result.data?.success) {
+				const newDoctor = {
+					doctorId: result.data.doctorId as number,
+					doctorName: doctorInputValue,
+					clinicId: selectedClinic.clinicId,
+					value: (result.data.doctorId as number).toString(),
+					label: doctorInputValue
+				};
+				allDoctors.push(newDoctor);
+				filteredDoctors = allDoctors.filter((d) => d.clinicId === selectedClinic!.clinicId);
+				selectDoctor(newDoctor);
+			} else if (result.type === 'failure' && result.data?.error) {
+				alert(result.data.error.toString());
+			} else {
+				alert('Failed to register doctor');
+			}
+		} catch (err) {
+			console.error(err);
+			alert('An error occurred while registering the doctor.');
+		} finally {
+			isRegisteringDoctor = false;
+		}
+	}
 
 	// Add jaw selection state
 	let selected_jaw = $state('upper');
 
-	async function loadCameras() {
-		try {
-			const devices = await navigator.mediaDevices.enumerateDevices();
-			availableCameras = devices.filter((device) => device.kind === 'videoinput');
-			if (availableCameras.length > 0 && !selectedCameraId) {
-				selectedCameraId = availableCameras[0].deviceId;
-			}
-		} catch (err) {
-			console.error('Error loading cameras:', err);
-		}
-	}
-
-	// Function to handle camera operations
-	async function startCamera() {
-		try {
-			// First check if we have permissions
-			const permissions = await navigator.permissions.query({ name: 'camera' as PermissionName });
-
-			if (permissions.state === 'denied') {
-				showSettingsModal = true;
-				throw new Error('Camera permission was denied');
-			}
-
-			// Load cameras first
-			await loadCameras();
-
-			const constraints: MediaStreamConstraints = {
-				video: selectedCameraId
-					? { deviceId: { exact: selectedCameraId }, width: { ideal: 1280 }, height: { ideal: 720 } }
-					: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-				audio: false
-			};
-
-			// Request camera access
-			stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-			if (videoElement) {
-				videoElement.srcObject = stream;
-				// Add event listener when camera starts
-				window.addEventListener('keydown', handleKeyPress);
-				// Wait for video to be ready
-				await new Promise((resolve) => {
-					videoElement.onloadedmetadata = () => {
-						resolve(true);
-					};
-				});
-				videoElement.play();
-			}
-		} catch (err) {
-			console.error('Error accessing camera:', err);
-			showSettingsModal = true;
-			closeCameraModal();
-		}
-	}
-
-	function stopCamera() {
-		if (stream) {
-			stream.getTracks().forEach((track) => track.stop());
-			stream = null;
-		}
-	}
-
-	function captureImage() {
-		if (videoElement && canvasElement) {
-			const context = canvasElement.getContext('2d');
-			if (context) {
-				canvasElement.width = videoElement.videoWidth;
-				canvasElement.height = videoElement.videoHeight;
-				context.drawImage(videoElement, 0, 0);
-
-				// Convert canvas to file
-				canvasElement.toBlob((blob) => {
-					if (blob && in_file) {
-						const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
-						const dataTransfer = new DataTransfer();
-						dataTransfer.items.add(file);
-						in_file.files = dataTransfer.files;
-						handleInImageChange();
-					}
-				}, 'image/jpeg');
-			}
-		}
-		closeCameraModal();
-	}
-
-	function closeCameraModal() {
-		showCameraModal = false;
-		stopCamera();
-		// Remove event listener when modal closes
-		window.removeEventListener('keydown', handleKeyPress);
-	}
-
-	async function switchCamera() {
-		stopCamera();
-		await startCamera();
-	}
-
-	function handleKeyPress(e: KeyboardEvent) {
-		if (e.code === 'Space' && showCameraModal) {
-			e.preventDefault();
-			captureImage();
-		}
-	}
-
-	function closeSettingsModal() {
-		showSettingsModal = false;
-	}
+	// Removed internal camera logic: using CameraModal component
 
 	// Add function to get next case number
 	function getNextCaseNumber(caseTypeId: number) {
@@ -254,7 +230,7 @@
 	});
 
 	onDestroy(() => {
-		stopCamera();
+		// Cleanup if needed
 	});
 
 	console.log('doctors', data?.doctors);
@@ -328,20 +304,16 @@
 						aria-labelledby="clinic_name"
 					>
 						{#each filteredClinics as clinic}
-							<li
-								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
-								id={`clinic-option-${clinic.clinicId}`}
-								role="option"
-								onclick={() => selectClinic(clinic)}
-								onkeydown={(event) => {
-									if (event.key === 'Enter') {
-										selectClinic(clinic);
-									}
-								}}
-							>
-								<span class="block truncate">{clinic.clinicName}</span>
+							<li class="role-none relative" id={`clinic-option-${clinic.clinicId}`}>
+								<button
+									type="button"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
+									onclick={() => selectClinic(clinic)}
+								>
+									<span class="block truncate">{clinic.clinicName}</span>
+								</button>
 								{#if selectedClinic?.clinicId === clinic.clinicId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600">
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
 										<svg
 											class="h-5 w-5"
 											xmlns="http://www.w3.org/2000/svg"
@@ -359,9 +331,19 @@
 								{/if}
 							</li>
 						{/each}
-						{#if filteredClinics.length === 0 && clinicInputValue.length > 0}
-							<li class="relative cursor-default py-2 pr-9 pl-3 text-gray-500 select-none">
-								No clinics found.
+						{#if clinicInputValue.length > 0 && !allClinics.some(c => c.clinicName.toLowerCase() === clinicInputValue.trim().toLowerCase())}
+							<li class="role-none relative text-gray-900">
+								<button
+									type="button"
+									class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
+									onclick={registerClinic}
+									disabled={isRegisteringClinic}
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+									</svg>
+									{isRegisteringClinic ? 'Registering...' : `Register "${clinicInputValue}" as New Clinic`}
+								</button>
 							</li>
 						{/if}
 					</ul>
@@ -397,20 +379,16 @@
 						aria-labelledby="doctor_name"
 					>
 						{#each filteredDoctors as doctor}
-							<li
-								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
-								id={`doctor-option-${doctor.doctorId}`}
-								role="option"
-								onclick={() => selectDoctor(doctor)}
-								onkeydown={(event) => {
-									if (event.key === 'Enter') {
-										selectDoctor(doctor);
-									}
-								}}
-							>
-								<span class="block truncate">{doctor.doctorName}</span>
+							<li class="role-none relative" id={`doctor-option-${doctor.doctorId}`}>
+								<button
+									type="button"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
+									onclick={() => selectDoctor(doctor)}
+								>
+									<span class="block truncate">{doctor.doctorName}</span>
+								</button>
 								{#if selectedDoctor?.doctorId === doctor.doctorId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600">
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
 										<svg
 											class="h-5 w-5"
 											xmlns="http://www.w3.org/2000/svg"
@@ -428,10 +406,26 @@
 								{/if}
 							</li>
 						{/each}
-						{#if filteredDoctors.length === 0 && doctorInputValue.length > 0}
-							<li class="relative cursor-default py-2 pr-9 pl-3 text-gray-500 select-none">
-								No doctors found in this clinic.
-							</li>
+						{#if doctorInputValue.length > 0 && !allDoctors.some(d => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue.trim().toLowerCase())}
+							{#if selectedClinic}
+								<li class="role-none relative text-gray-900">
+									<button
+										type="button"
+										class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
+										onclick={registerDoctor}
+										disabled={isRegisteringDoctor}
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+										</svg>
+										{isRegisteringDoctor ? 'Registering...' : `Register "${doctorInputValue}" as New Doctor`}
+									</button>
+								</li>
+							{:else}
+								<li class="relative cursor-default py-2 pr-9 pl-3 text-gray-500 select-none">
+									Select a clinic first to register.
+								</li>
+							{/if}
 						{/if}
 					</ul>
 				{/if}
@@ -665,7 +659,7 @@
 			<!-- IN Image Column -->
 			<div class="rounded-md border border-gray-200 p-4">
 				<div class="mb-2 flex flex-col gap-2">
-					<label class="block text-sm font-bold text-gray-700"> IN Image </label>
+					<span class="block text-sm font-bold text-gray-700"> IN Image </span>
 					{#if !show_in}
 						<p class="mb-2 text-sm text-gray-500">No image uploaded yet</p>
 					{/if}
@@ -673,23 +667,8 @@
 						<button
 							type="button"
 							class="flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-							onclick={async () => {
-								try {
-									if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-										throw new Error("Your browser doesn't support camera access");
-									}
-
-									showCameraModal = true;
-									await startCamera();
-								} catch (err) {
-									console.error('Camera initialization error:', err);
-									if (err instanceof Error) {
-										alert(err.message);
-									} else {
-										alert('Could not initialize camera');
-									}
-									showCameraModal = false;
-								}
+							onclick={() => {
+								showCameraModal = true;
 							}}
 						>
 							<svg
@@ -834,119 +813,4 @@
 	</form>
 </div>
 
-{#if showCameraModal}
-	<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-		<div class="rounded-lg bg-white p-6 shadow-xl">
-			<div class="mb-4 flex justify-between">
-				<h3 class="text-lg font-medium">Take Photo</h3>
-				<button type="button" class="text-gray-400 hover:text-gray-500" onclick={closeCameraModal}>
-					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
-				</button>
-			</div>
-			{#if availableCameras.length > 1}
-				<div class="mb-4">
-					<label for="camera-select" class="block text-sm font-medium text-gray-700 mb-2">
-						Select Camera
-					</label>
-					<select
-						id="camera-select"
-						bind:value={selectedCameraId}
-						onchange={switchCamera}
-						class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-					>
-						{#each availableCameras as camera}
-							<option value={camera.deviceId}>
-								{camera.label || `Camera ${availableCameras.indexOf(camera) + 1}`}
-							</option>
-						{/each}
-					</select>
-				</div>
-			{/if}
-			<div class="relative">
-				<video bind:this={videoElement} autoplay playsinline class="max-w-78 rounded-lg"></video>
-				<canvas bind:this={canvasElement} class="hidden"></canvas>
-			</div>
-			<div class="mt-4 flex justify-end gap-2">
-				<button
-					type="button"
-					class="rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-					onclick={closeCameraModal}
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-					onclick={captureImage}
-				>
-					Capture
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-{#if showSettingsModal}
-	<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-		<div class="w-96 rounded-lg bg-white p-6 shadow-xl">
-			<div class="mb-4 flex justify-between">
-				<h3 class="text-lg font-medium text-gray-900">Camera Access Required</h3>
-				<button
-					type="button"
-					class="text-gray-400 hover:text-gray-500"
-					onclick={closeSettingsModal}
-				>
-					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
-				</button>
-			</div>
-			<div class="mb-4">
-				<p class="text-sm text-gray-500">To use the camera feature, you need to:</p>
-				<ol class="mt-2 list-decimal pl-4 text-sm text-gray-600">
-					<li class="mb-2">
-						Open Chrome settings by copying this URL:
-						<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-							chrome://flags/#unsafely-treat-insecure-origin-as-secure
-						</code>
-					</li>
-					<li class="mb-2">Enable the flag for this site</li>
-					<li>Restart your browser</li>
-				</ol>
-			</div>
-			<div class="mt-6 flex justify-end gap-3">
-				<button
-					type="button"
-					class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
-					onclick={closeSettingsModal}
-				>
-					Close
-				</button>
-				<button
-					type="button"
-					class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-					onclick={() => {
-						navigator.clipboard.writeText(
-							'chrome://flags/#unsafely-treat-insecure-origin-as-secure'
-						);
-						alert('URL copied to clipboard!');
-					}}
-				>
-					Copy URL
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<CameraModal bind:show={showCameraModal} bind:fileInput={in_file} onCapture={handleInImageChange} />

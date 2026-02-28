@@ -1,0 +1,832 @@
+
+====================================
+Loading svelte-check in workspace: c:\Users\Adrian\projects\dental-proj-nunez
+Getting Svelte diagnostics...
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32mvite.config.ts[39m:7:2
+[31mError[39m: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'allowedHosts' does not exist in type 'UserConfigExport'. 
+[36m	plugins: [tailwindcss(), sveltekit()],
+	[35mallowedHosts[36m: ["dentalsystem.com"]
+});
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.server.ts[39m:93:11
+[31mError[39m: Object literal may only specify known properties, and 'remarks' does not exist in type '{ doctorId?: number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}>; patientName?: string | SQL<unknown> | PgColumn<...>; }'. 
+[36m          patientName: formData.get('patientName')?.toString(),
+          [35mremarks[36m: formData.get('remarks')?.toString(),
+        })
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\lib\components\SearchableSelect.svelte[39m:75:3
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m	{#if label}
+		[35m<label class="text-sm text-gray-600">{label}</label>[36m
+	{/if}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:247:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Date Range</label>[36m
+					<div class="flex items-center gap-2">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:267:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Clinic</label>[36m
+					<div class="relative">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:298:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Patient Name</label>[36m
+					<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:310:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Record ID</label>[36m
+					<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:325:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Case Type</label>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:340:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Case No</label>[36m
+					<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:352:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Payment Status</label>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\+page.svelte[39m:366:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="flex flex-col gap-1">
+					[35m<label class="text-xs font-medium text-gray-700">Remarks</label>[36m
+					<select
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\AMOUNT\[caseNo]\+page.svelte[39m:63:6
+[33mWarn[39m: `showBanner` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m	// Banner state (show success / error returned from form actions)
+	let [35mshowBanner[36m = !!form?.success || !!form?.error;
+	let bannerMessage = form?.success ?? form?.error ?? '';
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:18:31
+[33mWarn[39m: This reference only captures the initial value of `availableDoctors`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let availableDoctors = $state(allDoctors.filter((d) => d.clinicId === record.clinicId));
+	let filteredDoctors = $state([35mavailableDoctors[36m);
+
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:247:8
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m						{#each filteredClinics as clinic}
+							[35m<li
+								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
+								onclick={() => selectClinic(clinic)}
+							>
+								<span class="block truncate">{clinic.clinicName}</span>
+								{#if selectedClinic === clinic.clinicId}
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+										>✓</span
+									>
+								{/if}
+							</li>[36m
+						{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:247:8
+[33mWarn[39m: Non-interactive element `<li>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m						{#each filteredClinics as clinic}
+							[35m<li
+								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
+								onclick={() => selectClinic(clinic)}
+							>
+								<span class="block truncate">{clinic.clinicName}</span>
+								{#if selectedClinic === clinic.clinicId}
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+										>✓</span
+									>
+								{/if}
+							</li>[36m
+						{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:289:8
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m						{#each filteredDoctors as doctor}
+							[35m<li
+								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
+								onclick={() => selectDoctor(doctor)}
+							>
+								<span class="block truncate">{doctor.doctorName}</span>
+								{#if selectedDoctor === doctor.doctorId}
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+										>✓</span
+									>
+								{/if}
+							</li>[36m
+						{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:289:8
+[33mWarn[39m: Non-interactive element `<li>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m						{#each filteredDoctors as doctor}
+							[35m<li
+								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
+								onclick={() => selectDoctor(doctor)}
+							>
+								<span class="block truncate">{doctor.doctorName}</span>
+								{#if selectedDoctor === doctor.doctorId}
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+										>✓</span
+									>
+								{/if}
+							</li>[36m
+						{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\EDIT\[caseNo]\+page.svelte[39m:432:8
+[33mWarn[39m: Avoid using autofocus
+https://svelte.dev/e/a11y_autofocus (svelte)
+[36m							required
+							[35mautofocus[36m
+							onkeydown={(e) => {
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\IN\[caseNo]\+page.svelte[39m:255:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium">Take Photo</h3>
+				[35m<button type="button" class="text-gray-400 hover:text-gray-500" onclick={closeCameraModal}>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\IN\[caseNo]\+page.svelte[39m:281:5
+[33mWarn[39m: `<video>` elements must have a `<track kind="captions">`
+https://svelte.dev/e/a11y_media_has_caption (svelte)
+[36m			<div class="relative">
+				[35m<video bind:this={videoElement} autoplay playsinline class="rounded-lg max-w-78"></video>[36m
+				<canvas bind:this={canvasElement} class="hidden"></canvas>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\IN\[caseNo]\+page.svelte[39m:309:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium text-gray-900">Camera Access Required</h3>
+				[35m<button type="button" class="text-gray-400 hover:text-gray-500" onclick={closeSettingsModal}>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\OUT\[caseNo]\+page.svelte[39m:270:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium">Take Photo</h3>
+				[35m<button type="button" class="text-gray-400 hover:text-gray-500" onclick={closeCameraModal}>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"
+						/>
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\OUT\[caseNo]\+page.svelte[39m:301:5
+[33mWarn[39m: `<video>` elements must have a `<track kind="captions">`
+https://svelte.dev/e/a11y_media_has_caption (svelte)
+[36m			<div class="relative">
+				[35m<video bind:this={videoElement} autoplay playsinline class="max-w-78 rounded-lg"></video>[36m
+				<canvas bind:this={canvasElement} class="hidden"></canvas>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\OUT\[caseNo]\+page.svelte[39m:329:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium text-gray-900">Camera Access Required</h3>
+				[35m<button
+					type="button"
+					class="text-gray-400 hover:text-gray-500"
+					onclick={closeSettingsModal}
+				>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"
+						/>
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\admin\create-account\+page.svelte[39m:45:18
+[31mError[39m: Property 'name' does not exist on type 'ActionData'.
+  Property 'name' does not exist on type '{ success?: never; message: string; }'. (ts)
+[36m				required
+				value={form?.[35mname[36m ?? ''}
+				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\admin\create-account\+page.svelte[39m:58:18
+[31mError[39m: Property 'email' does not exist on type 'ActionData'.
+  Property 'email' does not exist on type '{ success?: never; message: string; }'. (ts)
+[36m				required
+				value={form?.[35memail[36m ?? ''}
+				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\admin\create-account\+page.svelte[39m:82:18
+[31mError[39m: Property 'role' does not exist on type 'ActionData'.
+  Property 'role' does not exist on type '{ success?: never; message: string; }'. (ts)
+[36m				required
+				value={form?.[35mrole[36m ?? 'user'}
+				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\change_password\+page.svelte[39m:115:2
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m{#if showResetModal}
+	[35m<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) {
+				showResetModal = false;
+				resetPassword = '';
+				resetError = '';
+			}
+		}}
+	>
+		<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+			<h2 class="mb-4 text-xl font-semibold text-gray-800">Reset Password</h2>
+			<p class="mb-4 text-sm text-gray-600">
+				Are you sure you want to remove the password? This will disable password protection for edit and delete operations.
+			</p>
+			{#if resetError}
+				<div class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{resetError}</div>
+			{/if}
+			<form
+				method="POST"
+				action="?/resetPassword"
+				use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'failure') {
+							const d = result.data as any;
+							resetError = d?.error || 'Failed to reset password';
+							return;
+						}
+						if (result.type === 'success') {
+							const d = result.data as any;
+							message = d?.message || 'Password has been removed successfully';
+							error = '';
+							resetError = '';
+							showResetModal = false;
+							resetPassword = '';
+							// Refresh the page data to update isSet status
+							await invalidateAll();
+							await update();
+							return;
+						}
+					};
+				}}
+			>
+				<label for="confirm_password" class="block text-sm font-medium text-gray-700">
+					Enter your current password to confirm
+				</label>
+				<input
+					id="confirm_password"
+					name="confirm_password"
+					type="password"
+					bind:value={resetPassword}
+					class="mt-1 mb-4 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
+					required
+					autofocus
+				/>
+				<div class="flex gap-2">
+					<button
+						type="button"
+						onclick={() => {
+							showResetModal = false;
+							resetPassword = '';
+							resetError = '';
+						}}
+						class="rounded bg-white px-4 py-2 text-sm ring-1 ring-gray-300 hover:bg-gray-50"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						disabled={!resetPassword}
+						class="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						Reset Password
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>[36m
+{/if}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\change_password\+page.svelte[39m:115:2
+[33mWarn[39m: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+[36m{#if showResetModal}
+	[35m<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) {
+				showResetModal = false;
+				resetPassword = '';
+				resetError = '';
+			}
+		}}
+	>
+		<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+			<h2 class="mb-4 text-xl font-semibold text-gray-800">Reset Password</h2>
+			<p class="mb-4 text-sm text-gray-600">
+				Are you sure you want to remove the password? This will disable password protection for edit and delete operations.
+			</p>
+			{#if resetError}
+				<div class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{resetError}</div>
+			{/if}
+			<form
+				method="POST"
+				action="?/resetPassword"
+				use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'failure') {
+							const d = result.data as any;
+							resetError = d?.error || 'Failed to reset password';
+							return;
+						}
+						if (result.type === 'success') {
+							const d = result.data as any;
+							message = d?.message || 'Password has been removed successfully';
+							error = '';
+							resetError = '';
+							showResetModal = false;
+							resetPassword = '';
+							// Refresh the page data to update isSet status
+							await invalidateAll();
+							await update();
+							return;
+						}
+					};
+				}}
+			>
+				<label for="confirm_password" class="block text-sm font-medium text-gray-700">
+					Enter your current password to confirm
+				</label>
+				<input
+					id="confirm_password"
+					name="confirm_password"
+					type="password"
+					bind:value={resetPassword}
+					class="mt-1 mb-4 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
+					required
+					autofocus
+				/>
+				<div class="flex gap-2">
+					<button
+						type="button"
+						onclick={() => {
+							showResetModal = false;
+							resetPassword = '';
+							resetError = '';
+						}}
+						class="rounded bg-white px-4 py-2 text-sm ring-1 ring-gray-300 hover:bg-gray-50"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						disabled={!resetPassword}
+						class="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						Reset Password
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>[36m
+{/if}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\change_password\+page.svelte[39m:168:6
+[33mWarn[39m: Avoid using autofocus
+https://svelte.dev/e/a11y_autofocus (svelte)
+[36m					required
+					[35mautofocus[36m
+				/>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:364:4
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m		<div class="mb-4">
+			[35m<label class="mb-2 block text-sm font-medium text-gray-700">Quick Date Presets:</label>[36m
+			<div class="flex flex-wrap gap-2">
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:9:6
+[33mWarn[39m: `dailyChartCanvas` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m
+	let [35mdailyChartCanvas: HTMLCanvasElement[36m;
+	let clinicChartCanvas: HTMLCanvasElement;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:233:6
+[33mWarn[39m: `trendChartCanvas` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m	let chartType = $state<'bar' | 'line'>('bar');
+	let [35mtrendChartCanvas: HTMLCanvasElement[36m;
+	let trendChart: Chart<'line', number[], string> | null = null;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:528:63
+[31mError[39m: Property 'averageOrderValue' does not exist on type 'Summary'. (ts)
+[36m			</div>
+			<p class="text-3xl font-bold">{formatCurrency(data.summary.[35maverageOrderValue[36m)}</p>
+		</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:546:76
+[31mError[39m: Property 'unpaidAmount' does not exist on type 'Summary'. Did you mean 'paidAmount'? (ts)
+[36m			</div>
+			<p class="text-2xl font-bold text-red-600">{formatCurrency(data.summary.[35munpaidAmount[36m)}</p>
+		</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:553:35
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m				<svg
+					class="h-5 w-5 {data.summary.[35mbalance[36m >= 0 ? 'text-green-500' : 'text-red-500'}"
+					fill="none"
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:566:47
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			</div>
+			<p class="text-2xl font-bold {data.summary.[35mbalance[36m >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.balance >= 0 ? '+' : ''}{formatCurrency(data.summary.balance)}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:567:19
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			<p class="text-2xl font-bold {data.summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.[35mbalance[36m >= 0 ? '+' : ''}{formatCurrency(data.summary.balance)}
+			</p>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:567:72
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			<p class="text-2xl font-bold {data.summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.balance >= 0 ? '+' : ''}{formatCurrency(data.summary.[35mbalance[36m)}
+			</p>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:580:62
+[31mError[39m: Property 'paymentStatusBreakdown' does not exist on type 'Summary'. (ts)
+[36m					</div>
+					<span class="font-semibold text-gray-900">{data.summary.[35mpaymentStatusBreakdown[36m.paid}</span
+					>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\back.svelte[39m:589:22
+[31mError[39m: Property 'paymentStatusBreakdown' does not exist on type 'Summary'. (ts)
+[36m					<span class="font-semibold text-gray-900"
+						>{data.summary.[35mpaymentStatusBreakdown[36m.unpaid}</span
+					>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:7:2
+[31mError[39m: Cannot use `export let` in runes mode — use `$props()` instead
+https://svelte.dev/e/legacy_export_invalid (svelte)
+[36m
+	[35mexport let data: PageData;[36m
+
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:524:63
+[31mError[39m: Property 'averageOrderValue' does not exist on type 'Summary'. (ts)
+[36m			</div>
+			<p class="text-3xl font-bold">{formatCurrency(data.summary.[35maverageOrderValue[36m)}</p>
+		</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:542:76
+[31mError[39m: Property 'unpaidAmount' does not exist on type 'Summary'. Did you mean 'paidAmount'? (ts)
+[36m			</div>
+			<p class="text-2xl font-bold text-red-600">{formatCurrency(data.summary.[35munpaidAmount[36m)}</p>
+		</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:549:35
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m				<svg
+					class="h-5 w-5 {data.summary.[35mbalance[36m >= 0 ? 'text-green-500' : 'text-red-500'}"
+					fill="none"
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:562:47
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			</div>
+			<p class="text-2xl font-bold {data.summary.[35mbalance[36m >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.balance >= 0 ? '+' : ''}{formatCurrency(data.summary.balance)}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:563:19
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			<p class="text-2xl font-bold {data.summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.[35mbalance[36m >= 0 ? '+' : ''}{formatCurrency(data.summary.balance)}
+			</p>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:563:72
+[31mError[39m: Property 'balance' does not exist on type 'Summary'. (ts)
+[36m			<p class="text-2xl font-bold {data.summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+				{data.summary.balance >= 0 ? '+' : ''}{formatCurrency(data.summary.[35mbalance[36m)}
+			</p>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:576:62
+[31mError[39m: Property 'paymentStatusBreakdown' does not exist on type 'Summary'. (ts)
+[36m					</div>
+					<span class="font-semibold text-gray-900">{data.summary.[35mpaymentStatusBreakdown[36m.paid}</span
+					>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\data\backup.svelte[39m:585:22
+[31mError[39m: Property 'paymentStatusBreakdown' does not exist on type 'Summary'. (ts)
+[36m					<span class="font-semibold text-gray-900"
+						>{data.summary.[35mpaymentStatusBreakdown[36m.unpaid}</span
+					>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\edit_info\+page.svelte[39m:309:9
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m							{#each filteredClinics as clinic}
+								[35m<li
+									class="cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+									onclick={() => selectClinic(clinic)}
+								>
+									{clinic.label}
+								</li>[36m
+							{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\edit_info\+page.svelte[39m:309:9
+[33mWarn[39m: Non-interactive element `<li>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m							{#each filteredClinics as clinic}
+								[35m<li
+									class="cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+									onclick={() => selectClinic(clinic)}
+								>
+									{clinic.label}
+								</li>[36m
+							{/each}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\expenses\+page.svelte[39m:182:10
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m									<input type="hidden" name="supply_id" value={record.supplyId} />
+									[35m<button
+										type="submit"
+										class="text-red-600 hover:text-red-900 focus:outline-none"
+										title="Delete expense"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											class="h-5 w-5"
+											viewBox="0 0 20 20"
+											fill="currentColor"
+										>
+											<path
+												fill-rule="evenodd"
+												d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</button>[36m
+								</form>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:46:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>Name of Clinic:</label>[36m
+				<input type="text" value={invoice.clinic_name} readonly />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:50:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>Case No.:</label>[36m
+				<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:58:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>Name of Patient:</label>[36m
+				<input type="text" value={invoice.patient_name} readonly />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:62:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>Doctor:</label>[36m
+				<input type="text" value={invoice.doctor_name} readonly />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:68:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>DATE:</label>[36m
+				<input type="text" value={format(currentDate, 'MM/dd/yyyy')} readonly />
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:72:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="info-row">
+				[35m<label>Status:</label>[36m
+				<input
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:111:5
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m			<div class="total-row">
+				[35m<label>TOTAL AMOUNT:</label>[36m
+				<span class="total-amount">₱{subtotal}</span>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:219:2
+[33mWarn[39m: Unused CSS selector ".divider"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.divider[36m {
+		margin: 10px 0;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:223:2
+[33mWarn[39m: Unused CSS selector ".scissor-line"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.scissor-line[36m {
+		border-top: 1px dashed #999;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:229:2
+[33mWarn[39m: Unused CSS selector ".scissor-line span"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.scissor-line span[36m {
+		font-size: 0.9em;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\invoice\[caseNo]\+page.svelte[39m:247:3
+[33mWarn[39m: Unused CSS selector ".divider"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+		[35m.divider[36m {
+			margin: 5px 0;
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\login\+page.svelte[39m:21:17
+[31mError[39m: Property 'error' does not exist on type 'void'. (ts)
+[36m
+    if (result?.[35merror[36m) {
+      errorMsg = 'Invalid email or password';
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:334:9
+[33mWarn[39m: Elements with the ARIA role "option" must have the following attributes defined: "aria-selected"
+https://svelte.dev/e/a11y_role_has_required_aria_props (svelte)
+[36m								id={`clinic-option-${clinic.clinicId}`}
+								[35mrole="option"[36m
+								onclick={() => selectClinic(clinic)}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:403:9
+[33mWarn[39m: Elements with the ARIA role "option" must have the following attributes defined: "aria-selected"
+https://svelte.dev/e/a11y_role_has_required_aria_props (svelte)
+[36m								id={`doctor-option-${doctor.doctorId}`}
+								[35mrole="option"[36m
+								onclick={() => selectDoctor(doctor)}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:668:6
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m				<div class="mb-2 flex flex-col gap-2">
+					[35m<label class="block text-sm font-bold text-gray-700"> IN Image </label>[36m
+					{#if !show_in}
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:842:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium">Take Photo</h3>
+				[35m<button type="button" class="text-gray-400 hover:text-gray-500" onclick={closeCameraModal}>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"
+						/>
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:873:5
+[33mWarn[39m: `<video>` elements must have a `<track kind="captions">`
+https://svelte.dev/e/a11y_media_has_caption (svelte)
+[36m			<div class="relative">
+				[35m<video bind:this={videoElement} autoplay playsinline class="max-w-78 rounded-lg"></video>[36m
+				<canvas bind:this={canvasElement} class="hidden"></canvas>
+[39m
+
+c:\Users\Adrian\projects\dental-proj-nunez\[32msrc\routes\upload_record\+page.svelte[39m:901:5
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m				<h3 class="text-lg font-medium text-gray-900">Camera Access Required</h3>
+				[35m<button
+					type="button"
+					class="text-gray-400 hover:text-gray-500"
+					onclick={closeSettingsModal}
+				>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"
+						/>
+					</svg>
+				</button>[36m
+			</div>
+[39m
+
+====================================
+[31msvelte-check found 23 errors and 48 warnings in 17 files
+[39m

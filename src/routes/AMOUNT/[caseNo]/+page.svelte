@@ -60,13 +60,11 @@
 	initializeOrderItems();
 
 	// Banner state (show success / error returned from form actions)
-	let showBanner = !!form?.success || !!form?.error;
-	let bannerMessage = form?.success ?? form?.error ?? '';
-	let bannerType: 'success' | 'error' | null = form?.success
-		? 'success'
-		: form?.error
-			? 'error'
-			: null;
+	let showBanner = $state(!!form?.success || !!form?.error);
+	let bannerMessage = $state(form?.success ?? form?.error ?? '');
+	let bannerType: 'success' | 'error' | null = $state(
+		form?.success ? 'success' : form?.error ? 'error' : null
+	);
 
 	onMount(() => {
 		if (showBanner) {

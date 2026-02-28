@@ -183,6 +183,7 @@
 										type="submit"
 										class="text-red-600 hover:text-red-900 focus:outline-none"
 										title="Delete expense"
+										aria-label="Delete expense"
 									>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"

@@ -15,7 +15,7 @@
 	let selectedDoctor = $state(data.record.doctorId);
 	let selectedClinic = $state(data.record.clinicId);
 	let availableDoctors = $state(allDoctors.filter((d) => d.clinicId === record.clinicId));
-	let filteredDoctors = $state(availableDoctors);
+	let filteredDoctors = $state(allDoctors.filter((d) => d.clinicId === record.clinicId));
 
 	// Additional state for searchable dropdowns
 	let doctorInputValue = $state(record.doctorName);
@@ -175,8 +175,8 @@
 		<div class="mb-4 rounded-md bg-yellow-50 p-4 text-yellow-800">
 			<p class="font-semibold">⚠️ No password is set</p>
 			<p class="mt-1 text-sm">
-				You need to set a password before you can edit records. Please 
-				<a href="/change_password" class="underline font-medium">set a password</a> first.
+				You need to set a password before you can edit records. Please
+				<a href="/change_password" class="font-medium underline">set a password</a> first.
 			</p>
 		</div>
 	{/if}
@@ -244,11 +244,14 @@
 						class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
 					>
 						{#each filteredClinics as clinic}
-							<li
-								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
-								onclick={() => selectClinic(clinic)}
-							>
-								<span class="block truncate">{clinic.clinicName}</span>
+							<li class="role-none relative py-2 pr-9 pl-3">
+								<button
+									type="button"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
+									onclick={() => selectClinic(clinic)}
+								>
+									<span class="block truncate">{clinic.clinicName}</span>
+								</button>
 								{#if selectedClinic === clinic.clinicId}
 									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
 										>✓</span
@@ -286,11 +289,14 @@
 						class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
 					>
 						{#each filteredDoctors as doctor}
-							<li
-								class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-indigo-600 hover:text-white"
-								onclick={() => selectDoctor(doctor)}
-							>
-								<span class="block truncate">{doctor.doctorName}</span>
+							<li class="role-none relative py-2 pr-9 pl-3">
+								<button
+									type="button"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
+									onclick={() => selectDoctor(doctor)}
+								>
+									<span class="block truncate">{doctor.doctorName}</span>
+								</button>
 								{#if selectedDoctor === doctor.doctorId}
 									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
 										>✓</span
@@ -429,7 +435,6 @@
 							bind:value={editPassword}
 							class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
 							required
-							autofocus
 							onkeydown={(e) => {
 								if (e.key === 'Enter' && editPassword && editForm) {
 									e.preventDefault();

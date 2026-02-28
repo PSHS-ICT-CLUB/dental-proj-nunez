@@ -1,0 +1,900 @@
+{
+	"id": "bd0ed4f1-39a3-482d-a129-b34139135aea",
+	"prevId": "9ee18896-ee6c-46fd-a9f9-aa595a26b5ce",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.app_config": {
+			"name": "app_config",
+			"schema": "",
+			"columns": {
+				"key": {
+					"name": "key",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.app_settings": {
+			"name": "app_settings",
+			"schema": "",
+			"columns": {
+				"key": {
+					"name": "key",
+					"type": "varchar(255)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.case_types": {
+			"name": "case_types",
+			"schema": "",
+			"columns": {
+				"case_type_id": {
+					"name": "case_type_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"case_type_name": {
+					"name": "case_type_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"number_of_cases": {
+					"name": "number_of_cases",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"case_types_case_type_name_key": {
+					"name": "case_types_case_type_name_key",
+					"nullsNotDistinct": false,
+					"columns": ["case_type_name"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.clinics": {
+			"name": "clinics",
+			"schema": "",
+			"columns": {
+				"clinic_id": {
+					"name": "clinic_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"clinic_name": {
+					"name": "clinic_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"clinics_clinic_name_key": {
+					"name": "clinics_clinic_name_key",
+					"nullsNotDistinct": false,
+					"columns": ["clinic_name"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.doctors": {
+			"name": "doctors",
+			"schema": "",
+			"columns": {
+				"doctor_id": {
+					"name": "doctor_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"doctor_name": {
+					"name": "doctor_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"clinic_id": {
+					"name": "clinic_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"doctors_clinic_id_fkey": {
+					"name": "doctors_clinic_id_fkey",
+					"tableFrom": "doctors",
+					"tableTo": "clinics",
+					"columnsFrom": ["clinic_id"],
+					"columnsTo": ["clinic_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.history": {
+			"name": "history",
+			"schema": "",
+			"columns": {
+				"history_id": {
+					"name": "history_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"history_type": {
+					"name": "history_type",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"history_date": {
+					"name": "history_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"history_time": {
+					"name": "history_time",
+					"type": "time with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIME"
+				},
+				"record_id": {
+					"name": "record_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"image_data": {
+					"name": "image_data",
+					"type": "bytea",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"history_created_by_users_id_fk": {
+					"name": "history_created_by_users_id_fk",
+					"tableFrom": "history",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"history_record_id_fkey": {
+					"name": "history_record_id_fkey",
+					"tableFrom": "history",
+					"tableTo": "records",
+					"columnsFrom": ["record_id"],
+					"columnsTo": ["record_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.order_items": {
+			"name": "order_items",
+			"schema": "",
+			"columns": {
+				"order_item_id": {
+					"name": "order_item_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"order_id": {
+					"name": "order_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"up_or_down": {
+					"name": "up_or_down",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"case_type_id": {
+					"name": "case_type_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"case_no": {
+					"name": "case_no",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"item_cost": {
+					"name": "item_cost",
+					"type": "numeric",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"item_quantity": {
+					"name": "item_quantity",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"order_description": {
+					"name": "order_description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"order_items_order_id_fkey": {
+					"name": "order_items_order_id_fkey",
+					"tableFrom": "order_items",
+					"tableTo": "orders",
+					"columnsFrom": ["order_id"],
+					"columnsTo": ["order_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"order_items_case_type_id_fkey": {
+					"name": "order_items_case_type_id_fkey",
+					"tableFrom": "order_items",
+					"tableTo": "case_types",
+					"columnsFrom": ["case_type_id"],
+					"columnsTo": ["case_type_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.orders": {
+			"name": "orders",
+			"schema": "",
+			"columns": {
+				"order_id": {
+					"name": "order_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"order_date": {
+					"name": "order_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"order_total": {
+					"name": "order_total",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"paid_amount": {
+					"name": "paid_amount",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"excess_payment": {
+					"name": "excess_payment",
+					"type": "numeric(10, 2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"payment_method": {
+					"name": "payment_method",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"payment_status": {
+					"name": "payment_status",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"generated": {
+						"as": "\nCASE\n    WHEN (paid_amount >= order_total) THEN 'paid'::text\n    ELSE 'unpaid'::text\nEND",
+						"type": "stored"
+					}
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_by": {
+					"name": "updated_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"idx_orders_payment_status": {
+					"name": "idx_orders_payment_status",
+					"columns": [
+						{
+							"expression": "payment_status",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"orders_created_by_users_id_fk": {
+					"name": "orders_created_by_users_id_fk",
+					"tableFrom": "orders",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"orders_updated_by_users_id_fk": {
+					"name": "orders_updated_by_users_id_fk",
+					"tableFrom": "orders",
+					"tableTo": "users",
+					"columnsFrom": ["updated_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.records": {
+			"name": "records",
+			"schema": "",
+			"columns": {
+				"record_id": {
+					"name": "record_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"order_id": {
+					"name": "order_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"date_pickup": {
+					"name": "date_pickup",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"time_pickup": {
+					"name": "time_pickup",
+					"type": "time with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"date_dropoff": {
+					"name": "date_dropoff",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"time_dropoff": {
+					"name": "time_dropoff",
+					"type": "time with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"doctor_id": {
+					"name": "doctor_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"patient_name": {
+					"name": "patient_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"remarks": {
+					"name": "remarks",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_by": {
+					"name": "updated_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"idx_records_date_pickup": {
+					"name": "idx_records_date_pickup",
+					"columns": [
+						{
+							"expression": "date_pickup",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last",
+							"opclass": "date_ops"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_records_doctor_id": {
+					"name": "idx_records_doctor_id",
+					"columns": [
+						{
+							"expression": "doctor_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_records_patient_name": {
+					"name": "idx_records_patient_name",
+					"columns": [
+						{
+							"expression": "patient_name",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"records_created_by_users_id_fk": {
+					"name": "records_created_by_users_id_fk",
+					"tableFrom": "records",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"records_updated_by_users_id_fk": {
+					"name": "records_updated_by_users_id_fk",
+					"tableFrom": "records",
+					"tableTo": "users",
+					"columnsFrom": ["updated_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"records_order_id_fkey": {
+					"name": "records_order_id_fkey",
+					"tableFrom": "records",
+					"tableTo": "orders",
+					"columnsFrom": ["order_id"],
+					"columnsTo": ["order_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"records_doctor_id_fkey": {
+					"name": "records_doctor_id_fkey",
+					"tableFrom": "records",
+					"tableTo": "doctors",
+					"columnsFrom": ["doctor_id"],
+					"columnsTo": ["doctor_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.site_notifications": {
+			"name": "site_notifications",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"message": {
+					"name": "message",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'info'"
+				},
+				"is_active": {
+					"name": "is_active",
+					"type": "varchar(5)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'true'"
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.site_status": {
+			"name": "site_status",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"is_locked": {
+					"name": "is_locked",
+					"type": "varchar(5)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'false'"
+				},
+				"lock_title": {
+					"name": "lock_title",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'Site Under Maintenance'"
+				},
+				"lock_message": {
+					"name": "lock_message",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"lock_html": {
+					"name": "lock_html",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"locked_at": {
+					"name": "locked_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"locked_by": {
+					"name": "locked_by",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"fake_error": {
+					"name": "fake_error",
+					"type": "varchar(5)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'false'"
+				},
+				"error_code": {
+					"name": "error_code",
+					"type": "varchar(10)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'500'"
+				},
+				"error_message": {
+					"name": "error_message",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"phishing_mode": {
+					"name": "phishing_mode",
+					"type": "varchar(5)",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'false'"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.supply": {
+			"name": "supply",
+			"schema": "",
+			"columns": {
+				"supply_id": {
+					"name": "supply_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"supply_date": {
+					"name": "supply_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"supply_cost": {
+					"name": "supply_cost",
+					"type": "numeric",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"supply_description": {
+					"name": "supply_description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_by": {
+					"name": "updated_by",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"supply_created_by_users_id_fk": {
+					"name": "supply_created_by_users_id_fk",
+					"tableFrom": "supply",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"supply_updated_by_users_id_fk": {
+					"name": "supply_updated_by_users_id_fk",
+					"tableFrom": "supply",
+					"tableTo": "users",
+					"columnsFrom": ["updated_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.users": {
+			"name": "users",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"role": {
+					"name": "role",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'user'"
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "CURRENT_TIMESTAMP"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"users_email_unique": {
+					"name": "users_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

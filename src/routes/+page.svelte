@@ -6,19 +6,6 @@
 	import { tick } from 'svelte';
 
 	const { data }: PageProps = $props();
-	// Filter states
-	let filters = $state({
-		clinic: false,
-		caseType: false,
-		caseNo: false,
-		recordid: false,
-		patient: false,
-		remark: false,
-		payment: false,
-		date: false,
-		month: false
-	});
-
 	// Search states
 	let clinicSearch = $state('');
 	let filteredClinics = $derived(
@@ -28,15 +15,12 @@
 	// Date and month states
 	let startDate = $state('');
 	let endDate = $state('');
-	let selectedMonth = $state(new Date().getMonth() + 1);
+	let selectedMonth = $state<number | ''>('');
 	let selectedYear = $state(new Date().getFullYear());
 
 	// Add state for selected clinic
-	let selectedClinicName = $state('');
-
-	// Show all clinics derived state
-	let showAllClinics = $derived(filters.clinic && !selectedClinicName && clinicSearch.length === 0);
-	let selectedClinicId = $state(null);
+	let showAllClinics = $state(false);
+	let selectedClinicId = $state<number | null>(null);
 
 	// Filter input values
 	let caseTypeId = $state('');
@@ -49,153 +33,92 @@
 	// Restore filter states from URL parameters
 	let isRestoring = $state(false);
 	let lastRestoredFiltersKey = $state<string>('');
-	
+
 	async function restoreFiltersFromData() {
 		const filtersData = data.filters;
 		if (!filtersData || typeof filtersData !== 'object') {
 			return;
 		}
-		
+
 		const hasFilters = Object.keys(filtersData).length > 0;
 		if (!hasFilters || isRestoring) {
 			return;
 		}
-		
-		// Create a key from the filters to detect if they've actually changed
+
 		const currentFiltersKey = JSON.stringify(filtersData);
 		if (currentFiltersKey === lastRestoredFiltersKey) {
 			return; // Filters haven't changed, don't restore
 		}
-		
+
 		isRestoring = true;
-		
-		// Reset all filters first
-		filters.clinic = false;
-		filters.caseType = false;
-		filters.caseNo = false;
-		filters.patient = false;
-		filters.remark = false;
-		filters.payment = false;
-		filters.date = false;
-		filters.month = false;
-		
-		// Restore filter checkboxes and values
-		// Set checkbox first, then value to ensure proper binding
+
 		if (filtersData.clinic_id) {
-			filters.clinic = true;
 			const clinicId = parseInt(filtersData.clinic_id);
 			selectedClinicId = clinicId;
 			const clinic = data.clinics?.find((c) => c.clinicId === clinicId);
 			if (clinic) {
-				selectedClinicName = clinic.clinicName;
 				clinicSearch = clinic.clinicName;
 			}
 		} else {
 			selectedClinicId = null;
-			selectedClinicName = '';
 			clinicSearch = '';
 		}
-		
-		if (filtersData.case_type_id) {
-			// Set checkbox first to show the select
-			filters.caseType = true;
-			// Wait for DOM to update so the select is rendered
-			await tick();
-			// Ensure the value matches the option value type (options use String(type.caseTypeId))
-			const caseTypeIdValue = filtersData.case_type_id;
-			// Convert to string to match the option values which are strings
-			caseTypeId = String(caseTypeIdValue);
-		} else {
-			caseTypeId = '';
-		}
-		
-		if (filtersData.case_no) {
-			filters.caseNo = true;
-			caseNo = String(filtersData.case_no);
-		} else {
-			caseNo = '';
-		}
-		
-		if (filtersData.patient_name) {
-			filters.patient = true;
-			patientName = filtersData.patient_name;
-		} else {
-			patientName = '';
-		}
-		
-		if (filtersData.remarks) {
-			filters.remark = true;
-			remarks = filtersData.remarks;
-		} else {
-			remarks = '';
-		}
-		
-		if (filtersData.payment_status) {
-			filters.payment = true;
-			paymentStatus = filtersData.payment_status;
-		} else {
-			paymentStatus = '';
-		}
-		
-		if (filtersData.record_id) {
-			// Note: Record Id filter doesn't have a checkbox, but we can still restore the value
-			recordId = String(filtersData.record_id);
-		} else {
-			recordId = '';
-		}
+
+		caseTypeId = filtersData.case_type_id ? String(filtersData.case_type_id) : '';
+		caseNo = filtersData.case_no ? String(filtersData.case_no) : '';
+		patientName = filtersData.patient_name || '';
+		remarks = filtersData.remarks || '';
+		paymentStatus = filtersData.payment_status || '';
+		recordId = filtersData.record_id ? String(filtersData.record_id) : '';
+
 		if (filtersData.start_date && filtersData.end_date) {
-			filters.date = true;
 			startDate = filtersData.start_date;
 			endDate = filtersData.end_date;
-		}
-		// Month filter is handled separately via month/year params or start_date/end_date
-		if (filtersData.start_date && filtersData.end_date) {
+			
 			const start = new Date(filtersData.start_date);
 			const end = new Date(filtersData.end_date);
-			// Check if it's a full month range
 			if (
 				start.getDate() === 1 &&
 				end.getDate() === new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate() &&
 				start.getMonth() === end.getMonth() &&
 				start.getFullYear() === end.getFullYear()
 			) {
-				filters.month = true;
 				selectedMonth = start.getMonth() + 1;
 				selectedYear = start.getFullYear();
+			} else {
+				selectedMonth = '';
 			}
+		} else {
+			startDate = '';
+			endDate = '';
+			selectedMonth = '';
 		}
-		
-		// Mark these filters as restored
+
 		lastRestoredFiltersKey = currentFiltersKey;
-		
-		// Use setTimeout to ensure DOM is updated before allowing another restoration
+
 		setTimeout(() => {
 			isRestoring = false;
 		}, 0);
 	}
-	
-	// Restore filters after navigation completes
+
 	afterNavigate(() => {
 		isRestoring = false;
-		lastRestoredFiltersKey = ''; // Reset to allow restoration on navigation
+		lastRestoredFiltersKey = '';
 		restoreFiltersFromData();
 	});
-	
-	// Also restore when data.filters changes (for initial load and navigation)
+
 	$effect(() => {
-		// Access data.filters to make the effect track it
 		const filtersData = data.filters;
 		if (!filtersData) return;
-		
-		// Only restore if filters have actually changed (not on every render)
+
 		const currentKey = JSON.stringify(filtersData);
 		if (currentKey !== lastRestoredFiltersKey) {
 			restoreFiltersFromData();
 		}
 	});
-	// Filter handler functions
+
 	function handleMonthFilter() {
-		if (filters.month) {
+		if (selectedMonth) {
 			const date = new Date(selectedYear, selectedMonth - 1, 1);
 			const lastDay = new Date(selectedYear, selectedMonth, 0);
 			startDate = date.toISOString().split('T')[0];
@@ -203,9 +126,6 @@
 		}
 	}
 
-	$effect(() => {
-		if (filters.month) handleMonthFilter();
-	});
 	console.log(data);
 
 	let customerNames = $derived(
@@ -216,7 +136,6 @@
 
 	// Add function to handle clinic selection
 	function handleClinicSelect(clinic: { clinicId: number; clinicName: string }) {
-		selectedClinicName = clinic.clinicName;
 		clinicSearch = clinic.clinicName;
 		selectedClinicId = clinic.clinicId;
 	}
@@ -296,9 +215,7 @@
 	let deleteForm: HTMLFormElement | null = $state(null);
 
 	const modalDeleteRecord = $derived(
-		modalDeleteRecordId
-			? data.records?.find((r) => r.recordId === modalDeleteRecordId)
-			: null
+		modalDeleteRecordId ? data.records?.find((r) => r.recordId === modalDeleteRecordId) : null
 	);
 
 	function openDeleteModal(id: number) {
@@ -335,222 +252,146 @@
 </script>
 
 <!-- Filter Form -->
-<div class="w-full bg-gray-50 p-3 print:hidden">
+<div class="w-full bg-gray-50 p-2 print:hidden pb-1 border-b border-gray-200">
 	<form method="GET" class="mx-auto max-w-7xl">
-		<div class="rounded-lg bg-white p-4 shadow-sm">
-			<!-- Filter Grid -->
-			<div class="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 lg:grid-cols-6">
-				<!-- Clinic Filter -->
-				<div>
-					<label class="inline-flex items-center gap-2 text-xs font-medium text-gray-700">
-						<input
-							type="checkbox"
-							bind:checked={filters.clinic}
-							class="h-3.5 w-3.5 rounded border-gray-300 text-indigo-600"
-						/>
-						Clinic
-					</label>
-					{#if filters.clinic}
-						<div class="relative mt-1">
-							<input
-								type="text"
-								bind:value={clinicSearch}
-								placeholder="Search clinic..."
-								class="w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								onfocus={() => {
-									selectedClinicName = '';
-									clinicSearch = '';
-								}}
-							/>
-							<input type="text" name="clinic_id" bind:value={selectedClinicId} hidden />
-							{#if showAllClinics || (clinicSearch && filteredClinics.length > 0 && !selectedClinicName)}
-								<div
-									class="absolute z-99 mt-0.5 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg"
-								>
-									{#each showAllClinics ? data.clinics : filteredClinics as clinic}
-										<button
-											type="submit"
-											value={clinic.clinicId}
-											class="w-full p-1.5 text-left text-xs hover:bg-gray-50"
-											onclick={() => handleClinicSelect(clinic)}
-										>
-											{clinic.clinicName}
-										</button>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Other Filters - Reuse the same pattern -->
-				{#each ['Case Type', 'Case No', 'Record Id', 'Patient Name', 'Payment Status', 'Remarks'] as filterName}
-					{@const filterKey = filterName === 'Case Type' ? 'caseType' : filterName === 'Case No' ? 'caseNo' : filterName === 'Record Id' ? 'recordid' : filterName === 'Patient Name' ? 'patient' : filterName === 'Payment Status' ? 'payment' : filterName === 'Remarks' ? 'remark' : ''}
-					<div>
-						<label class="inline-flex items-center gap-2 text-xs font-medium text-gray-700">
-							<input
-								type="checkbox"
-								bind:checked={filters[filterKey]}
-								class="h-3.5 w-3.5 rounded border-gray-300 text-indigo-600"
-							/>
-							{filterName}
-						</label>
-						{#if filters[filterKey]}
-							{#if filterName === 'Case Type'}
-								<select
-									name="case_type_id"
-									bind:value={caseTypeId}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-								>
-									<option value="">Select Case Type</option>
-									{#each data.caseTypes as type}
-										<option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
-									{/each}
-								</select>
-							{:else if filterName === 'Payment Status'}
-								<select
-									name="payment_status"
-									bind:value={paymentStatus}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-								>
-									<option value="paid">Paid</option>
-									<option value="unpaid">Unpaid</option>
-								</select>
-							{:else if filterName === 'Remarks'}
-								<select
-									name="remarks"
-									bind:value={remarks}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-								>
-									<option value="pending">Pending</option>
-									<option value="finished">Finished</option>
-								</select>
-							{:else if filterName === 'Case No'}
-								<input
-									type="number"
-									name="case_no"
-									bind:value={caseNo}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								/>
-							{:else if filterName === 'Patient Name'}
-								<input
-									type="text"
-									name="patient_name"
-									bind:value={patientName}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								/>
-							{:else if filterName === 'Record Id'}
-								<input
-									type="number"
-									name="record_id"
-									bind:value={recordId}
-									class="mt-1 w-full rounded-md border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								/>
-							{/if}
-						{/if}
-					</div>
-				{/each}
-			</div>
-
-			<!-- Date Range Section -->
-			<div class="mt-4 grid grid-cols-1 gap-4 border-t border-gray-100 pt-4 md:grid-cols-4">
-				<!-- Date Filters -->
-				<div class="flex items-start gap-4">
-					<label class="inline-flex items-center gap-2">
-						<input
-							type="checkbox"
-							bind:checked={filters.date}
-							class="h-3.5 w-3.5 rounded text-indigo-600"
-						/>
-						<span class="text-xs font-medium text-gray-700">Date Range</span>
-					</label>
-					{#if filters.date}
-						<div class="flex gap-2">
-							<input
-								type="date"
-								name="start_date"
-								bind:value={startDate}
-								class="w-auto rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-							/>
-							<input
-								type="date"
-								name="end_date"
-								bind:value={endDate}
-								class="w-auto rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-							/>
-						</div>
-					{/if}
-				</div>
-
-				<div class="flex items-start gap-4">
-					<label class="inline-flex items-center gap-2">
-						<input
-							type="checkbox"
-							bind:checked={filters.month}
-							class="h-3.5 w-3.5 rounded text-indigo-600"
-						/>
-						<span class="text-xs font-medium text-gray-700">Month & Year</span>
-					</label>
-					{#if filters.month}
-						<div class="flex gap-2">
-							<select
-								bind:value={selectedMonth}
-								onchange={handleMonthFilter}
-								class="w-auto rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-							>
-								{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
-									<option value={month}>
-										{new Date(2000, month - 1).toLocaleString('default', { month: 'long' })}
-									</option>
-								{/each}
-							</select>
-							<select
-								bind:value={selectedYear}
-								onchange={handleMonthFilter}
-								class="w-auto rounded-md border border-gray-200 p-1.5 text-xs shadow-sm"
-							>
-								{#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
-									<option value={year}>{year}</option>
-								{/each}
-							</select>
-						</div>
-					{/if}
-				</div>
-
-				<!-- Delete Options -->
-				<div class="flex items-start gap-4">
-					<label class="inline-flex items-center gap-2">
-						<input
-							type="checkbox"
-							bind:checked={showDelete}
-							class="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500"
-						/>
-						<span class="text-xs font-medium text-gray-700">Show Delete Options</span>
-					</label>
-				</div>
-
-				<!-- Action Buttons -->
-				<div class="flex items-center justify-end gap-2">
+		<div class="rounded-lg bg-white p-3 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
+                <div class="flex gap-2">
 					<button
 						type="reset"
-						class="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
-						onclick={() => {
-							window.location.href = '/';
-						}}
+						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 transition"
+						onclick={() => window.location.href = '/'}
 					>
-						Reset
+						Clear
 					</button>
 					<button
 						type="submit"
-						class="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
-						disabled={!Object.values(filters).some((v) => v)}
+						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-500 transition"
 					>
 						Apply Filters
 					</button>
-				</div>
-			</div>
+                </div>
+            </div>
 
-			<!-- Action Buttons -->
+			<div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 items-end">
+                <div class="relative">
+					<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
+                    <input
+                        type="text"
+                        bind:value={clinicSearch}
+                        placeholder="Search clinic..."
+                        autocomplete="off"
+                        class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        onfocus={() => { showAllClinics = true; }}
+                        onblur={() => { setTimeout(() => showAllClinics = false, 200); }}
+                        oninput={() => { selectedClinicId = null; }}
+                    />
+                    <input type="hidden" name="clinic_id" value={selectedClinicId || ''} />
+                    {#if showAllClinics && filteredClinics && filteredClinics.length > 0}
+                        <div class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg">
+                            {#each filteredClinics as clinic}
+                                <button
+                                    type="button"
+                                    class="w-full p-2 text-left text-xs hover:bg-gray-50"
+                                    onclick={() => {
+                                        handleClinicSelect(clinic);
+                                        showAllClinics = false;
+                                    }}
+                                >
+                                    {clinic.clinicName}
+                                </button>
+                            {/each}
+                        </div>
+                    {/if}
+				</div>
+
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case Type</label>
+                    <select name="case_type_id" bind:value={caseTypeId} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <option value="">All Types</option>
+                        {#each data.caseTypes as type}
+                            <option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
+                        {/each}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case No</label>
+                    <input type="text" name="case_no" bind:value={caseNo} placeholder="Case #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Patient</label>
+                    <input type="text" name="patient_name" bind:value={patientName} placeholder="Patient Name" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Payment</label>
+                    <select name="payment_status" bind:value={paymentStatus} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <option value="">All Status</option>
+                        <option value="paid">Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Status</label>
+                    <select name="remarks" bind:value={remarks} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <option value="">All Remarks</option>
+                        <option value="pending">Pending</option>
+                        <option value="finished">Finished</option>
+                    </select>
+                </div>
+            </div>
+
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-3 mt-3 pt-3 border-t border-gray-100 items-end">
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Start Date</label>
+                        <input type="date" name="start_date" bind:value={startDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">End Date</label>
+                        <input type="date" name="end_date" bind:value={endDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Filter by Month</label>
+                        <select bind:value={selectedMonth} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <option value="">Select Month</option>
+                            {#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
+                                <option value={month}>
+                                    {new Date(2000, month - 1).toLocaleString('default', { month: 'short' })}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+                    <div class="w-24">
+                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Year</label>
+                        <select bind:value={selectedYear} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            {#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
+                                <option value={year}>{year}</option>
+                            {/each}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Record ID</label>
+                        <input type="number" name="record_id" bind:value={recordId} placeholder="Record #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                    <div class="flex items-center pt-[18px]">
+                        <label class="inline-flex items-center gap-2 cursor-pointer bg-red-50/50 hover:bg-red-50 px-2.5 py-1.5 rounded border border-red-100 transition-colors">
+                            <input type="checkbox" bind:checked={showDelete} class="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300" />
+                            <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Show Delete</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
 		</div>
 	</form>
 </div>
@@ -606,100 +447,81 @@
 			</div>
 		{/if}
 
+		<!-- Color Legend -->
+		<div class="mb-3 flex flex-wrap items-center gap-4 px-1 text-[10px] font-medium text-gray-500 uppercase tracking-wider print:hidden">
+			<div class="flex items-center gap-1.5">
+				<div class="h-3 w-3 inline-block rounded-full bg-green-200 border border-green-300"></div>
+				<span>Paid & Finished</span>
+			</div>
+			<div class="flex items-center gap-1.5">
+				<div class="h-3 w-3 inline-block rounded-full bg-red-300 border border-red-400"></div>
+				<span>Unpaid & Finished</span>
+			</div>
+			<div class="flex items-center gap-1.5">
+				<div class="h-3 w-3 inline-block rounded-full bg-violet-300 border border-violet-400"></div>
+				<span>Other / Partial</span>
+			</div>
+			<div class="flex items-center gap-1.5">
+				<div class="h-3 w-3 inline-block rounded-full bg-white border border-gray-300"></div>
+				<span>Pending / Normal</span>
+			</div>
+		</div>
+
 		<!-- Table -->
-		<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-			<table class="min-w-full table-fixed divide-y divide-gray-300">
-				<thead>
-					<tr class="border-b border-gray-300 bg-gray-100">
-						<th
-							scope="col"
-							class="sticky top-0 bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+		<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm pt-1">
+			<table class="min-w-full table-fixed divide-y divide-gray-200">
+				<thead class="bg-gray-50/50">
+					<tr>
+						<th scope="col" class="sticky top-0 bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Date Pickup
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Date Dropoff
 						</th>
 						{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
-							<th
-								scope="col"
-								class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-							>
+							<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 								Clinic
 							</th>
 						{/if}
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Patient Name
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Case Info
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Description
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Total Amount
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Paid Amount
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Balance
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 							Status
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800 print:hidden"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
 							Actions
 						</th>
-						<th
-							scope="col"
-							class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800 print:hidden"
-						>
+						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
 							History
 						</th>
 						{#if showDelete}
-							<th
-								scope="col"
-								class="bg-gray-100 px-3 py-2 text-left text-xs font-semibold text-gray-800 print:hidden"
-							>
+							<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
 								Delete
 							</th>
 						{/if}
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-200 bg-white">
+				<tbody class="divide-y divide-gray-100 bg-white">
 					{#each paginatedRecords as record}
 						<tr
 							class={`
-							border-b border-gray-200 transition-colors
+							border-b border-gray-100 transition-colors hover:bg-black/5
 							${
 								record.paymentStatus === 'paid' && record.remarks === 'finished'
 									? 'bg-green-200'
@@ -989,7 +811,9 @@
 								>
 									{modalDeleteRecord.paymentStatus}
 								</span>
-								<span class="text-xs text-gray-600">({modalDeleteRecord.remarks || 'No remarks'})</span>
+								<span class="text-xs text-gray-600"
+									>({modalDeleteRecord.remarks || 'No remarks'})</span
+								>
 							</span>
 						</div>
 					</div>

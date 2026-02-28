@@ -9,12 +9,14 @@
 		value = $bindable(''),
 		placeholder = 'Select...',
 		label = '',
+		id = 'searchable-select',
 		onchange
 	}: {
 		options: Option[];
 		value?: string;
 		placeholder?: string;
 		label?: string;
+		id?: string;
 		onchange?: (value: string) => void;
 	} = $props();
 
@@ -22,15 +24,11 @@
 	let isOpen = $state(false);
 	let filteredOptions = $derived(
 		searchTerm
-			? options.filter((opt) =>
-					opt.label.toLowerCase().includes(searchTerm.toLowerCase())
-				)
+			? options.filter((opt) => opt.label.toLowerCase().includes(searchTerm.toLowerCase()))
 			: options
 	);
 
-	let selectedOption = $derived(
-		options.find((opt) => opt.value === value) || null
-	);
+	let selectedOption = $derived(options.find((opt) => opt.value === value) || null);
 
 	function selectOption(option: Option) {
 		value = option.value;
@@ -72,13 +70,14 @@
 
 <div class="relative">
 	{#if label}
-		<label class="text-sm text-gray-600">{label}</label>
+		<label for={id} class="text-sm text-gray-600">{label}</label>
 	{/if}
 	<div class="relative">
 		<input
 			type="text"
+			{id}
 			class="w-full rounded-md border-gray-300 p-2"
-			placeholder={placeholder}
+			{placeholder}
 			value={isOpen ? searchTerm : selectedOption?.label || ''}
 			oninput={handleInput}
 			onfocus={handleFocus}
@@ -112,4 +111,3 @@
 		{/if}
 	</div>
 </div>
-

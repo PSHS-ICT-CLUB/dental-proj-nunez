@@ -1,22 +1,22 @@
 {
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "dentalserver",
-      "database": "dental",
-      "username": "postgres"
-    },
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "dental-proj",
-      "database": "dental-proj",
-      "username": "postgres"
-    }
-  ]
+	"sqltools.connections": [
+		{
+			"previewLimit": 50,
+			"server": "localhost",
+			"port": 5432,
+			"driver": "PostgreSQL",
+			"name": "dentalserver",
+			"database": "dental",
+			"username": "postgres"
+		},
+		{
+			"previewLimit": 50,
+			"server": "localhost",
+			"port": 5432,
+			"driver": "PostgreSQL",
+			"name": "dental-proj",
+			"database": "dental-proj",
+			"username": "postgres"
+		}
+	]
 }

@@ -1,17 +1,19 @@
+import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { siteStatus } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { handle as authHandle } from './auth';
 
 // Get site status from database using Drizzle
 async function getSiteStatus() {
-  try {
-    const [status] = await db.select().from(siteStatus).where(eq(siteStatus.id, 1));
-    return status;
-  } catch (error) {
-    console.error('Failed to get site status:', error);
-    return null;
-  }
+	try {
+		const [status] = await db.select().from(siteStatus).where(eq(siteStatus.id, 1));
+		return status;
+	} catch (error) {
+		console.error('Failed to get site status:', error);
+		return null;
+	}
 }
 
 // Default maintenance page HTML
@@ -357,54 +359,55 @@ const phishingPage = () => `
 </html>
 `;
 
-export const handle: Handle = async ({ event, resolve }) => {
-  // Skip API routes and static files
-  const path = event.url.pathname;
-  if (path.startsWith('/api/') || path.startsWith('/_app/') || path.includes('.')) {
-    return resolve(event);
-  }
+export const securityHandle: Handle = async ({ event, resolve }) => {
+	// Skip API routes and static files
+	const path = event.url.pathname;
+	if (path.startsWith('/api/') || path.startsWith('/_app/') || path.includes('.')) {
+		return resolve(event);
+	}
 
-  // Check site status
-  const status = await getSiteStatus();
+	// Check site status
+	const status = await getSiteStatus();
 
-  // Check for phishing mode first (highest priority)
-  if (status && status.phishingMode === 'true') {
-    return new Response(phishingPage(), {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    });
-  }
+	// Check for phishing mode first (highest priority)
+	if (status && status.phishingMode === 'true') {
+		return new Response(phishingPage(), {
+			status: 200,
+			headers: { 'Content-Type': 'text/html' }
+		});
+	}
 
-  // Check for fake error first (takes priority)
-  if (status && status.fakeError === 'true') {
-    const html = fakeErrorPage(
-      status.errorCode || '500',
-      status.errorMessage || ''
-    );
+	// Check for fake error first (takes priority)
+	if (status && status.fakeError === 'true') {
+		const html = fakeErrorPage(status.errorCode || '500', status.errorMessage || '');
 
-    return new Response(html, {
-      status: parseInt(status.errorCode || '500'),
-      headers: {
-        'Content-Type': 'text/html'
-      }
-    });
-  }
+		return new Response(html, {
+			status: parseInt(status.errorCode || '500'),
+			headers: {
+				'Content-Type': 'text/html'
+			}
+		});
+	}
 
-  // Check for lockdown
-  if (status && status.isLocked === 'true') {
-    const html = status.lockHtml || defaultLockPage(
-      status.lockTitle || 'Site Under Maintenance',
-      status.lockMessage || 'We are currently performing maintenance. Please check back later.'
-    );
+	// Check for lockdown
+	if (status && status.isLocked === 'true') {
+		const html =
+			status.lockHtml ||
+			defaultLockPage(
+				status.lockTitle || 'Site Under Maintenance',
+				status.lockMessage || 'We are currently performing maintenance. Please check back later.'
+			);
 
-    return new Response(html, {
-      status: 503,
-      headers: {
-        'Content-Type': 'text/html',
-        'Retry-After': '3600'
-      }
-    });
-  }
+		return new Response(html, {
+			status: 503,
+			headers: {
+				'Content-Type': 'text/html',
+				'Retry-After': '3600'
+			}
+		});
+	}
 
-  return resolve(event);
+	return resolve(event);
 };
+
+export const handle = sequence(authHandle, securityHandle);

@@ -306,11 +306,14 @@
 							class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md bg-white shadow-lg"
 						>
 							{#each filteredClinics as clinic}
-								<li
-									class="cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-									onclick={() => selectClinic(clinic)}
-								>
-									{clinic.label}
+								<li>
+									<button
+										type="button"
+										class="w-full cursor-pointer appearance-none px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+										onclick={() => selectClinic(clinic)}
+									>
+										{clinic.label}
+									</button>
 								</li>
 							{/each}
 						</ul>

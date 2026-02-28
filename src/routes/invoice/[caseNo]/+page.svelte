@@ -43,34 +43,36 @@
 	<div class="invoice-info">
 		<div class="left-info">
 			<div class="info-row">
-				<label>Name of Clinic:</label>
-				<input type="text" value={invoice.clinic_name} readonly />
+				<label for="clinic_name_input">Name of Clinic:</label>
+				<input id="clinic_name_input" type="text" value={invoice.clinic_name} readonly />
 			</div>
 			<div class="info-row">
-				<label>Case No.:</label>
+				<label for="case_no_input">Case No.:</label>
 				<input
+					id="case_no_input"
 					type="text"
 					value={`${invoice.items.map((item) => `${item.case_no}`).join(' & ')}`}
 					readonly
 				/>
 			</div>
 			<div class="info-row">
-				<label>Name of Patient:</label>
-				<input type="text" value={invoice.patient_name} readonly />
+				<label for="patient_name_input">Name of Patient:</label>
+				<input id="patient_name_input" type="text" value={invoice.patient_name} readonly />
 			</div>
 			<div class="info-row">
-				<label>Doctor:</label>
-				<input type="text" value={invoice.doctor_name} readonly />
+				<label for="doctor_name_input">Doctor:</label>
+				<input id="doctor_name_input" type="text" value={invoice.doctor_name} readonly />
 			</div>
 		</div>
 		<div class="right-info">
 			<div class="info-row">
-				<label>DATE:</label>
-				<input type="text" value={format(currentDate, 'MM/dd/yyyy')} readonly />
+				<label for="date_input">DATE:</label>
+				<input id="date_input" type="text" value={format(currentDate, 'MM/dd/yyyy')} readonly />
 			</div>
 			<div class="info-row">
-				<label>Status:</label>
+				<label for="status_input">Status:</label>
 				<input
+					id="status_input"
 					type="text"
 					value={invoice.payment_status}
 					class={invoice.payment_status === 'paid'
@@ -108,8 +110,8 @@
 	<div class="invoice-footer">
 		<div class="totals-section">
 			<div class="total-row">
-				<label>TOTAL AMOUNT:</label>
-				<span class="total-amount">₱{subtotal}</span>
+				<label for="total_amount_span">TOTAL AMOUNT:</label>
+				<span id="total_amount_span" class="total-amount">₱{subtotal}</span>
 			</div>
 		</div>
 	</div>
@@ -212,25 +214,6 @@
 		font-size: 1em;
 	}
 
-	.total-amount {
-		font-size: 1.2em;
-	}
-
-	.divider {
-		margin: 10px 0;
-	}
-
-	.scissor-line {
-		border-top: 1px dashed #999;
-		text-align: center;
-		line-height: 0.5;
-	}
-
-	.scissor-line span {
-		font-size: 0.9em;
-		color: #666;
-	}
-
 	.copy-label {
 		text-align: right;
 		font-weight: bold;
@@ -242,10 +225,6 @@
 		.invoice-container {
 			margin: 0 auto;
 			page-break-inside: avoid;
-		}
-
-		.divider {
-			margin: 5px 0;
 		}
 
 		@page {

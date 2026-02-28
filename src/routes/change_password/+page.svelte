@@ -21,7 +21,10 @@
 	{#if !data.isSet}
 		<div class="mb-3 rounded bg-yellow-50 p-3 text-sm text-yellow-800">
 			<p class="font-semibold">No password is currently set.</p>
-			<p class="mt-1">Please set a password to secure your account. This password will be required for edit and delete operations.</p>
+			<p class="mt-1">
+				Please set a password to secure your account. This password will be required for edit and
+				delete operations.
+			</p>
 		</div>
 	{/if}
 	{#if message}
@@ -43,7 +46,9 @@
 				}
 				if (result.type === 'success') {
 					const d = result.data as any;
-					message = d?.message || (data.isSet ? 'Password updated successfully' : 'Password set successfully');
+					message =
+						d?.message ||
+						(data.isSet ? 'Password updated successfully' : 'Password set successfully');
 					error = '';
 					current = '';
 					next = '';
@@ -113,7 +118,16 @@
 
 {#if showResetModal}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+		class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+		role="button"
+		tabindex="0"
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				showResetModal = false;
+				resetPassword = '';
+				resetError = '';
+			}
+		}}
 		onclick={(e) => {
 			if (e.target === e.currentTarget) {
 				showResetModal = false;
@@ -125,7 +139,8 @@
 		<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
 			<h2 class="mb-4 text-xl font-semibold text-gray-800">Reset Password</h2>
 			<p class="mb-4 text-sm text-gray-600">
-				Are you sure you want to remove the password? This will disable password protection for edit and delete operations.
+				Are you sure you want to remove the password? This will disable password protection for edit
+				and delete operations.
 			</p>
 			{#if resetError}
 				<div class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{resetError}</div>
@@ -165,7 +180,6 @@
 					bind:value={resetPassword}
 					class="mt-1 mb-4 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
 					required
-					autofocus
 				/>
 				<div class="flex gap-2">
 					<button

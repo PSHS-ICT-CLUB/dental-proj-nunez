@@ -1,11 +1,22 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { signOut } from '@auth/sveltekit/client';
 	import '../app.css';
 	import NotificationBanner from '$lib/components/NotificationBanner.svelte';
-	let { children } = $props();
+	let { children, data } = $props();
 
 	let isMenuOpen = $state(false);
+
+	// Navigation links configuration
+	const navLinks = [
+		{ label: 'DATA', href: '/data' },
+		{ label: 'SALES', href: '/sales' },
+		{ label: 'BALANCES', href: '/balance' },
+		{ label: 'EXPENSES', href: '/expenses', textColor: 'text-red-400' },
+		{ label: 'EDIT INFO', href: '/edit_info' },
+		{ label: 'CHANGE PASSWORD', href: '/change_password' }
+	];
 
 	// Create a function to get the current page title
 	function getPageTitle(pathname: string): string {
@@ -24,10 +35,16 @@
 				return 'Add Record';
 			case '/data':
 				return 'Data';
+			case '/admin':
+				return 'Admin Panel';
 
 			default:
 				return 'Dental Records';
 		}
+	}
+
+	function isActive(href: string) {
+		return page.url.pathname === href;
 	}
 </script>
 
@@ -38,124 +55,145 @@
 <NotificationBanner />
 
 <nav class="top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
-	<div class="mx-auto flex items-center justify-between px-4 py-2">
-		{#if page.url.pathname !== '/'}
-			<a
-				href="/"
-				class="text-lg font-bold transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
-			>
-				Home
-			</a>
-		{:else}
+	<div class="mx-auto flex items-center justify-between px-4 py-3">
+		<div class="flex items-center gap-8">
+			{#if page.url.pathname !== '/'}
+				<a
+					href="/"
+					class="text-xl font-bold tracking-tight transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
+				>
+					CASSEY DENTAL
+				</a>
+			{:else}
+				<button
+					onclick={() => window.location.reload()}
+					class="text-xl font-bold tracking-tight transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
+				>
+					CASSEY DENTAL
+				</button>
+			{/if}
+
+			<!-- Desktop Main Links -->
+			<div class="hidden items-center gap-6 md:flex">
+				{#each navLinks as link}
+					<a
+						href={link.href}
+						class={`relative px-1 py-1 text-xs font-semibold tracking-wide transition-all duration-200 hover:text-white ${
+							isActive(link.href) ? 'text-white' : link.textColor || 'text-[#A1AEB3]'
+						}`}
+					>
+						{link.label}
+						{#if isActive(link.href)}
+							<div class="absolute -bottom-1 left-0 h-0.5 w-full bg-white transition-all"></div>
+						{/if}
+					</a>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Action Buttons & Hamburger -->
+		<div class="flex items-center gap-2">
+			<!-- Desktop Action Buttons -->
+			<div class="hidden items-center gap-2 lg:flex">
+				{#if data?.session?.user?.role === 'admin'}
+					<a
+						class="rounded border border-amber-600/50 bg-amber-900/40 px-3 py-1.5 text-xs font-bold text-amber-200 transition-all hover:bg-amber-800/60"
+						href="/admin">ADMIN</a
+					>
+				{/if}
+				<button
+					onclick={() => window.print()}
+					class="rounded border border-[#A1AEB3]/30 bg-[#233B48] px-3 py-1.5 text-xs font-bold transition-all hover:bg-[#1f3a4d]"
+					>PRINT</button
+				>
+				<a
+					class="rounded border border-emerald-600/50 bg-emerald-600 px-3 py-1.5 text-xs font-bold transition-all hover:bg-emerald-700"
+					href="/upload_record">ADD RECORD</a
+				>
+				<button
+					onclick={() => signOut()}
+					class="rounded border border-red-600/50 bg-red-600 px-3 py-1.5 text-xs font-bold transition-all hover:bg-red-700"
+					>SIGN OUT</button
+				>
+			</div>
+
+			<!-- Hamburger menu button for mobile/tablet -->
 			<button
-				onclick={() => {
-					window.location.reload();
-					window.location.href = '/';
-				}}
-				class="text-lg font-bold transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
+				class="block rounded border border-[#A1AEB3]/30 bg-[#1F3A4D] p-2 text-white shadow-sm hover:bg-[#233B48] lg:hidden"
+				aria-label="Toggle menu"
+				onclick={() => (isMenuOpen = !isMenuOpen)}
 			>
-				Home
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16m-7 6h7'}
+					/>
+				</svg>
 			</button>
-		{/if}
-
-		<!-- Hamburger menu button for mobile -->
-		<button
-			class="block rounded border border-[#A1AEB3] bg-[#1F3A4D] p-2 text-white shadow-sm hover:bg-[#233B48] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none md:hidden"
-			aria-label="Toggle menu"
-			onclick={() => (isMenuOpen = !isMenuOpen)}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				class="h-6 w-6"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M4 6h16M4 12h16m-7 6h7"
-				/>
-			</svg>
-		</button>
-
-		<!-- Desktop navigation -->
-		<div class="top-7 right-5 hidden justify-between gap-2 md:flex">
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/balance">BALANCES</a
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/data">DATA</a
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/sales">SALES</a
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#DC2626] p-2 text-white shadow-sm hover:bg-[#B91C1C] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/expenses">EXPENSES</a
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#2563EB] p-2 text-white shadow-sm hover:bg-[#1D4ED8] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/edit_info">EDIT INFOS</a
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/change_password">CHANGE PASSWORD</a
-			>
-			<button
-				onclick={() => window.print()}
-				class="rounded border border-[#A1AEB3] bg-[#233B48] p-2 text-white shadow-sm hover:bg-[#164154] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				>PRINT</button
-			>
-			<a
-				class="rounded border border-[#A1AEB3] bg-[#059669] p-2 text-white shadow-sm hover:bg-[#047857] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-				href="/upload_record">ADD RECORD</a
-			>
 		</div>
 	</div>
 
-	<!-- Mobile navigation -->
-	<div
-		class={`${isMenuOpen ? 'block' : 'hidden'} bg-[#164154] px-4 py-2 text-white shadow-md md:hidden`}
-	>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/data">DATA</a
+	<!-- Mobile & Tablet navigation -->
+	{#if isMenuOpen}
+		<div
+			class="max-h-[calc(100vh-80px)] overflow-y-auto border-t border-white/10 bg-[#164154] px-4 py-4 text-white shadow-xl lg:hidden"
 		>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/sales">SALES</a
-		>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/balance">BALANCES</a
-		>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#DC2626] p-2 text-white shadow-sm hover:bg-[#B91C1C] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/expenses">EXPENSES</a
-		>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#2563EB] p-2 text-white shadow-sm hover:bg-[#1D4ED8] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/edit_info">EDIT INFOS</a
-		>
-		<a
-			class="mb-2 block rounded border border-[#A1AEB3] bg-[#4B5563] p-2 text-white shadow-sm hover:bg-[#374151] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/change_password">CHANGE PASSWORD</a
-		>
-		<button
-			onclick={() => window.print()}
-			class="mb-2 block w-full rounded border border-[#A1AEB3] bg-[#233B48] p-2 text-white shadow-sm hover:bg-[#164154] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			>PRINT</button
-		>
-		<a
-			class="block rounded border border-[#A1AEB3] bg-[#059669] p-2 text-white shadow-sm hover:bg-[#047857] focus:ring-2 focus:ring-[#778B92] focus:ring-offset-1 focus:outline-none sm:text-sm"
-			href="/upload_record">ADD RECORD</a
-		>
-	</div>
+			<div class="flex flex-col gap-2">
+				{#each navLinks as link}
+					<a
+						class={`block rounded px-3 py-2 text-sm font-medium transition-all ${
+							isActive(link.href)
+								? 'bg-white/10 text-white'
+								: 'text-[#A1AEB3] hover:bg-white/5 hover:text-white'
+						}`}
+						href={link.href}
+						onclick={() => (isMenuOpen = false)}
+					>
+						{link.label}
+					</a>
+				{/each}
+
+				<div class="my-2 border-t border-white/10"></div>
+
+				{#if data?.session?.user?.role === 'admin'}
+					<a
+						class="block rounded bg-amber-900/40 px-3 py-2 text-sm font-bold text-amber-200"
+						href="/admin"
+						onclick={() => (isMenuOpen = false)}>ADMIN PANEL</a
+					>
+				{/if}
+				<button
+					onclick={() => {
+						window.print();
+						isMenuOpen = false;
+					}}
+					class="block w-full rounded bg-[#233B48] px-3 py-2 text-left text-sm font-bold transition-all"
+					>PRINT RECORD</button
+				>
+				<a
+					class="block rounded bg-emerald-600 px-3 py-2 text-sm font-bold transition-all"
+					href="/upload_record"
+					onclick={() => (isMenuOpen = false)}>ADD NEW RECORD</a
+				>
+				<button
+					onclick={() => {
+						signOut();
+						isMenuOpen = false;
+					}}
+					class="block w-full rounded bg-red-600 px-3 py-2 text-left text-sm font-bold transition-all"
+					>SIGN OUT</button
+				>
+			</div>
+		</div>
+	{/if}
 </nav>
 
 <div class="pt-2">
