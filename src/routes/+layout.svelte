@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-	<title>{getPageTitle(page.url.pathname)} | Cassey Dental Records System</title>
+	<title>{getPageTitle(page.url.pathname)} | Nunez Dental Records System</title>
 </svelte:head>
 
 <NotificationBanner />
@@ -62,14 +62,14 @@
 					href="/"
 					class="text-xl font-bold tracking-tight transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
 				>
-					CASSEY DENTAL
+					NUNEZ DENTAL
 				</a>
 			{:else}
 				<button
 					onclick={() => window.location.reload()}
 					class="text-xl font-bold tracking-tight transition-colors duration-200 hover:cursor-pointer hover:text-[#A1AEB3]"
 				>
-					CASSEY DENTAL
+					NUNEZ DENTAL
 				</button>
 			{/if}
 
@@ -99,6 +99,10 @@
 					<a
 						class="rounded border border-amber-600/50 bg-amber-900/40 px-3 py-1.5 text-xs font-bold text-amber-200 transition-all hover:bg-amber-800/60"
 						href="/admin">ADMIN</a
+					>
+					<a
+						class="rounded border border-blue-600/50 bg-blue-900/40 px-3 py-1.5 text-xs font-bold text-blue-200 transition-all hover:bg-blue-800/60"
+						href="/admin/history">CHANGE LOG</a
 					>
 				{/if}
 				<button
@@ -168,6 +172,11 @@
 						class="block rounded bg-amber-900/40 px-3 py-2 text-sm font-bold text-amber-200"
 						href="/admin"
 						onclick={() => (isMenuOpen = false)}>ADMIN PANEL</a
+					>
+					<a
+						class="block rounded bg-blue-900/40 px-3 py-2 text-sm font-bold text-blue-200"
+						href="/admin/history"
+						onclick={() => (isMenuOpen = false)}>CHANGE LOG</a
 					>
 				{/if}
 				<button

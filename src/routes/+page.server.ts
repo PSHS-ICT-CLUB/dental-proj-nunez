@@ -18,21 +18,21 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		let whereConditions = [];
 
 		// Build where conditions from URL params
-		if (url.searchParams.get('record_id')) {
+		if (url.searchParams.get('record_id') && !isNaN(parseInt(url.searchParams.get('record_id')!))) {
 			whereConditions.push(eq(records.recordId, parseInt(url.searchParams.get('record_id')!)));
 		}
 		if (url.searchParams.get('case_no')) {
 			whereConditions.push(eq(orderItems.caseNo, url.searchParams.get('case_no')!));
 		}
-		if (url.searchParams.get('case_type_id')) {
+		if (url.searchParams.get('case_type_id') && !isNaN(parseInt(url.searchParams.get('case_type_id')!))) {
 			whereConditions.push(
 				eq(orderItems.caseTypeId, parseInt(url.searchParams.get('case_type_id')!))
 			);
 		}
-		if (url.searchParams.get('clinic_id')) {
+		if (url.searchParams.get('clinic_id') && !isNaN(parseInt(url.searchParams.get('clinic_id')!))) {
 			whereConditions.push(eq(doctors.clinicId, parseInt(url.searchParams.get('clinic_id')!)));
 		}
-		if (url.searchParams.get('doctor_id')) {
+		if (url.searchParams.get('doctor_id') && !isNaN(parseInt(url.searchParams.get('doctor_id')!))) {
 			whereConditions.push(eq(records.doctorId, parseInt(url.searchParams.get('doctor_id')!)));
 		}
 		if (url.searchParams.get('start_date') && url.searchParams.get('end_date')) {

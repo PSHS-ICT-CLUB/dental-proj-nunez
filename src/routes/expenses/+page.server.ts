@@ -15,10 +15,14 @@ export const load: PageServerLoad = async ({ url }) => {
 	// Get the month and year from URL params or use current date
 	const searchParams = url.searchParams;
 	const currentDate = new Date();
-	const selectedYear = parseInt(searchParams.get('year') || currentDate.getFullYear().toString());
-	const selectedMonth = parseInt(
-		searchParams.get('month') || (currentDate.getMonth() + 1).toString()
-	);
+
+	const yearParam = searchParams.get('year');
+	let selectedYear = yearParam ? parseInt(yearParam, 10) : currentDate.getFullYear();
+	if (isNaN(selectedYear)) selectedYear = currentDate.getFullYear();
+
+	const monthParam = searchParams.get('month');
+	let selectedMonth = monthParam ? parseInt(monthParam, 10) : currentDate.getMonth() + 1;
+	if (isNaN(selectedMonth)) selectedMonth = currentDate.getMonth() + 1;
 
 	// Get the first and last day of the selected month
 	const startDate = new Date(selectedYear, selectedMonth - 1, 1);
@@ -42,10 +46,17 @@ export const load: PageServerLoad = async ({ url }) => {
 export const actions = {
 	add: async ({ request }) => {
 		const data = await request.formData();
-		const supplyDate = data.get('supply_date');
-		const supplyCost = data.get('supply_cost');
-		const description = data.get('description');
-		console.log(data);
+		const supplyDate = data.get('supply_date')?.toString();
+		const supplyCost = data.get('supply_cost')?.toString();
+		const description = data.get('description')?.toString() || '';
+
+		if (!supplyDate || !supplyCost) {
+			return {
+				success: false,
+				error: 'Missing required fields'
+			};
+		}
+
 		try {
 			await db.insert(supply).values({
 				supplyDate,
@@ -68,8 +79,8 @@ export const actions = {
 
 	changeMonth: async ({ request }) => {
 		const data = await request.formData();
-		const month = data.get('month');
-		const year = data.get('year');
+		const month = data.get('month')?.toString() || '';
+		const year = data.get('year')?.toString() || '';
 
 		// Redirect to the same page with new query parameters
 		throw redirect(303, `?month=${month}&year=${year}`);
@@ -77,7 +88,7 @@ export const actions = {
 
 	deleteExpenses: async ({ request }) => {
 		const data = await request.formData();
-		const supplyId = data.get('supply_id');
+		const supplyId = data.get('supply_id')?.toString();
 
 		if (!supplyId) {
 			return {
@@ -87,7 +98,7 @@ export const actions = {
 		}
 
 		try {
-			await db.delete(supply).where(eq(supply.supplyId, parseInt(supplyId.toString())));
+			await db.delete(supply).where(eq(supply.supplyId, parseInt(supplyId, 10)));
 
 			return {
 				success: true,

@@ -45,14 +45,19 @@ export const actions = {
 				} as any)
 				.where(eq(records.recordId, recordId));
 
-			// Insert history record
-			await db.insert(history).values({
-				historyType: 'out',
-				recordId,
-				imageData: await convertFileToBytea(data.get('out-img') as File),
-				historyDate: data.get('date')?.toString(),
-				historyTime: data.get('time')?.toString()
-			} as typeof history.$inferInsert);
+			// Insert history records
+			const outImageFiles = data.getAll('out-img') as File[];
+			for (const file of outImageFiles) {
+				if (file && file.size > 0 && file.name !== 'undefined') {
+					await db.insert(history).values({
+						historyType: 'out',
+						recordId,
+						imageData: await convertFileToBytea(file),
+						historyDate: data.get('date')?.toString(),
+						historyTime: data.get('time')?.toString()
+					} as typeof history.$inferInsert);
+				}
+			}
 		} catch (error) {
 			console.error('Error processing OUT record:', error);
 			return { success: false, error: 'Failed to process OUT record' };

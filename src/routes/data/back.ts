@@ -70,12 +70,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
 		.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
 		.where(
-			clinicId !== 'all'
+			clinicId !== 'all' && !isNaN(parseInt(clinicId))
 				? and(
-						gte(orders.orderDate, startDate),
-						lte(orders.orderDate, endDate),
-						eq(doctors.clinicId, parseInt(clinicId))
-					)
+					gte(orders.orderDate, startDate),
+					lte(orders.orderDate, endDate),
+					eq(doctors.clinicId, parseInt(clinicId))
+				)
 				: and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate))
 		);
 

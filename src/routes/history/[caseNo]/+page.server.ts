@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { clinics, doctors, history, records } from '$lib/server/db/schema';
+import { clinics, doctors, history, records, users } from '$lib/server/db/schema';
 import { desc, sql } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
@@ -13,19 +13,34 @@ export const load: PageServerLoad = async ({ params }) => {
 			.select({
 				recordId: records.recordId,
 				clinicName: clinics.clinicName,
-				doctorId: records.doctorId
+				doctorId: records.doctorId,
+				createdBy: records.createdBy,
+				creatorName: sql`creator.name`.as('creator_name'),
+				createdAt: records.createdAt
 			})
 			.from(records)
 			.leftJoin(doctors, sql`${records.doctorId} = ${doctors.doctorId}`)
 			.leftJoin(clinics, sql`${doctors.clinicId} = ${clinics.clinicId}`)
-			.where(sql`record_id = ${caseNo}`)
+			.leftJoin(users, sql`${records.createdBy} = ${users.id}`)
+			.leftJoin(sql`${users} creator`, sql`${records.createdBy} = creator.id`)
+			.where(sql`${records.recordId} = ${caseNo}`)
 			.orderBy(desc(records.recordId))
 			.limit(1);
 
 		data = await db
-			.select()
+			.select({
+				historyId: history.historyId,
+				historyType: history.historyType,
+				historyDate: history.historyDate,
+				historyTime: history.historyTime,
+				recordId: history.recordId,
+				imageData: history.imageData,
+				createdBy: history.createdBy,
+				creatorName: users.name
+			})
 			.from(history)
-			.where(sql`record_id = ${caseNo}`)
+			.leftJoin(users, sql`${history.createdBy} = ${users.id}`)
+			.where(sql`${history.recordId} = ${caseNo}`)
 			.orderBy(desc(history.historyId));
 		console.log(recordData);
 	} catch (error) {

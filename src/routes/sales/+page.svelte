@@ -123,6 +123,15 @@
 		return date.toLocaleDateString();
 	}
 
+	function fmt(v: unknown) {
+		const n = Number(v ?? 0) || 0;
+		return n.toLocaleString('en-PH', {
+			style: 'currency',
+			currency: 'PHP',
+			minimumFractionDigits: 2
+		});
+	}
+
 	function addSalary() {
 		if (newStaffName && newStaffSalary) {
 			staffSalaries = [
@@ -548,132 +557,139 @@
 	}
 </script>
 
-<div class="flex w-full flex-col p-4">
-	<div class="mb-6 flex w-full items-center justify-between">
+<div class="mx-auto max-w-6xl px-4 py-8">
+	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Financial Summary</h1>
-
-		<!-- Month Year Picker Form -->
-		<form method="POST" action="?/changeDate" class="flex items-center gap-4 print:hidden">
-			<div class="flex items-center gap-4">
-				<MonthYearPicker bind:selectedMonth bind:selectedYear />
-			</div>
-
-			<button
-				type="submit"
-				class="rounded-md bg-indigo-100 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-200"
-			>
-				Update
-			</button>
-		</form>
-
-		<!-- Filters -->
-		<div class="flex items-center gap-2">
-			<label for="payment-status-filter" class="text-sm text-gray-600">Payment Status</label>
-			<select
-				id="payment-status-filter"
-				class="rounded-md border-gray-300 p-2"
-				value={statusValue}
-				onchange={(e) => {
-					const val = (e.target as HTMLSelectElement).value;
-					statusValue = val;
-					const params = new URLSearchParams(window.location.search);
-					if (val) params.set('status', val);
-					else params.delete('status');
-					const base = window.location.pathname + '?' + params.toString();
-					window.location.href = base;
-				}}
-			>
-				<option value="">All</option>
-				<option value="paid">paid</option>
-				<option value="unpaid">unpaid</option>
-			</select>
-
-			<!-- Remarks filter -->
-			<label for="remarks-filter" class="text-sm text-gray-600">Remarks</label>
-			<select
-				id="remarks-filter"
-				class="rounded-md border-gray-300 p-2"
-				value={remarksValue}
-				onchange={(e) => {
-					const val = (e.target as HTMLSelectElement).value;
-					remarksValue = val;
-					const params = new URLSearchParams(window.location.search);
-					// Always set the parameter, use empty string for "All" to explicitly show all
-					params.set('remarks', val || '');
-					const base = window.location.pathname + '?' + params.toString();
-					window.location.href = base;
-				}}
-			>
-				<option value="">All</option>
-				<option value="finished">finished</option>
-				<option value="pending">pending</option>
-			</select>
-
-			<!-- Clinic filter -->
-			<SearchableSelect
-				options={clinicOptions}
-				bind:value={clinicValue}
-				label="Clinic"
-				placeholder="Search clinic..."
-				onchange={(val) => {
-					const params = new URLSearchParams(window.location.search);
-					if (val) params.set('clinic_id', val);
-					else params.delete('clinic_id');
-					const base = window.location.pathname + '?' + params.toString();
-					window.location.href = base;
-				}}
-			/>
+		<div class="text-sm text-gray-500">
+			Showing data for: <span class="font-semibold text-gray-700">{new Date(selectedYear, selectedMonth - 1).toLocaleString('default', {
+				month: 'long',
+				year: 'numeric'
+			})}</span>
 		</div>
 	</div>
 
-	<!-- Display selected month and year -->
-	<div class="mb-4 w-full text-sm text-gray-500">
-		Showing data for: {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', {
-			month: 'long',
-			year: 'numeric'
-		})}
+	<!-- Filters Card -->
+	<div class="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-6 shadow-sm">
+		<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
+			Filter & Navigate
+		</h2>
+		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+			<!-- Month Year Picker Form -->
+			<div class="col-span-1 sm:col-span-2 lg:col-span-2">
+				<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					>Period</label
+				>
+				<form method="POST" action="?/changeDate" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 print:hidden">
+					<div class="w-full sm:w-auto flex-1">
+						<MonthYearPicker bind:selectedMonth bind:selectedYear />
+					</div>
+					<button
+						type="submit"
+						class="w-full sm:w-auto rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					>
+						Update
+					</button>
+				</form>
+			</div>
+
+			<div class="col-span-1 flex flex-col justify-end">
+				<label for="payment-status-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Payment Status</label>
+				<select
+					id="payment-status-filter"
+					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					value={statusValue}
+					onchange={(e) => {
+						const val = (e.target as HTMLSelectElement).value;
+						statusValue = val;
+						const params = new URLSearchParams(window.location.search);
+						if (val) params.set('status', val);
+						else params.delete('status');
+						const base = window.location.pathname + '?' + params.toString();
+						window.location.href = base;
+					}}
+				>
+					<option value="">All</option>
+					<option value="paid">Paid</option>
+					<option value="unpaid">Unpaid</option>
+				</select>
+			</div>
+
+			<div class="col-span-1 flex flex-col justify-end">
+				<!-- Remarks filter -->
+				<label for="remarks-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Remarks</label>
+				<select
+					id="remarks-filter"
+					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					value={remarksValue}
+					onchange={(e) => {
+						const val = (e.target as HTMLSelectElement).value;
+						remarksValue = val;
+						const params = new URLSearchParams(window.location.search);
+						params.set('remarks', val || '');
+						const base = window.location.pathname + '?' + params.toString();
+						window.location.href = base;
+					}}
+				>
+					<option value="">All</option>
+					<option value="finished">Finished</option>
+					<option value="pending">Pending</option>
+				</select>
+			</div>
+
+			<div class="col-span-1 flex flex-col justify-end relative z-10 w-full">
+				<!-- Clinic filter -->
+				<SearchableSelect
+					options={clinicOptions}
+					bind:value={clinicValue}
+					label="Clinic"
+					placeholder="Search clinic..."
+					onchange={(val) => {
+						const params = new URLSearchParams(window.location.search);
+						if (val) params.set('clinic_id', val);
+						else params.delete('clinic_id');
+						const base = window.location.pathname + '?' + params.toString();
+						window.location.href = base;
+					}}
+				/>
+			</div>
+		</div>
 	</div>
 
 	<!-- Total Profit Section -->
-	<div class="mb-2 w-full rounded-lg bg-white p-6 shadow-md">
-		<h2 class="mb-4 text-xl font-semibold">Summary</h2>
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-			<div>
-				<p class="text-sm font-semibold text-gray-600">Total Income</p>
-				<p class="text-xl font-bold text-gray-900">
-					&#8369;{financialData.totalIncome.toFixed(2)}
-				</p>
-			</div>
-			<div>
-				<p class="text-sm font-semibold text-gray-600">Total Expenses</p>
-				<p class="text-xl font-bold text-gray-900">
-					&#8369;{financialData.totalExpenses.toFixed(2)}
-				</p>
-			</div>
-			<div>
-				<p class="text-sm font-semibold text-gray-600">Total Unpaid</p>
-				<p class="text-xl font-bold text-red-600">
-					&#8369;{financialData.weekly
-						.reduce(
-							(total, week) =>
-								total +
-								week.transactions.reduce(
-									(weekTotal, t) => weekTotal + (t.orderTotal - t.paidAmount),
-									0
-								),
-							0
-						)
-						.toFixed(2)}
-				</p>
-			</div>
-			<div>
-				<p class="text-sm font-semibold text-gray-600">Total Profit</p>
-				<p
-					class={`text-xl font-bold ${financialData.totalProfit > 0 ? 'text-green-500' : 'text-red-400'}`}
-				>
-					&#8369;{financialData.totalProfit.toFixed(2)}
-				</p>
-			</div>
+	<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Income</p>
+			<p class="text-2xl font-bold text-gray-900">
+				{fmt(financialData.totalIncome)}
+			</p>
+		</div>
+		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Expenses</p>
+			<p class="text-2xl font-bold text-gray-900">
+				{fmt(financialData.totalExpenses)}
+			</p>
+		</div>
+		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Unpaid</p>
+			<p class="text-2xl font-bold text-red-600">
+				{fmt(financialData.weekly
+					.reduce(
+						(total, week) =>
+							total +
+							week.transactions.reduce(
+								(weekTotal, t) => weekTotal + (t.orderTotal - t.paidAmount),
+								0
+							),
+						0
+					))}
+			</p>
+		</div>
+		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm relative overflow-hidden">
+			<div class={`absolute top-0 right-0 w-2 h-full ${financialData.totalProfit > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Profit</p>
+			<p class={`text-2xl font-bold ${financialData.totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
+				{fmt(financialData.totalProfit)}
+			</p>
 		</div>
 	</div>
 	<!-- Main Income Section -->
@@ -778,10 +794,10 @@
 													{transaction.patientName}
 												</td>
 												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
-													&#8369;{transaction.orderTotal.toFixed(2)}
+													{fmt(transaction.orderTotal)}
 												</td>
 												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
-													&#8369;{transaction.paidAmount.toFixed(2)}
+													{fmt(transaction.paidAmount)}
 												</td>
 
 												<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
@@ -803,7 +819,7 @@
 												</td>
 											</tr>
 										{/each}
-										<tr class="bg-gray-50">
+										<tr class="bg-gray-50 border-t-2 border-gray-300">
 											<td
 												colspan="4"
 												class="px-6 py-4 text-sm font-semibold whitespace-nowrap text-gray-900"
@@ -814,7 +830,7 @@
 												colspan="2"
 												class="px-6 py-4 text-right text-sm font-semibold whitespace-nowrap text-gray-900"
 											>
-												&#8369;{week.totalAmount.toFixed(2)}
+												{fmt(week.totalAmount)}
 											</td>
 										</tr>
 									</tbody>
@@ -876,8 +892,8 @@
 												<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
 													{expense.description}
 												</td>
-												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
-													&#8369;{expense.amount.toFixed(2)}
+												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-red-600 font-medium">
+													{fmt(expense.amount)}
 												</td>
 												<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
 													<span
@@ -905,7 +921,7 @@
 												</td>
 											</tr>
 										{/each}
-										<tr class="bg-gray-50">
+										<tr class="bg-gray-50 border-t-2 border-gray-300">
 											<td
 												colspan="2"
 												class="px-6 py-4 text-sm font-semibold whitespace-nowrap text-gray-900"
@@ -914,9 +930,9 @@
 											</td>
 											<td
 												colspan="2"
-												class="px-6 py-4 text-right text-sm font-semibold whitespace-nowrap text-gray-900"
+												class="px-6 py-4 text-right text-sm font-semibold text-red-600 whitespace-nowrap"
 											>
-												&#8369;{week.totalExpenses.toFixed(2)}
+												{fmt(week.totalExpenses)}
 											</td>
 										</tr>
 									</tbody>
@@ -924,13 +940,14 @@
 							</div>
 
 							<!-- Weekly Staff Salary Input -->
-							<div class="mt-4 rounded-lg bg-gray-50 p-4">
-								<h5 class="mb-2 text-sm font-semibold">Add Weekly Staff Salary</h5>
-								<div class="flex gap-4">
-									<div class="flex-1">
+							<div class="mt-4 rounded-lg bg-gray-50 p-4 border border-gray-200">
+								<h5 class="mb-3 text-sm font-semibold tracking-wider text-gray-700 uppercase">Add Weekly Staff Salary</h5>
+								<div class="flex flex-col sm:flex-row gap-4 items-end">
+									<div class="flex-1 w-full">
+										<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Staff Name</label>
 										<input
 											type="text"
-											class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+											class="w-full rounded-md border-gray-300 py-2 px-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 											placeholder="Enter staff name"
 											value={salaryInputs.get(week.weekRange)?.staffName ?? ''}
 											oninput={(e) => {
@@ -945,28 +962,34 @@
 											}}
 										/>
 									</div>
-									<div class="flex-1">
-										<input
-											type="number"
-											class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-											placeholder="Enter weekly salary amount"
-											min="0"
-											step="0.01"
-											value={salaryInputs.get(week.weekRange)?.amount ?? 0}
-											oninput={(e) => {
-												const current = salaryInputs.get(week.weekRange) ?? {
-													staffName: '',
-													amount: 0
-												};
-												salaryInputs.set(week.weekRange, {
-													...current,
-													amount: Number((e.target as HTMLInputElement).value)
-												});
-											}}
-										/>
+									<div class="flex-1 w-full">
+										<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Amount (PHP)</label>
+										<div class="relative">
+											<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+												<span class="text-gray-500 sm:text-sm">&#8369;</span>
+											</div>
+											<input
+												type="number"
+												class="block w-full rounded border border-gray-300 py-2 pl-8 pr-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+												placeholder="Weekly salary amount"
+												min="0"
+												step="0.01"
+												value={salaryInputs.get(week.weekRange)?.amount ?? 0}
+												oninput={(e) => {
+													const current = salaryInputs.get(week.weekRange) ?? {
+														staffName: '',
+														amount: 0
+													};
+													salaryInputs.set(week.weekRange, {
+														...current,
+														amount: Number((e.target as HTMLInputElement).value)
+													});
+												}}
+											/>
+										</div>
 									</div>
 									<button
-										class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+										class="w-full sm:w-auto rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
 										onclick={(e) => {
 											e.preventDefault();
 											const input = salaryInputs.get(week.weekRange);
@@ -984,34 +1007,33 @@
 					</div>
 
 					<!-- Weekly Summary -->
-					<div class="mt-4 rounded-lg bg-gray-50 p-4">
-						<div class="grid grid-cols-4 gap-4">
+					<div class="mt-4 rounded-lg bg-gray-50 p-6 border border-gray-200">
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 							<div>
-								<p class="text-sm font-semibold text-gray-600">Weekly Income</p>
+								<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Weekly Income</p>
 								<p class="text-lg font-bold text-gray-900">
-									&#8369;{week.totalAmount.toFixed(2)}
+									{fmt(week.totalAmount)}
 								</p>
 							</div>
 							<div>
-								<p class="text-sm font-semibold text-gray-600">Weekly Expenses</p>
+								<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Weekly Expenses</p>
 								<p class="text-lg font-bold text-gray-900">
-									&#8369;{week.totalExpenses.toFixed(2)}
+									{fmt(week.totalExpenses)}
 								</p>
 							</div>
 							<div>
-								<p class="text-sm font-semibold text-gray-600">Total Unpaid</p>
+								<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Unpaid</p>
 								<p class="text-lg font-bold text-red-600">
-									&#8369;{week.transactions
-										.reduce((total, t) => total + (t.orderTotal - t.paidAmount), 0)
-										.toFixed(2)}
+									{fmt(week.transactions.reduce((total, t) => total + (t.orderTotal - t.paidAmount), 0))}
 								</p>
 							</div>
-							<div>
-								<p class="text-sm font-semibold text-gray-600">Weekly Profit</p>
+							<div class="relative overflow-hidden pl-4 border-l-2 border-gray-200">
+        						<div class={`absolute top-0 left-0 w-1 h-full ${week.weeklyProfit >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+								<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Weekly Profit</p>
 								<p
-									class={`text-lg font-bold ${week.weeklyProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}
+									class={`text-lg font-bold ${week.weeklyProfit >= 0 ? 'text-green-600' : 'text-red-500'}`}
 								>
-									&#8369;{week.weeklyProfit.toFixed(2)}
+									{fmt(week.weeklyProfit)}
 								</p>
 							</div>
 						</div>

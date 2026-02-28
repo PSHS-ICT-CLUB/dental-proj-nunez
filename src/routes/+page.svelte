@@ -163,6 +163,22 @@
 		currentPage = page;
 	}
 
+	function goToFirstPage() {
+		currentPage = 1;
+	}
+
+	function goToLastPage() {
+		if (totalPages > 0) currentPage = totalPages;
+	}
+
+	$effect(() => {
+		if (totalPages > 0 && currentPage > totalPages) {
+			currentPage = totalPages;
+		} else if (totalPages === 0) {
+			currentPage = 1;
+		}
+	});
+
 	// Build a compact pagination list with ellipses.
 	// Returns an array of numbers and '...' strings. Examples:
 	// totalPages=10, current=1  -> [1,2,3,4,5,'...',10]
@@ -404,7 +420,7 @@
 			<div class="border-b border-gray-200 bg-white p-8">
 				<div class="flex flex-row items-start justify-between space-x-12">
 					<div class="flex flex-col">
-						<h1 class="text-2xl font-bold text-gray-900">CASSEY DENTAL LABORATORY</h1>
+						<h1 class="text-2xl font-bold text-gray-900">NUNEZ DENTAL LABORATORY</h1>
 						<h2 class="mt-1 text-xl font-semibold text-gray-700">STATEMENT OF ACCOUNT</h2>
 					</div>
 
@@ -667,35 +683,62 @@
 			</table>
 		</div>
 
-		{#if totalPages > 1}
+		{#if data.records && data.records.length > 0}
 			<div
 				class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 print:hidden"
 			>
 				<div class="flex flex-1 justify-between sm:hidden">
 					<button
-						onclick={prevPage}
+						onclick={goToFirstPage}
 						class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 						disabled={currentPage === 1}
 					>
-						Previous
+						First
+					</button>
+					<button
+						onclick={prevPage}
+						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						disabled={currentPage === 1}
+					>
+						Prev
 					</button>
 					<button
 						onclick={nextPage}
-						class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 						disabled={currentPage === totalPages}
 					>
 						Next
 					</button>
+					<button
+						onclick={goToLastPage}
+						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						disabled={currentPage === totalPages}
+					>
+						Last
+					</button>
 				</div>
 				<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-					<div>
+					<div class="flex items-center gap-6">
 						<p class="text-sm text-gray-700">
-							Showing <span class="font-medium">{(currentPage - 1) * recordsPerPage + 1}</span> to
+							Showing <span class="font-medium">{totalOrderAmount() === '0.00' ? 0 : (currentPage - 1) * recordsPerPage + 1}</span> to
 							<span class="font-medium"
 								>{Math.min(currentPage * recordsPerPage, data.records?.length || 0)}</span
 							>
 							of <span class="font-medium">{data.records?.length || 0}</span> results
 						</p>
+						<div class="flex items-center gap-2">
+							<label for="rows-per-page" class="text-sm font-medium text-gray-700">Rows per page:</label>
+							<select
+								id="rows-per-page"
+								bind:value={recordsPerPage}
+								class="rounded-md border border-gray-300 py-1 pl-2 pr-6 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+							>
+								<option value={10}>10</option>
+								<option value={20}>20</option>
+								<option value={50}>50</option>
+								<option value={100}>100</option>
+							</select>
+						</div>
 					</div>
 					<div>
 						<nav
@@ -703,9 +746,21 @@
 							aria-label="Pagination"
 						>
 							<button
-								onclick={prevPage}
+								onclick={goToFirstPage}
 								class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 								disabled={currentPage === 1}
+								title="First Page"
+							>
+								<span class="sr-only">First</span>
+								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+									<path fill-rule="evenodd" d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z" clip-rule="evenodd" />
+								</svg>
+							</button>
+							<button
+								onclick={prevPage}
+								class="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								disabled={currentPage === 1}
+								title="Previous Page"
 							>
 								<span class="sr-only">Previous</span>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -718,7 +773,7 @@
 							</button>
 							{#each getPageList(totalPages, currentPage) as pageItem}
 								{#if pageItem === '...'}
-									<span class="relative inline-flex items-center px-4 py-2 text-sm text-gray-500"
+									<span class="relative inline-flex items-center px-4 py-2 text-sm text-gray-500 ring-1 ring-inset ring-gray-300"
 										>{pageItem}</span
 									>
 								{:else}
@@ -736,8 +791,9 @@
 							{/each}
 							<button
 								onclick={nextPage}
-								class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								class="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 								disabled={currentPage === totalPages}
+								title="Next Page"
 							>
 								<span class="sr-only">Next</span>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -746,6 +802,17 @@
 										d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
 										clip-rule="evenodd"
 									/>
+								</svg>
+							</button>
+							<button
+								onclick={goToLastPage}
+								class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								disabled={currentPage === totalPages}
+								title="Last Page"
+							>
+								<span class="sr-only">Last</span>
+								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+									<path fill-rule="evenodd" d="M4.21 5.23a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L8.168 10 4.23 6.29a.75.75 0 01-.02-1.06zm6 0a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L14.168 10 10.23 6.29a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
 								</svg>
 							</button>
 						</nav>

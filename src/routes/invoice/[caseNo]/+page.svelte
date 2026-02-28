@@ -26,9 +26,9 @@
 	<div class="copy-label">CUSTOMER COPY</div>
 	<div class="invoice-header">
 		<div class="logo-section">
-			<img src="/logo.jpg" alt="Cassey Dental Laboratory Logo" />
+			<img src="/logo.jpg" alt="Nunez Dental Laboratory Logo" />
 			<div class="company-details">
-				<h2 class="font-bold">CASSEY DENTAL LABORATORY</h2>
+				<h2 class="font-bold">NUNEZ DENTAL LABORATORY</h2>
 				<p>Camia St., Panghulo, 3021 Obando, Bulacan, Philippines</p>
 				<p>Cell no. 0916-753-5300</p>
 				<p>Non-VAT Reg TIN: 341-948-594-00000</p>

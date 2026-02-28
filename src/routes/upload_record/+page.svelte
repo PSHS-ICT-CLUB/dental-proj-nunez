@@ -30,10 +30,8 @@
 	let case_type_lower: number = $state(1);
 	let in_file: HTMLInputElement | undefined = $state();
 	let out_file: HTMLInputElement | undefined = $state();
-	let in_img: HTMLImageElement | undefined = $state();
-	let out_img: HTMLImageElement | undefined = $state();
-	let show_in: boolean = $state(false);
-	let show_out: boolean = $state(false);
+	let in_img_urls: string[] = $state([]);
+	let out_img_urls: string[] = $state([]);
 
 	let doctorInputValue = $state('');
 	let clinicInputValue = $state('');
@@ -41,20 +39,35 @@
 	let showClinicDropdown = $state(false);
 	let payment_method = $state('cash');
 	function handleInImageChange() {
-		const file = in_file?.files?.[0];
-
-		if (file) {
-			show_in = true;
-
-			const reader = new FileReader();
-			reader.addEventListener('load', function () {
-				in_img?.setAttribute('src', reader.result?.toString() || '');
-			});
-			reader.readAsDataURL(file);
-
-			return;
+		const files = in_file?.files;
+		
+		// Revoke old object URLs to avoid memory leaks
+		for (const url of in_img_urls) {
+			URL.revokeObjectURL(url);
 		}
-		show_in = false;
+		in_img_urls = [];
+
+		if (files && files.length > 0) {
+			for (let i = 0; i < files.length; i++) {
+				in_img_urls.push(URL.createObjectURL(files[i]));
+			}
+		}
+	}
+
+	function removeInImage(index: number) {
+		if (!in_file?.files) return;
+		
+		const dataTransfer = new DataTransfer();
+		const files = Array.from(in_file.files);
+		
+		files.forEach((file, i) => {
+			if (i !== index) {
+				dataTransfer.items.add(file);
+			}
+		});
+		
+		in_file.files = dataTransfer.files;
+		handleInImageChange();
 	}
 
 	function filterDoctors() {
@@ -211,6 +224,10 @@
 		return { upperNumber, lowerNumber };
 	}
 
+	function formatCaseNumber(num: number, caseTypeId: number) {
+		return String(num).padStart(5, '0');
+	}
+
 	$effect(() => {
 		// Recalculate case numbers whenever case types or jaw selection changes
 		const { upperNumber, lowerNumber } = calculateCaseNumbers();
@@ -268,7 +285,7 @@
 
 <div class=" flex justify-center px-4 md:px-8">
 	<form
-		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-6 shadow-md md:max-w-[1200px]"
+		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-4 sm:p-6 shadow-md md:max-w-[1200px]"
 		method="POST"
 		enctype="multipart/form-data"
 		onsubmit={handleSubmit}
@@ -276,10 +293,10 @@
 		<h2 class="text-center text-2xl font-semibold text-gray-800">Add New Record</h2>
 
 		<!-- First Row: Patient Information -->
-		<div class="grid grid-cols-4 gap-4">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 			<!-- Clinic Selection -->
 			<div class="relative">
-				<label for="clinic_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="clinic_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 					Clinic
 					<input
 						type="text"
@@ -353,7 +370,7 @@
 
 			<!-- Doctor Selection -->
 			<div class="relative">
-				<label for="doctor_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="doctor_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 					Doctor
 					<input
 						type="text"
@@ -434,7 +451,7 @@
 
 			<!-- Patient Name -->
 			<div>
-				<label for="patient_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="patient_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 					Patient Name
 					<input
 						type="text"
@@ -486,11 +503,11 @@
 			<!-- Upper Section -->
 			{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
 				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-sm font-bold text-gray-700">Upper</h3>
-					<div class="grid grid-cols-5 gap-4">
+					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Upper</h3>
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 						<!-- Case Type -->
 						<div>
-							<label for="case_type_upper" class="block text-sm font-medium text-gray-700">
+							<label for="case_type_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Case type
 								<select
 									name="case_type_upper"
@@ -507,22 +524,21 @@
 
 						<!-- Case Number -->
 						<div>
-							<label for="case_number_upper" class="block text-sm font-medium text-gray-700">
+							<label for="case_number_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Case number
 								<input
 									type="text"
 									name="case_number_upper"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 									placeholder="Case number"
-									value={next_case_upper}
+									value={formatCaseNumber(next_case_upper, case_type_upper)}
 									disabled
 								/>
-								<input type="hidden" name="case_number_upper" value={next_case_upper} />
 							</label>
 						</div>
 						<!-- Description -->
-						<div>
-							<label for="upper_description" class="block text-sm font-medium text-gray-700">
+						<div class="sm:col-span-2 lg:col-span-1">
+							<label for="upper_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Description
 								<textarea
 									name="upper_description"
@@ -533,7 +549,7 @@
 						</div>
 						<!-- Unit -->
 						<div>
-							<label for="upper_unit" class="block text-sm font-medium text-gray-700">
+							<label for="upper_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Unit
 								<input
 									type="number"
@@ -550,19 +566,22 @@
 
 						<!-- Cost -->
 						<div>
-							<label for="upper_cost" class="block text-sm font-medium text-gray-700">
-								Cost
+							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="upper_cost">Cost</label>
+							<div class="relative mt-1">
+								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+								</div>
 								<input
 									type="number"
 									id="upper_cost"
 									name="upper_cost"
 									bind:value={upper_cost}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Cost per unit"
+									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+									placeholder="0.00"
 									min="0"
 									required
 								/>
-							</label>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -571,11 +590,11 @@
 			<!-- Lower Section (Similar structure to Upper) -->
 			{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
 				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-sm font-bold text-gray-700">Lower</h3>
-					<div class="grid grid-cols-5 gap-4">
+					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Lower</h3>
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 						<!-- Case Type -->
 						<div>
-							<label for="case_type_lower" class="block text-sm font-medium text-gray-700">
+							<label for="case_type_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Case type
 								<select
 									name="case_type_lower"
@@ -592,22 +611,21 @@
 
 						<!-- Case Number -->
 						<div>
-							<label for="case_number_lower" class="block text-sm font-medium text-gray-700">
+							<label for="case_number_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Case number
 								<input
 									type="text"
 									name="case_number_lower"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 									placeholder="Case number"
-									value={next_case_lower}
+									value={formatCaseNumber(next_case_lower, case_type_lower)}
 									disabled
 								/>
-								<input type="hidden" name="case_number_lower" value={next_case_lower} />
 							</label>
 						</div>
 						<!-- Description -->
-						<div>
-							<label for="lower_description" class="block text-sm font-medium text-gray-700">
+						<div class="sm:col-span-2 lg:col-span-1">
+							<label for="lower_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Description
 								<textarea
 									name="lower_description"
@@ -618,7 +636,7 @@
 						</div>
 						<!-- Unit -->
 						<div>
-							<label for="lower_unit" class="block text-sm font-medium text-gray-700">
+							<label for="lower_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
 								Unit
 								<input
 									type="number"
@@ -635,19 +653,22 @@
 
 						<!-- Cost -->
 						<div>
-							<label for="lower_cost" class="block text-sm font-medium text-gray-700">
-								Cost
+							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="lower_cost">Cost</label>
+							<div class="relative mt-1">
+								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+								</div>
 								<input
 									type="number"
 									id="lower_cost"
 									name="lower_cost"
 									bind:value={lower_cost}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Cost per unit"
+									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+									placeholder="0.00"
 									min="0"
 									required
 								/>
-							</label>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -655,13 +676,13 @@
 		</div>
 
 		<!-- Third Row: Image and Payment -->
-		<div class="grid grid-cols-2 gap-4">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 			<!-- IN Image Column -->
 			<div class="rounded-md border border-gray-200 p-4">
 				<div class="mb-2 flex flex-col gap-2">
-					<span class="block text-sm font-bold text-gray-700"> IN Image </span>
-					{#if !show_in}
-						<p class="mb-2 text-sm text-gray-500">No image uploaded yet</p>
+					<span class="block text-[10px] font-bold tracking-wider text-gray-500 uppercase"> IN Image </span>
+					{#if in_img_urls.length === 0}
+						<p class="mb-2 text-sm text-gray-500">No images uploaded yet</p>
 					{/if}
 					<div class="flex gap-2">
 						<button
@@ -695,22 +716,38 @@
 								accept="image/*"
 								bind:this={in_file}
 								onchange={handleInImageChange}
+								multiple
 								required
 							/>
 						</label>
 					</div>
 				</div>
-				{#if show_in}
-					<div class="mt-2">
-						<img
-							class="h-40 w-40 rounded-md object-cover shadow-sm"
-							bind:this={in_img}
-							alt="IN Preview"
-						/>
+				{#if in_img_urls.length > 0}
+					<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+						{#each in_img_urls as url, i}
+							<div class="relative group">
+								<img
+									class="h-24 w-full rounded-md object-cover shadow-sm border border-gray-100"
+									src={url}
+									alt="IN Preview"
+								/>
+								<button
+									type="button"
+									class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 focus:outline-none transition-colors"
+									onclick={() => removeInImage(i)}
+									title="Remove image"
+									aria-label="Remove image"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+									</svg>
+								</button>
+							</div>
+						{/each}
 					</div>
 				{/if}
 				<div class="mt-4 flex flex-col gap-2">
-					<label for="date" class="mb-2 block text-sm font-bold text-gray-700">
+					<label for="date" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 						IN Date
 						<input
 							type="date"
@@ -721,7 +758,7 @@
 							class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 						/>
 					</label>
-					<label for="time" class="mb-2 block text-sm font-bold text-gray-700">
+					<label for="time" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 						IN Time
 						<input
 							type="time"
@@ -737,48 +774,44 @@
 
 			<!-- Payment Information Column -->
 			<div class="rounded-md border border-gray-200 p-4">
-				<h3 class="mb-3 text-sm font-bold text-gray-700">Payment Information</h3>
+				<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Payment Information</h3>
 
 				<!-- Total Amount -->
-				<div class="mb-4">
-					<label for="total_amount" class="mb-2 block text-sm font-bold text-gray-700">
+				<div class="mb-5">
+					<label for="total_amount" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 						Total Amount
-						<input
-							type="number"
-							id="total_amount"
-							name="total_amount"
-							bind:value={total_amount}
-							class="block w-full appearance-none rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-							placeholder="0.00"
-							min="0"
-							step="0.01"
-							required
-							readonly
-						/>
 					</label>
+					<div class="block w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-2xl font-bold text-gray-900 shadow-sm relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-1.5 h-full bg-indigo-500"></div>
+						<span class="text-gray-400 font-medium mr-1 text-lg">₱</span>{total_amount?.toFixed(2) || '0.00'}
+					</div>
+					<input type="hidden" id="total_amount" name="total_amount" value={total_amount} />
 				</div>
 
 				<!-- Paid Amount -->
 				<div class="mb-4">
-					<label for="paid_amount" class="mb-2 block text-sm font-bold text-gray-700">
-						Paid Amount
+					<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase" for="paid_amount">Paid Amount</label>
+					<div class="relative">
+						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+							<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+						</div>
 						<input
 							type="number"
 							id="paid_amount"
 							name="paid_amount"
 							bind:value={paid_amount}
-							class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+							class="block w-full appearance-none rounded-md border border-gray-300 py-2 pl-7 pr-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 							placeholder="0.00"
 							min="0"
 							step="0.01"
 							required
 						/>
-					</label>
+					</div>
 				</div>
 
 				<!-- Payment Method -->
 				<div class="mb-4">
-					<label for="payment_method" class="mb-2 block text-sm font-bold text-gray-700">
+					<label for="payment_method" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 						Payment Method
 					</label>
 					<select

@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>Create Account | Cassey Dental Records System</title>
+	<title>Create Account | Nunez Dental Records System</title>
 </svelte:head>
 
 <div class="mx-auto mt-10 max-w-lg rounded-xl bg-white p-8 shadow-lg print:hidden">

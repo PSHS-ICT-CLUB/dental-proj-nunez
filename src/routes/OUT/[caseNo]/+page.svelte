@@ -10,25 +10,23 @@
 	let time: string | undefined = $state();
 
 	let in_file: HTMLInputElement | undefined = $state();
-	let in_img: HTMLImageElement | undefined = $state();
-	let show_in: boolean = $state(false);
+	let in_img_urls: string[] = $state([]);
 	let showCameraModal = $state(false);
 
 	function handleInImageChange() {
-		const file = in_file.files[0];
-
-		if (file) {
-			show_in = true;
-
-			const reader = new FileReader();
-			reader.addEventListener('load', function () {
-				in_img.setAttribute('src', reader.result.toString());
-			});
-			reader.readAsDataURL(file);
-
-			return;
+		const files = in_file?.files;
+		
+		// Revoke old object URLs to avoid memory leaks
+		for (const url of in_img_urls) {
+			URL.revokeObjectURL(url);
 		}
-		show_in = false;
+		in_img_urls = [];
+
+		if (files && files.length > 0) {
+			for (let i = 0; i < files.length; i++) {
+				in_img_urls.push(URL.createObjectURL(files[i]));
+			}
+		}
 	}
 
 	onMount(() => {
@@ -113,12 +111,15 @@
 					accept="image/*"
 					bind:this={in_file}
 					onchange={handleInImageChange}
+					multiple
 					required
 				/>
 			</div>
-			{#if show_in}
-				<div class="mt-2 flex justify-center">
-					<img class="h-auto w-70 rounded-md object-cover" bind:this={in_img} alt="OUT Preview" />
+			{#if in_img_urls.length > 0}
+				<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+					{#each in_img_urls as url}
+						<img class="h-24 w-full rounded-md object-cover shadow-sm" src={url} alt="OUT Preview" />
+					{/each}
 				</div>
 			{/if}
 		</div>

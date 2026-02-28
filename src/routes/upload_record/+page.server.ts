@@ -24,7 +24,9 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	default: async ({ cookies, request }) => {
+	default: async ({ locals, request }) => {
+		const session = await locals.auth();
+		const userId = session?.user?.id ? parseInt(session.user.id) : null;
 		const data = await request.formData();
 		console.log('Form data:', data);
 		let recordId;
@@ -40,7 +42,8 @@ export const actions = {
 							orderTotal: data.get('total_amount'),
 							paidAmount: data.get('paid_amount'),
 							excessPayment: data.get('excess_payment'),
-							paymentMethod: data.get('payment_method')
+							paymentMethod: data.get('payment_method'),
+							createdBy: userId
 						} as typeof orders.$inferInsert)
 						.returning({ id: orders.orderId });
 					let selectedJaw = data.get('selected_jaw')?.toString();
@@ -49,42 +52,60 @@ export const actions = {
 					if (selectedJaw === 'upper' || selectedJaw === 'U/L') {
 						let caseTypeId = Number(data.get('case_type_upper')?.toString());
 						console.log(caseTypeId);
+
+						// Atomically increment and get the new case number
+						const [updatedCaseType] = await tx
+							.update(caseTypes)
+							.set({
+								numberOfCases: sql`${caseTypes.numberOfCases} + 1`
+							})
+							.where(eq(caseTypes.caseTypeId, caseTypeId))
+							.returning({
+								newCases: caseTypes.numberOfCases,
+								typeName: caseTypes.caseTypeName
+							});
+
+						const nextCaseNum = updatedCaseType.newCases;
+						const formattedCaseNo = String(nextCaseNum).padStart(5, '0');
+
 						await tx.insert(orderItems).values({
 							orderId: orderID[0].id,
 							upOrDown: 'up',
 							caseTypeId: caseTypeId,
-							caseNo: data.get('case_number_upper'),
+							caseNo: formattedCaseNo,
 							itemCost: data.get('upper_cost'),
 							itemQuantity: data.get('upper_unit') as unknown as number,
 							orderDescription: data.get('upper_description')
 						} as typeof orderItems.$inferInsert);
-						await tx
-							.update(caseTypes)
-							.set({
-								numberOfCases: data.get('case_number_upper') as unknown as number
-							})
-							.where(eq(caseTypes.caseTypeId, caseTypeId));
 					}
 					if (selectedJaw === 'lower' || selectedJaw === 'U/L') {
 						let caseTypeId = Number(data.get('case_type_lower')?.toString());
-
 						console.log('lower');
+
+						// Atomically increment and get the new case number
+						const [updatedCaseType] = await tx
+							.update(caseTypes)
+							.set({
+								numberOfCases: sql`${caseTypes.numberOfCases} + 1`
+							})
+							.where(eq(caseTypes.caseTypeId, caseTypeId))
+							.returning({
+								newCases: caseTypes.numberOfCases,
+								typeName: caseTypes.caseTypeName
+							});
+
+						const nextCaseNum = updatedCaseType.newCases;
+						const formattedCaseNo = String(nextCaseNum).padStart(5, '0');
+
 						await tx.insert(orderItems).values({
 							orderId: orderID[0].id,
 							upOrDown: 'down',
 							caseTypeId: caseTypeId,
-							caseNo: data.get('case_number_lower'),
+							caseNo: formattedCaseNo,
 							itemCost: data.get('lower_cost'),
 							itemQuantity: data.get('lower_unit') as unknown as number,
 							orderDescription: data.get('lower_description')
 						} as typeof orderItems.$inferInsert);
-						console.log(caseTypeId);
-						await tx
-							.update(caseTypes)
-							.set({
-								numberOfCases: data.get('case_number_lower') as unknown as number
-							})
-							.where(eq(caseTypes.caseTypeId, caseTypeId));
 					}
 
 					const record = await tx
@@ -95,17 +116,24 @@ export const actions = {
 							timePickup: data.get('time'),
 							doctorId: data.get('doctor_name') as unknown as number,
 							patientName: data.get('patient_name'),
-							remarks: 'pending'
+							remarks: 'pending',
+							createdBy: userId
 						} as typeof records.$inferInsert)
 						.returning({ id: records.recordId });
 
-					await tx.insert(history).values({
-						historyType: 'in',
-						imageData: await convertFileToBytea(data.get('in-img') as File),
-						historyDate: data.get('date'),
-						recordId: record[0].id,
-						historyTime: data.get('time')
-					} as typeof history.$inferInsert);
+					const inImageFiles = data.getAll('in-img') as File[];
+					for (const file of inImageFiles) {
+						if (file && file.size > 0 && file.name !== 'undefined') {
+							await tx.insert(history).values({
+								historyType: 'in',
+								imageData: await convertFileToBytea(file),
+								historyDate: data.get('date'),
+								recordId: record[0].id,
+								historyTime: data.get('time'),
+								createdBy: userId
+							} as typeof history.$inferInsert);
+						}
+					}
 
 					return record[0].id;
 				});

@@ -32,7 +32,7 @@
 </script>
 
 <svelte:head>
-	<title>{getPageTitle(page.url.pathname)} | Cassey Dental Records System</title>
+	<title>{getPageTitle(page.url.pathname)} | Nunez Dental Records System</title>
 </svelte:head>
 
 <NotificationBanner />

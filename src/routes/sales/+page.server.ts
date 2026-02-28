@@ -118,10 +118,13 @@ export const load: PageServerLoad = async ({ url }) => {
 		const currentDate = new Date();
 
 		// Get month and year from URL params or use current date
-		const selectedYear = parseInt(searchParams.get('year') || currentDate.getFullYear().toString());
-		const selectedMonth = parseInt(
-			searchParams.get('month') || (currentDate.getMonth() + 1).toString()
-		);
+		const yearParam = searchParams.get('year');
+		let selectedYear = yearParam ? parseInt(yearParam, 10) : currentDate.getFullYear();
+		if (isNaN(selectedYear)) selectedYear = currentDate.getFullYear();
+
+		const monthParam = searchParams.get('month');
+		let selectedMonth = monthParam ? parseInt(monthParam, 10) : currentDate.getMonth() + 1;
+		if (isNaN(selectedMonth)) selectedMonth = currentDate.getMonth() + 1;
 
 		// Get the first and last day of the selected month
 		const startDate = new Date(selectedYear, selectedMonth - 1, 1);
@@ -182,16 +185,15 @@ export const load: PageServerLoad = async ({ url }) => {
 export const actions = {
 	changeDate: async ({ request }) => {
 		const data = await request.formData();
-		const exactDate = data.get('exact_date');
+		const exactDate = data.get('exact_date')?.toString();
 
 		if (exactDate) {
 			// Handle exact date query
-			const date = new Date(exactDate as string);
 			return redirect(303, `?date=${exactDate}`);
 		} else {
 			// Handle month/year query
-			const month = data.get('month');
-			const year = data.get('year');
+			const month = data.get('month')?.toString() || '';
+			const year = data.get('year')?.toString() || '';
 			return redirect(303, `?month=${month}&year=${year}`);
 		}
 	}

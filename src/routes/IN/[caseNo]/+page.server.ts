@@ -35,14 +35,19 @@ export const actions = {
 		const recordId = parseInt(data.get('recordId')?.toString() || '0');
 
 		try {
-			// Insert history record
-			await db.insert(history).values({
-				historyType: 'in',
-				recordId,
-				imageData: await convertFileToBytea(data.get('in-img') as File),
-				historyDate: data.get('date')?.toString(),
-				historyTime: data.get('time')?.toString()
-			} as typeof history.$inferInsert);
+			// Insert history records
+			const inImageFiles = data.getAll('in-img') as File[];
+			for (const file of inImageFiles) {
+				if (file && file.size > 0 && file.name !== 'undefined') {
+					await db.insert(history).values({
+						historyType: 'in',
+						recordId,
+						imageData: await convertFileToBytea(file),
+						historyDate: data.get('date')?.toString(),
+						historyTime: data.get('time')?.toString()
+					} as typeof history.$inferInsert);
+				}
+			}
 		} catch (error) {
 			console.error('Error processing IN record:', error);
 			return { success: false, error: 'Failed to process IN record' };

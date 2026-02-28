@@ -61,17 +61,28 @@
 </script>
 
 <div class="min-h-screen bg-gray-100 p-6">
-	<div class="mb-6 rounded-md bg-white p-6 shadow-md">
-		<div class="mb-4 flex flex-col items-center justify-between sm:flex-row">
-			<h1 class="text-xl font-semibold text-gray-800">
-				CASE NUMBER: <span class="font-bold text-indigo-600">{data.caseNo}</span>
-			</h1>
-			<h2 class="text-lg text-gray-700">
-				CLINIC: <span class="font-medium text-green-600">{data.recordData[0].clinicName}</span>
-			</h2>
+	<div class="mb-6 flex flex-col items-center sm:flex-row sm:justify-between rounded-md bg-white p-6 shadow-md">
+		<div class="flex flex-col">
+			<div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+				<h1 class="text-xl font-semibold text-gray-800">
+					CASE NUMBER: <span class="font-bold text-indigo-600">{data.caseNo}</span>
+				</h1>
+				<h2 class="text-lg text-gray-700">
+					CLINIC: <span class="font-medium text-green-600">{data.recordData[0]?.clinicName}</span>
+				</h2>
+			</div>
+			{#if data.recordData[0]?.creatorName || data.recordData[0]?.createdAt}
+				<div class="text-xs text-gray-500 mt-1">
+					<span class="font-medium">Created by:</span> {data.recordData[0]?.creatorName || 'Unknown Admin'}
+					{#if data.recordData[0]?.createdAt}
+						<span class="mx-1">•</span>
+						<span>{formatDate(data.recordData[0].createdAt.split(' ')[0])}</span>
+					{/if}
+				</div>
+			{/if}
 		</div>
 		<button
-			class="mt-4 rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:outline-none"
+			class="mt-4 sm:mt-0 rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:outline-none"
 			onclick={toggleSort}
 		>
 			Sort by Date ({sortAscending ? 'Oldest First' : 'Newest First'})
@@ -113,6 +124,9 @@
 						{:else}
 							<p class="mt-2 text-gray-500 italic">No Image Available</p>
 						{/if}
+						<div class="mt-3 border-t border-gray-300/30 pt-2 text-xs text-gray-600">
+							<span class="font-medium">Uploaded by:</span> {item.creatorName || 'Unknown Admin'}
+						</div>
 					</div>
 				</div>
 			</div>

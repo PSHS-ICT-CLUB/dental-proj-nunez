@@ -102,10 +102,25 @@
 
 				canvasElement.toBlob((blob) => {
 					if (blob && fileInput) {
-						const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+						const timestamp = new Date().getTime();
+						const file = new File([blob], `camera-capture-${timestamp}.jpg`, { type: 'image/jpeg' });
 						const dataTransfer = new DataTransfer();
+						
+						// Add existing files if any
+						if (fileInput.files) {
+							for (let i = 0; i < fileInput.files.length; i++) {
+								dataTransfer.items.add(fileInput.files[i]);
+							}
+						}
+						
+						// Add new file
 						dataTransfer.items.add(file);
 						fileInput.files = dataTransfer.files;
+						
+						// Trigger change event to update previews
+						const event = new Event('change', { bubbles: true });
+						fileInput.dispatchEvent(event);
+
 						if (onCapture) onCapture();
 					}
 				}, 'image/jpeg');

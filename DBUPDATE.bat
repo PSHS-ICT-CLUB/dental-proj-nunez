@@ -3,7 +3,7 @@ setlocal
 
 REM ============================================
 REM  Database Update & Environment Sync Script
-REM  for Cassey Dental Laboratory
+REM  for Nunez Dental Laboratory
 REM ============================================
 
 REM JSONBin.io Configuration (set as environment variables for PowerShell)

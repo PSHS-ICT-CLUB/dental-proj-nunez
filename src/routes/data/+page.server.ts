@@ -30,7 +30,11 @@ type Summary = {
 	totalAmount: number;
 	paidAmount: number;
 	caseTypes: Record<string, number>;
-	caseTypeTotals: Record<string, number>; // Add this field
+	caseTypeTotals: Record<string, number>;
+	paymentStatusData: {
+		paid: number;
+		unpaid: number;
+	};
 };
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -61,12 +65,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
 		.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
 		.where(
-			clinicId !== 'all'
+			clinicId !== 'all' && !isNaN(parseInt(clinicId, 10))
 				? and(
-						gte(orders.orderDate, startDate),
-						lte(orders.orderDate, endDate),
-						eq(doctors.clinicId, parseInt(clinicId))
-					)
+					gte(orders.orderDate, startDate),
+					lte(orders.orderDate, endDate),
+					eq(doctors.clinicId, parseInt(clinicId, 10))
+				)
 				: and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate))
 		);
 
@@ -96,7 +100,6 @@ export const load: PageServerLoad = async ({ url }) => {
 		),
 		caseTypeTotals: ordersWithItems.reduce(
 			(acc, order) => {
-				// Add this calculation
 				if (order.items) {
 					const caseType = allCaseTypes.find((ct) => ct.caseTypeId === order.items.caseTypeId);
 					if (caseType) {
@@ -107,14 +110,27 @@ export const load: PageServerLoad = async ({ url }) => {
 				return acc;
 			},
 			{} as Record<string, number>
-		)
+		),
+		paymentStatusData: {
+			paid: ordersWithItems.reduce((sum, order) => sum + Number(order.paidAmount || 0), 0),
+			unpaid: ordersWithItems.reduce((sum, order) => {
+				const total = Number(order.orderTotal || 0);
+				const paid = Number(order.paidAmount || 0);
+				return sum + Math.max(0, total - paid);
+			}, 0)
+		}
 	};
 
 	// Prepare chart data with proper typing
 	const chartData = ordersWithItems.reduce(
 		(acc, order) => {
 			const date = new Date(order.orderDate);
-			const key = period === 'day' ? format(date, 'yyyy-MM-dd') : format(date, 'MMMM yyyy');
+			let key = format(date, 'yyyy-MM-dd');
+			if (period === 'month') {
+				key = format(date, 'MMMM yyyy');
+			} else if (period === 'year') {
+				key = format(date, 'yyyy');
+			}
 
 			acc[key] = (acc[key] || 0) + Number(order.orderTotal || 0);
 			return acc;

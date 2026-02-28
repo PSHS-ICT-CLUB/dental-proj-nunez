@@ -31,7 +31,7 @@
 </script>
 
 <svelte:head>
-	<title>{getPageTitle(page.url.pathname)} | Cassey Dental Records System</title>
+	<title>{getPageTitle(page.url.pathname)} | Nunez Dental Records System</title>
 </svelte:head>
 
 <nav class="top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
