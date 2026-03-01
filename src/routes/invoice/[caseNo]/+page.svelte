@@ -63,6 +63,17 @@
 				<label for="doctor_name_input">Doctor:</label>
 				<input id="doctor_name_input" type="text" value={invoice.doctor_name} readonly />
 			</div>
+			{#if invoice.assigned_technicians}
+				<div class="info-row">
+					<label for="tech_name_input">Technician(s):</label>
+					<input
+						id="tech_name_input"
+						type="text"
+						value={invoice.assigned_technicians}
+						readonly
+					/>
+				</div>
+			{/if}
 		</div>
 		<div class="right-info">
 			<div class="info-row">
@@ -81,6 +92,17 @@
 					readonly
 				/>
 			</div>
+			{#if invoice.delivery_courier || invoice.delivery_fee}
+				<div class="info-row">
+					<label for="delivery_input">Delivery:</label>
+					<input
+						id="delivery_input"
+						type="text"
+						value={`${invoice.delivery_courier || ''}${invoice.delivery_fee ? ` (₱${invoice.delivery_fee})` : ''}`}
+						readonly
+					/>
+				</div>
+			{/if}
 		</div>
 	</div>
 

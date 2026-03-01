@@ -19,6 +19,19 @@
 		const formattedDate = new Date(date).toLocaleDateString();
 		return time ? `${formattedDate} ${time}` : formattedDate;
 	}
+
+	function formatDateOnly(date: string | null): string {
+		if (!date) return 'Not set';
+		return new Date(date).toLocaleString();
+	}
+
+	function formatDeliveryFee(amount: number | null): string {
+		if (!amount) return '₱0.00';
+		return new Intl.NumberFormat('en-PH', {
+			style: 'currency',
+			currency: 'PHP'
+		}).format(amount);
+	}
 </script>
 
 <div class="container mx-auto px-4 py-8 print:m-0 print:w-full print:p-0">
@@ -95,6 +108,68 @@
 				</div>
 			</div>
 
+			<!-- Delivery & Technicians Section -->
+			{#if record.deliveryCourier || record.deliveryFee || record.finishBy || record.assignedTechnicians || record.deliveryNotes}
+				<div class="mb-6 border-t border-gray-100 pt-6">
+					<h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<path d="M3 4a1 1 0 011-1h7a1 1 0 01.894.553L13.618 6H17a1 1 0 01.894 1.447l-2.5 5A1 1 0 0114.5 13H6.382l-.894 1.447A1 1 0 014 15H3V4z" />
+						</svg>
+						Delivery & Technicians
+					</h3>
+					<div class="grid gap-4 md:grid-cols-2 print:grid-cols-2 print:gap-2">
+						{#if record.deliveryCourier || record.deliveryFee}
+							<div>
+								<p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+									Delivery
+								</p>
+								<p class="text-base text-gray-900">
+									{#if record.deliveryCourier}{record.deliveryCourier}{/if}
+									{#if record.deliveryFee}
+										<span class="ml-1 text-gray-700">
+											({formatDeliveryFee(+record.deliveryFee)})
+										</span>
+									{/if}
+									{#if !record.deliveryCourier && !record.deliveryFee}
+										<span class="text-gray-400">Not set</span>
+									{/if}
+								</p>
+							</div>
+						{/if}
+						{#if record.finishBy}
+							<div>
+								<p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+									To be finished at
+								</p>
+								<p class="text-base text-gray-900">
+									{formatDateOnly(record.finishBy)}
+								</p>
+							</div>
+						{/if}
+						{#if record.assignedTechnicians}
+							<div class="md:col-span-2">
+								<p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+									Assigned Technician(s)
+								</p>
+								<p class="text-base text-gray-900">
+									{record.assignedTechnicians}
+								</p>
+							</div>
+						{/if}
+						{#if record.deliveryNotes}
+							<div class="md:col-span-2">
+								<p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+									Delivery Notes
+								</p>
+								<div class="rounded bg-gray-50 p-3 text-sm text-gray-700 border border-gray-100">
+									{record.deliveryNotes}
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+			{/if}
+
 			<!-- Finance Section -->
 			{#if record.orderInfo}
 			<div class="mb-6 border-t border-gray-100 pt-6">
@@ -140,6 +215,27 @@
 					{record.remarks || 'No remarks provided.'}
 				</div>
 			</div>
+			<!-- Inventory Usage Section -->
+			{#if data.inventoryUsages && data.inventoryUsages.length > 0}
+			<div class="border-t border-gray-100 pt-6">
+				<h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+						<path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+					</svg>
+					Materials Used
+				</h3>
+				<ul class="divide-y divide-gray-100 rounded border border-gray-100 bg-gray-50/50">
+					{#each data.inventoryUsages as usage}
+						<li class="flex items-center justify-between p-3 text-sm">
+							<span class="font-medium text-gray-900">{usage.itemName}</span>
+							<span class="text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded text-xs">
+								{usage.quantityUsed} {usage.itemUnit || ''}
+							</span>
+						</li>
+					{/each}
+				</ul>
+			</div>
+			{/if}
 		</div>
 	</div>
 

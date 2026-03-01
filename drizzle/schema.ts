@@ -117,6 +117,7 @@ export const records = pgTable(
 		datePickup: date('date_pickup'),
 		timePickup: time('time_pickup', { withTimezone: true }),
 		dateDropoff: date('date_dropoff'),
+		actualDropoff: timestamp('actual_dropoff', { withTimezone: true, mode: 'string' }),
 		timeDropoff: time('time_dropoff', { withTimezone: true }),
 		doctorId: integer('doctor_id').notNull(),
 		patientName: varchar('patient_name', { length: 255 }).notNull(),

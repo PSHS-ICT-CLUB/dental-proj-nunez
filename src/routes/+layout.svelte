@@ -8,12 +8,13 @@
 
 	let isMenuOpen = $state(false);
 
-	// Navigation links configuration
 	const navLinks = [
 		{ label: 'DATA', href: '/data' },
 		{ label: 'SALES', href: '/sales' },
+		{ label: 'CALENDAR', href: '/calendar' },
 		{ label: 'BALANCES', href: '/balance' },
 		{ label: 'EXPENSES', href: '/expenses', textColor: 'text-red-400' },
+		{ label: 'INVENTORY', href: '/inventory', textColor: 'text-emerald-400' },
 		{ label: 'EDIT INFO', href: '/edit_info' },
 		{ label: 'CHANGE PASSWORD', href: '/change_password' }
 	];
@@ -37,6 +38,12 @@
 				return 'Data';
 			case '/admin':
 				return 'Admin Panel';
+			case '/calendar':
+				return 'Calendar';
+			case '/inventory/suppliers':
+				return 'Inventory Suppliers';
+			case '/inventory/logs':
+				return 'Inventory Logs';
 
 			default:
 				return 'Dental Records';

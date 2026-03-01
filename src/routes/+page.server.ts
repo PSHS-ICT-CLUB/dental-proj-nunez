@@ -8,13 +8,21 @@ import {
 	orders,
 	orderItems
 } from '$lib/server/db/schema';
-import { desc, eq, and, sql } from 'drizzle-orm';
+import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	try {
+		// Get current month/year for calendar data
+		const now = new Date();
+		const currentMonth = now.getMonth() + 1;
+		const currentYear = now.getFullYear();
+		const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
+		const endOfMonth = new Date(currentYear, currentMonth, 0);
+		const startDateStr = startOfMonth.toISOString().split('T')[0];
+		const endDateStr = endOfMonth.toISOString().split('T')[0];
 		let whereConditions = [];
 
 		// Build where conditions from URL params
@@ -24,7 +32,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (url.searchParams.get('case_no')) {
 			whereConditions.push(eq(orderItems.caseNo, url.searchParams.get('case_no')!));
 		}
-		if (url.searchParams.get('case_type_id') && !isNaN(parseInt(url.searchParams.get('case_type_id')!))) {
+		if (
+			url.searchParams.get('case_type_id') &&
+			!isNaN(parseInt(url.searchParams.get('case_type_id')!))
+		) {
 			whereConditions.push(
 				eq(orderItems.caseTypeId, parseInt(url.searchParams.get('case_type_id')!))
 			);
@@ -55,7 +66,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.select({
 					recordId: records.recordId,
 					datePickup: records.datePickup,
-					dateDropoff: records.dateDropoff,
+					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
 					remarks: records.remarks,
 					doctorName: doctors.doctorName,
@@ -101,7 +112,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.select({
 					recordId: records.recordId,
 					datePickup: records.datePickup,
-					dateDropoff: records.dateDropoff,
+					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
 					remarks: records.remarks,
 					doctorName: doctors.doctorName,
@@ -142,17 +153,110 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				);
 		}
 
-		const [recordData, caseTypeData, doctorData, clinicData] = await Promise.all([
-			baseQuery.orderBy(desc(records.datePickup)),
+		const page = parseInt(url.searchParams.get('page') || '1');
+		const limit = parseInt(url.searchParams.get('limit') || '200');
+		const offset = (page - 1) * limit;
+
+		const [
+			recordData,
+			caseTypeData,
+			doctorData,
+			clinicData,
+			calendarDeliveryRecords,
+			calendarFinishByRecords
+		] = await Promise.all([
+			baseQuery.orderBy(desc(records.datePickup)).limit(limit).offset(offset),
 			db.select().from(caseTypes),
 			db.select().from(doctors).orderBy(desc(doctors.doctorName)),
-			db.select().from(clinics).orderBy(desc(clinics.clinicName))
+			db.select().from(clinics).orderBy(desc(clinics.clinicName)),
+			// Calendar delivery records
+			db
+				.select({
+					recordId: records.recordId,
+					dateDropoff: records.dateDropoff,
+					patientName: records.patientName,
+					remarks: records.remarks,
+					doctorName: doctors.doctorName,
+					clinicName: clinics.clinicName,
+					orderItems: sql<
+						Array<{
+							caseTypeName: string;
+							caseNo: string;
+							orderDescription: string | null;
+							upOrDown: string;
+						}>
+					>`
+						array_agg(
+							json_build_object(
+								'caseTypeName', ${caseTypes.caseTypeName},
+								'caseNo', ${orderItems.caseNo},
+								'orderDescription', ${orderItems.orderDescription},
+								'upOrDown', ${orderItems.upOrDown}
+							)
+						)`
+				})
+				.from(records)
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.where(
+					and(
+						isNotNull(records.dateDropoff),
+						sql`records.date_dropoff BETWEEN ${startDateStr} AND ${endDateStr}`
+					)
+				)
+				.groupBy(records.recordId, doctors.doctorName, clinics.clinicName)
+				.orderBy(desc(records.dateDropoff)),
+			// Calendar finishBy records
+			db
+				.select({
+					recordId: records.recordId,
+					finishBy: records.finishBy,
+					patientName: records.patientName,
+					remarks: records.remarks,
+					doctorName: doctors.doctorName,
+					clinicName: clinics.clinicName,
+					orderItems: sql<
+						Array<{
+							caseTypeName: string;
+							caseNo: string;
+							orderDescription: string | null;
+							upOrDown: string;
+						}>
+					>`
+						array_agg(
+							json_build_object(
+								'caseTypeName', ${caseTypes.caseTypeName},
+								'caseNo', ${orderItems.caseNo},
+								'orderDescription', ${orderItems.orderDescription},
+								'upOrDown', ${orderItems.upOrDown}
+							)
+						)`
+				})
+				.from(records)
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.where(
+					and(
+						isNotNull(records.finishBy),
+						sql`DATE(records.finish_by) BETWEEN ${startDateStr} AND ${endDateStr}`
+					)
+				)
+				.groupBy(records.recordId, doctors.doctorName, clinics.clinicName)
+				.orderBy(desc(records.finishBy))
 		]);
 		console.log({
 			records: recordData,
 			caseTypes: caseTypeData,
 			doctors: doctorData,
 			clinics: clinicData,
+			calendarDelivery: calendarDeliveryRecords,
+			calendarFinishBy: calendarFinishByRecords,
 			filters: Object.fromEntries(url.searchParams)
 		});
 		const passwordIsSet = await isPasswordSet();
@@ -163,7 +267,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			doctors: doctorData,
 			clinics: clinicData,
 			filters: Object.fromEntries(url.searchParams),
-			passwordIsSet
+			passwordIsSet,
+			calendarData: {
+				deliveryRecords: calendarDeliveryRecords,
+				finishByRecords: calendarFinishByRecords,
+				month: currentMonth,
+				year: currentYear
+			}
 		};
 	} catch (error) {
 		console.error('Error:', error);

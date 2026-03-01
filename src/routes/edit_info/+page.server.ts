@@ -1,16 +1,20 @@
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { clinics, doctors, caseTypes } from '$lib/server/db/schema';
+import { clinics, doctors, caseTypes, technicians } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
 
 export const load = (async () => {
-	const [doctorsData, clinicsData, caseTypesData] = await Promise.all([
+	const [doctorsData, clinicsData, caseTypesData, techniciansData] = await Promise.all([
 		db
 			.select({
 				doctorId: doctors.doctorId,
 				doctorName: doctors.doctorName,
+				doctorPhone: doctors.doctorPhone,
+				doctorEmail: doctors.doctorEmail,
 				clinicId: doctors.clinicId,
-				clinicName: clinics.clinicName
+				clinicName: clinics.clinicName,
+				clinicPhone: clinics.clinicPhone,
+				clinicEmail: clinics.clinicEmail
 			})
 			.from(doctors)
 			.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
@@ -19,7 +23,9 @@ export const load = (async () => {
 		db
 			.select({
 				clinicId: clinics.clinicId,
-				clinicName: clinics.clinicName
+				clinicName: clinics.clinicName,
+				clinicPhone: clinics.clinicPhone,
+				clinicEmail: clinics.clinicEmail
 			})
 			.from(clinics)
 			.orderBy(desc(clinics.clinicName)),
@@ -31,7 +37,18 @@ export const load = (async () => {
 				numberOfCases: caseTypes.numberOfCases
 			})
 			.from(caseTypes)
-			.orderBy(caseTypes.caseTypeName)
+			.orderBy(caseTypes.caseTypeName),
+		db
+			.select({
+				id: technicians.id,
+				name: technicians.name,
+				role: technicians.role,
+				phone: technicians.phone,
+				email: technicians.email,
+				notes: technicians.notes
+			})
+			.from(technicians)
+			.orderBy(technicians.name)
 	]);
 
 	return {
@@ -39,14 +56,21 @@ export const load = (async () => {
 			value: d.doctorId.toString(),
 			label: d.doctorName,
 			clinicId: d.clinicId,
-			clinicName: d.clinicName
+			clinicName: d.clinicName,
+			doctorPhone: d.doctorPhone,
+			doctorEmail: d.doctorEmail,
+			clinicPhone: d.clinicPhone,
+			clinicEmail: d.clinicEmail
 		})),
 		clinics: clinicsData.map((c) => ({
 			value: c.clinicId.toString(),
 			label: c.clinicName,
-			clinicId: c.clinicId
+			clinicId: c.clinicId,
+			clinicPhone: c.clinicPhone,
+			clinicEmail: c.clinicEmail
 		})),
-		caseTypes: caseTypesData
+		caseTypes: caseTypesData,
+		technicians: techniciansData
 	};
 }) satisfies PageServerLoad;
 
@@ -55,6 +79,8 @@ export const actions = {
 		const data = await request.formData();
 		const doctorName = data.get('doctor_name')?.toString();
 		const clinicId = data.get('clinic_id')?.toString();
+		const doctorPhone = data.get('doctor_phone')?.toString() || null;
+		const doctorEmail = data.get('doctor_email')?.toString() || null;
 
 		if (doctorName && clinicId) {
 			try {
@@ -62,7 +88,9 @@ export const actions = {
 					.insert(doctors)
 					.values({
 						doctorName: doctorName,
-						clinicId: parseInt(clinicId)
+						clinicId: parseInt(clinicId),
+						doctorPhone,
+						doctorEmail
 					} as unknown as typeof doctors.$inferInsert)
 					.returning({ doctorId: doctors.doctorId });
 
@@ -86,12 +114,18 @@ export const actions = {
 	addClinic: async ({ request }) => {
 		const data = await request.formData();
 		const clinicName = data.get('clinic_name')?.toString();
+		const clinicPhone = data.get('clinic_phone')?.toString() || null;
+		const clinicEmail = data.get('clinic_email')?.toString() || null;
 
 		if (clinicName) {
 			try {
 				const result = await db
 					.insert(clinics)
-					.values({ clinicName: clinicName } as unknown as typeof clinics.$inferInsert)
+					.values({
+						clinicName: clinicName,
+						clinicPhone,
+						clinicEmail
+					} as unknown as typeof clinics.$inferInsert)
 					.returning({ clinicId: clinics.clinicId });
 				if (result && result.length > 0 && result[0].clinicId) {
 					return {
@@ -114,19 +148,29 @@ export const actions = {
 		const data = await request.formData();
 		const clinicName = data.get('clinic_name')?.toString();
 		const doctorName = data.get('doctor_name')?.toString();
+		const clinicPhone = data.get('clinic_phone')?.toString() || null;
+		const clinicEmail = data.get('clinic_email')?.toString() || null;
+		const doctorPhone = data.get('doctor_phone')?.toString() || null;
+		const doctorEmail = data.get('doctor_email')?.toString() || null;
 
 		if (clinicName && doctorName) {
 			try {
 				const clinicResult = await db
 					.insert(clinics)
-					.values({ clinicName: clinicName } as unknown as typeof clinics.$inferInsert)
+					.values({
+						clinicName: clinicName,
+						clinicPhone,
+						clinicEmail
+					} as unknown as typeof clinics.$inferInsert)
 					.returning({ clinicId: clinics.clinicId });
 
 				if (clinicResult && clinicResult.length > 0 && clinicResult[0].clinicId) {
 					const newClinicId = clinicResult[0].clinicId;
 					await db.insert(doctors).values({
 						doctorName: doctorName,
-						clinicId: newClinicId
+						clinicId: newClinicId,
+						doctorPhone,
+						doctorEmail
 					} as unknown as typeof doctors.$inferInsert);
 					return {
 						success: true,
@@ -251,6 +295,49 @@ export const actions = {
 		} catch (error) {
 			console.error('Error updating case count:', error);
 			return { success: false, error: 'Failed to update case count' };
+		}
+	},
+	addTechnician: async ({ request }) => {
+		const data = await request.formData();
+		const name = data.get('name')?.toString();
+		const role = data.get('role')?.toString() || null;
+		const phone = data.get('phone')?.toString() || null;
+		const email = data.get('email')?.toString() || null;
+		const notes = data.get('notes')?.toString() || null;
+
+		if (!name) {
+			return { success: false, error: 'Technician name is required' };
+		}
+
+		try {
+			await db.insert(technicians).values({
+				name,
+				role,
+				phone,
+				email,
+				notes
+			} as unknown as typeof technicians.$inferInsert);
+
+			return { success: true, message: 'Technician added successfully' };
+		} catch (error) {
+			console.error('Error adding technician:', error);
+			return { success: false, error: 'Failed to add technician' };
+		}
+	},
+	deleteTechnician: async ({ request }) => {
+		const data = await request.formData();
+		const techId = data.get('technician_id')?.toString();
+
+		if (!techId) {
+			return { success: false, error: 'Technician ID is required' };
+		}
+
+		try {
+			await db.delete(technicians).where(eq(technicians.id, parseInt(techId)));
+			return { success: true, message: 'Technician deleted successfully' };
+		} catch (error) {
+			console.error('Error deleting technician:', error);
+			return { success: false, error: 'Failed to delete technician' };
 		}
 	}
 } satisfies Actions;

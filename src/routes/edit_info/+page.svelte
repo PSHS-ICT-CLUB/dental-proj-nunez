@@ -3,17 +3,20 @@
 
 	let { data, form }: PageProps = $props();
 
-	let doctors = data.doctors;
-	let clinics = data.clinics;
+let doctors = data.doctors;
+let clinics = data.clinics;
+let technicians = data.technicians;
 
-	let doctorsWithClinic = $derived(
-		doctors.map((doctor) => ({
-			id: doctor.value,
-			name: doctor.label,
-			clinicId: doctor.clinicId,
-			clinicName: doctor.clinicName || 'Unknown Clinic'
-		}))
-	);
+let doctorsWithClinic = $derived(
+	doctors.map((doctor) => ({
+		id: doctor.value,
+		name: doctor.label,
+		clinicId: doctor.clinicId,
+		clinicName: doctor.clinicName || 'Unknown Clinic',
+		doctorPhone: doctor.doctorPhone,
+		doctorEmail: doctor.doctorEmail
+	}))
+);
 
 	// Update case types state
 	let caseTypes = $state(
@@ -24,7 +27,15 @@
 		}))
 	);
 
-	let newDoctorName = $state('');
+let newDoctorName = $state('');
+let newDoctorPhone = $state('');
+let newDoctorEmail = $state('');
+
+let newTechnicianName = $state('');
+let newTechnicianRole = $state('');
+let newTechnicianPhone = $state('');
+let newTechnicianEmail = $state('');
+let newTechnicianNotes = $state('');
 	let newClinicId: number | null = $state(null);
 	let newClinicSearch = $state('');
 	let filteredClinics: typeof clinics = $state([]);
@@ -113,6 +124,15 @@
 			}
 		};
 	}
+
+	function handleDeleteTechnician(id: number) {
+		return {
+			action: '?/deleteTechnician',
+			data: {
+				technician_id: id.toString()
+			}
+		};
+	}
 </script>
 
 <div>
@@ -182,6 +202,12 @@
 					>
 						Clinic
 					</th>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Doctor Contact
+					</th>
 					<th scope="col" class="relative px-6 py-3">
 						<span class="sr-only">Delete</span>
 					</th>
@@ -194,6 +220,19 @@
 							{doctor.name}
 						</td>
 						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">{doctor.clinicName}</td>
+						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+							<div class="flex flex-col text-xs">
+								{#if doctor.doctorPhone}
+									<span class="text-gray-700">📞 {doctor.doctorPhone}</span>
+								{/if}
+								{#if doctor.doctorEmail}
+									<span class="text-gray-700">✉ {doctor.doctorEmail}</span>
+								{/if}
+								{#if !doctor.doctorPhone && !doctor.doctorEmail}
+									<span class="text-gray-400 italic">No contact details</span>
+								{/if}
+							</div>
+						</td>
 						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
 							<form action="?/deleteDoctor" method="post">
 								<input type="hidden" name="doctor_id" value={doctor.id} />
@@ -202,6 +241,74 @@
 									class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
 								>
 									Delete Doctor
+								</button>
+							</form>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<h2 class="mt-10 text-xl font-semibold text-gray-900">Technicians</h2>
+		<table class="mt-4 w-lg divide-y divide-gray-200 rounded-md shadow-md">
+			<thead class="bg-gray-50">
+				<tr>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Name
+					</th>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Role
+					</th>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Contact
+					</th>
+					<th scope="col" class="relative px-6 py-3">
+						<span class="sr-only">Delete</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-200 bg-white">
+				{#each technicians as tech}
+					<tr>
+						<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+							{tech.name}
+						</td>
+						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+							{tech.role || '-'}
+						</td>
+						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+							<div class="flex flex-col text-xs">
+								{#if tech.phone}
+									<span class="text-gray-700">📞 {tech.phone}</span>
+								{/if}
+								{#if tech.email}
+									<span class="text-gray-700">✉ {tech.email}</span>
+								{/if}
+								{#if tech.notes}
+									<span class="text-gray-500">{tech.notes}</span>
+								{/if}
+								{#if !tech.phone && !tech.email && !tech.notes}
+									<span class="text-gray-400 italic">No details</span>
+								{/if}
+							</div>
+						</td>
+						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							<form action="?/deleteTechnician" method="post">
+								<input type="hidden" name="technician_id" value={tech.id} />
+								<button
+									type="submit"
+									class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+								>
+									Delete
 								</button>
 							</form>
 						</td>
@@ -220,6 +327,12 @@
 					>
 						Clinic Name
 					</th>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Clinic Contact
+					</th>
 					<th scope="col" class="relative px-6 py-3">
 						<span class="sr-only">Delete</span>
 					</th>
@@ -230,6 +343,19 @@
 					<tr>
 						<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
 							{clinic.label}
+						</td>
+						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+							<div class="flex flex-col text-xs">
+								{#if clinic.clinicPhone}
+									<span class="text-gray-700">📞 {clinic.clinicPhone}</span>
+								{/if}
+								{#if clinic.clinicEmail}
+									<span class="text-gray-700">✉ {clinic.clinicEmail}</span>
+								{/if}
+								{#if !clinic.clinicPhone && !clinic.clinicEmail}
+									<span class="text-gray-400 italic">No contact details</span>
+								{/if}
+							</div>
 						</td>
 						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
 							<form action="?/deleteClinic" method="post">
@@ -251,19 +377,49 @@
 		<form method="POST" action="?/addClinic" class="mt-8 w-lg space-y-4">
 			<div>
 				<h3 class="text-lg font-medium text-gray-900">Add New Clinic</h3>
-				<div class="mt-4">
-					<label for="clinic_name_only" class="block text-sm font-medium text-gray-700"
-						>Clinic Name</label
-					>
-					<div class="mt-1">
-						<input
-							type="text"
-							name="clinic_name"
-							id="clinic_name_only"
-							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-							placeholder="Enter clinic name"
-							required
-						/>
+				<div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="clinic_name_only" class="block text-sm font-medium text-gray-700"
+							>Clinic Name</label
+						>
+						<div class="mt-1">
+							<input
+								type="text"
+								name="clinic_name"
+								id="clinic_name_only"
+								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+								placeholder="Enter clinic name"
+								required
+							/>
+						</div>
+					</div>
+					<div>
+						<label for="clinic_phone_only" class="block text-sm font-medium text-gray-700"
+							>Clinic Phone (optional)</label
+						>
+						<div class="mt-1">
+							<input
+								type="text"
+								name="clinic_phone"
+								id="clinic_phone_only"
+								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+								placeholder="e.g. 0917 123 4567"
+							/>
+						</div>
+					</div>
+					<div>
+						<label for="clinic_email_only" class="block text-sm font-medium text-gray-700"
+							>Clinic Email (optional)</label
+						>
+						<div class="mt-1">
+							<input
+								type="email"
+								name="clinic_email"
+								id="clinic_email_only"
+								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+								placeholder="e.g. clinic@example.com"
+							/>
+						</div>
 					</div>
 				</div>
 				<div class="mt-4">
@@ -286,58 +442,90 @@
 			<h3 class="text-lg font-medium text-gray-900">
 				{isNewClinic ? 'Add New Clinic with Doctor' : 'Add Doctor to Existing Clinic'}
 			</h3>
-			<div>
-				<label for="clinic_name" class="block text-sm font-medium text-gray-700"> Clinic </label>
-				<div class="relative mt-1">
-					<input
-						type="text"
-						name="clinic_name"
-						bind:value={newClinicSearch}
-						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-						placeholder="Search for a clinic or enter a new one"
-						onfocus={handleClinicInputFocus}
-						onblur={handleClinicInputBlur}
-						oninput={handleNewClinicInput}
-						autocomplete="off"
-						required
-					/>
-					{#if (isClinicInputFocused || newClinicSearch) && filteredClinics.length > 0}
-						<ul
-							class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md bg-white shadow-lg"
-						>
-							{#each filteredClinics as clinic}
-								<li>
-									<button
-										type="button"
-										class="w-full cursor-pointer appearance-none px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
-										onclick={() => selectClinic(clinic)}
-									>
-										{clinic.label}
-									</button>
-								</li>
-							{/each}
-						</ul>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div>
+					<label for="clinic_name" class="block text-sm font-medium text-gray-700"> Clinic </label>
+					<div class="relative mt-1">
+						<input
+							type="text"
+							name="clinic_name"
+							bind:value={newClinicSearch}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="Search for a clinic or enter a new one"
+							onfocus={handleClinicInputFocus}
+							onblur={handleClinicInputBlur}
+							oninput={handleNewClinicInput}
+							autocomplete="off"
+							required
+						/>
+						{#if (isClinicInputFocused || newClinicSearch) && filteredClinics.length > 0}
+							<ul
+								class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md bg-white shadow-lg"
+							>
+								{#each filteredClinics as clinic}
+									<li>
+										<button
+											type="button"
+											class="w-full cursor-pointer appearance-none px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+											onclick={() => selectClinic(clinic)}
+										>
+											{clinic.label}
+										</button>
+									</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+					{#if newClinicId}
+						<p class="mt-1 text-sm text-gray-500">
+							Selected Clinic: {clinics.find((c) => c.clinicId === newClinicId)?.label}
+						</p>
+						<input type="hidden" name="clinic_id" value={newClinicId} />
 					{/if}
 				</div>
-				{#if newClinicId}
-					<p class="mt-1 text-sm text-gray-500">
-						Selected Clinic: {clinics.find((c) => c.clinicId === newClinicId)?.label}
-					</p>
-					<input type="hidden" name="clinic_id" value={newClinicId} />
-				{/if}
-			</div>
-			<div>
-				<label for="doctor_name" class="block text-sm font-medium text-gray-700">
-					Doctor Name
-				</label>
-				<div class="mt-1">
-					<input
-						type="text"
-						name="doctor_name"
-						bind:value={newDoctorName}
-						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-						placeholder="Enter doctor's name"
-					/>
+				<div>
+					<label for="doctor_name" class="block text-sm font-medium text-gray-700">
+						Doctor Name
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							name="doctor_name"
+							bind:value={newDoctorName}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="Enter doctor's name"
+						/>
+					</div>
+				</div>
+				<div>
+					<label for="doctor_phone" class="block text-sm font-medium text-gray-700">
+						Doctor Phone (optional)
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							name="doctor_phone"
+							id="doctor_phone"
+							bind:value={newDoctorPhone}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. 0917 123 4567"
+						/>
+					</div>
+				</div>
+				<div>
+					<label for="doctor_email" class="block text-sm font-medium text-gray-700">
+						Doctor Email (optional)
+					</label>
+					<div class="mt-1">
+						<input
+							type="email"
+							name="doctor_email"
+							id="doctor_email"
+							bind:value={newDoctorEmail}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. doctor@example.com"
+						/>
+					</div>
 				</div>
 			</div>
 			<div>
@@ -346,6 +534,97 @@
 					class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 				>
 					Add
+				</button>
+			</div>
+		</form>
+
+		<!-- Add Technician Form -->
+		<form method="POST" action="?/addTechnician" class="mt-10 w-lg space-y-4">
+			<h2 class="text-xl font-semibold text-gray-900">Add Technician</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div>
+					<label for="tech_name" class="block text-sm font-medium text-gray-700">
+						Name
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							id="tech_name"
+							name="name"
+							bind:value={newTechnicianName}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="Technician name"
+							required
+						/>
+					</div>
+				</div>
+				<div>
+					<label for="tech_role" class="block text-sm font-medium text-gray-700">
+						Role (optional)
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							id="tech_role"
+							name="role"
+							bind:value={newTechnicianRole}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. Ceramist, Model, Finisher"
+						/>
+					</div>
+				</div>
+				<div>
+					<label for="tech_phone" class="block text-sm font-medium text-gray-700">
+						Phone (optional)
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							id="tech_phone"
+							name="phone"
+							bind:value={newTechnicianPhone}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. 0917 123 4567"
+						/>
+					</div>
+				</div>
+				<div>
+					<label for="tech_email" class="block text-sm font-medium text-gray-700">
+						Email (optional)
+					</label>
+					<div class="mt-1">
+						<input
+							type="email"
+							id="tech_email"
+							name="email"
+							bind:value={newTechnicianEmail}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. tech@example.com"
+						/>
+					</div>
+				</div>
+				<div class="md:col-span-2">
+					<label for="tech_notes" class="block text-sm font-medium text-gray-700">
+						Notes (optional)
+					</label>
+					<div class="mt-1">
+						<textarea
+							id="tech_notes"
+							name="notes"
+							bind:value={newTechnicianNotes}
+							rows="2"
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="Special skills, schedule, etc."
+						></textarea>
+					</div>
+				</div>
+			</div>
+			<div>
+				<button
+					type="submit"
+					class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+				>
+					Add Technician
 				</button>
 			</div>
 		</form>

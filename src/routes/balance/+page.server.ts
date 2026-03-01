@@ -39,8 +39,12 @@ export const load: PageServerLoad = async ({ url }) => {
 			baseQuery.where(and(...whereConditions));
 		}
 
+		const page = parseInt(url.searchParams.get('page') || '1');
+		const limit = parseInt(url.searchParams.get('limit') || '200');
+		const offset = (page - 1) * limit;
+
 		const [balances, caseTypeData] = await Promise.all([
-			baseQuery,
+			baseQuery.limit(limit).offset(offset),
 			db.select().from(caseTypes).orderBy(caseTypes.caseTypeName)
 		]);
 

@@ -22,6 +22,9 @@ export const load = (async ({ params }) => {
 				paymentStatus: orders.paymentStatus,
 				clinicName: clinics.clinicName,
 				doctorName: doctors.doctorName,
+				deliveryCourier: records.deliveryCourier,
+				deliveryFee: records.deliveryFee,
+				assignedTechnicians: records.assignedTechnicians,
 				orderItems: orderItems,
 				caseTypeName: caseTypes.caseTypeName,
 				orderCreatedAt: orders.createdAt,
@@ -61,7 +64,10 @@ export const load = (async ({ params }) => {
 				case_no: `${item.caseTypeName} - ${item.orderItems.caseNo}`
 			})),
 			remarks: result[0].remarks,
-			payment_status: result[0].paymentStatus
+			payment_status: result[0].paymentStatus,
+			delivery_courier: result[0].deliveryCourier,
+			delivery_fee: result[0].deliveryFee,
+			assigned_technicians: result[0].assignedTechnicians
 		};
 		console.log(invoice);
 		return {

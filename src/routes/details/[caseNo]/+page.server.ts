@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { records, doctors, clinics, orders, orderItems, history, caseTypes } from '$lib/server/db/schema';
+import { records, doctors, clinics, orders, orderItems, history, caseTypes, recordInventoryUsages, inventoryItems } from '$lib/server/db/schema';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { sql, desc, eq } from 'drizzle-orm';
@@ -18,6 +18,11 @@ export const load: PageServerLoad = async ({ params }) => {
 				patientName: records.patientName,
 				description: records.description,
 				remarks: records.remarks,
+				deliveryCourier: records.deliveryCourier,
+				deliveryFee: records.deliveryFee,
+				deliveryNotes: records.deliveryNotes,
+				finishBy: records.finishBy,
+				assignedTechnicians: records.assignedTechnicians,
 				createdAt: records.createdAt,
 				doctorId: doctors.doctorId,
 				doctorName: doctors.doctorName,
@@ -85,10 +90,24 @@ export const load: PageServerLoad = async ({ params }) => {
 			};
 		});
 
+		// Get inventory usage linked to this record
+		const inventoryUsages = await db
+			.select({
+				usageId: recordInventoryUsages.id,
+				quantityUsed: recordInventoryUsages.quantityUsed,
+				itemName: inventoryItems.name,
+				itemUnit: inventoryItems.unit,
+				itemId: inventoryItems.id
+			})
+			.from(recordInventoryUsages)
+			.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
+			.where(eq(recordInventoryUsages.recordId, Number(params.caseNo)));
+
 		return {
 			record: recordData[0],
 			orderItems: items,
-			history: processedHistory
+			history: processedHistory,
+			inventoryUsages: inventoryUsages
 		};
 	} catch (e) {
 		console.error('Error fetching case details:', e);

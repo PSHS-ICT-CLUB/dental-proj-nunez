@@ -18,6 +18,11 @@ export const load: PageServerLoad = async ({ params }) => {
 				patientName: records.patientName,
 				description: records.description,
 				remarks: records.remarks,
+				deliveryCourier: records.deliveryCourier,
+				deliveryFee: records.deliveryFee,
+				deliveryNotes: records.deliveryNotes,
+				finishBy: records.finishBy,
+				assignedTechnicians: records.assignedTechnicians,
 				doctorName: doctors.doctorName,
 				clinicId: doctors.clinicId,
 				clinicName: clinics.clinicName
@@ -57,6 +62,15 @@ export const actions = {
 		const doctorId = parseInt(formData.get('doctorId')?.toString() || '0');
 		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
+		const patientName = formData.get('patientName')?.toString() ?? '';
+		const remarks = formData.get('remarks')?.toString() ?? '';
+
+		const deliveryCourier = formData.get('deliveryCourier')?.toString() ?? '';
+		const deliveryFeeRaw = formData.get('deliveryFee')?.toString() ?? '';
+		const deliveryNotes = formData.get('deliveryNotes')?.toString() ?? '';
+		const finishBy = formData.get('finishBy')?.toString() ?? '';
+		const assignedTechnicians = formData.get('assignedTechnicians')?.toString() ?? '';
+
 		// Check if password is set
 		const passwordIsSet = await isPasswordSet();
 		if (!passwordIsSet) {
@@ -81,12 +95,19 @@ export const actions = {
 			const recordIdNum = parseInt(recordId?.toString() || '0');
 			if (!recordIdNum) throw new Error('Invalid record ID');
 
+			const deliveryFee = deliveryFeeRaw ? parseFloat(deliveryFeeRaw) : NaN;
+
 			await db
 				.update(records)
 				.set({
 					doctorId,
-					patientName: formData.get('patientName')?.toString(),
-					remarks: formData.get('remarks')?.toString()
+					patientName,
+					remarks,
+					deliveryCourier: deliveryCourier || null,
+					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,
+					deliveryNotes: deliveryNotes || null,
+					finishBy: finishBy || null,
+					assignedTechnicians: assignedTechnicians || null
 				} as any)
 				.where(eq(records.recordId, recordIdNum));
 

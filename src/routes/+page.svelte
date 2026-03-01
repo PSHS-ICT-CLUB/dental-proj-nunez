@@ -30,28 +30,27 @@
 	let remarks = $state('');
 	let recordId = $state('');
 
-	// Restore filter states from URL parameters
-	let isRestoring = $state(false);
-	let lastRestoredFiltersKey = $state<string>('');
-
-	async function restoreFiltersFromData() {
+	// Synchronize filter states from URL parameters (data.filters) directly
+	$effect(() => {
 		const filtersData = data.filters;
-		if (!filtersData || typeof filtersData !== 'object') {
+
+		if (!filtersData || Object.keys(filtersData).length === 0) {
+			// Clear filters
+			selectedClinicId = null;
+			clinicSearch = '';
+			caseTypeId = '';
+			caseNo = '';
+			patientName = '';
+			remarks = '';
+			paymentStatus = '';
+			recordId = '';
+			startDate = '';
+			endDate = '';
+			selectedMonth = '';
 			return;
 		}
 
-		const hasFilters = Object.keys(filtersData).length > 0;
-		if (!hasFilters || isRestoring) {
-			return;
-		}
-
-		const currentFiltersKey = JSON.stringify(filtersData);
-		if (currentFiltersKey === lastRestoredFiltersKey) {
-			return; // Filters haven't changed, don't restore
-		}
-
-		isRestoring = true;
-
+		// Sync Clinic
 		if (filtersData.clinic_id) {
 			const clinicId = parseInt(filtersData.clinic_id);
 			selectedClinicId = clinicId;
@@ -64,6 +63,7 @@
 			clinicSearch = '';
 		}
 
+		// Sync Text/Select inputs
 		caseTypeId = filtersData.case_type_id ? String(filtersData.case_type_id) : '';
 		caseNo = filtersData.case_no ? String(filtersData.case_no) : '';
 		patientName = filtersData.patient_name || '';
@@ -71,12 +71,15 @@
 		paymentStatus = filtersData.payment_status || '';
 		recordId = filtersData.record_id ? String(filtersData.record_id) : '';
 
+		// Sync Dates
 		if (filtersData.start_date && filtersData.end_date) {
 			startDate = filtersData.start_date;
 			endDate = filtersData.end_date;
-			
+
 			const start = new Date(filtersData.start_date);
 			const end = new Date(filtersData.end_date);
+
+			// Detect if a full month was selected
 			if (
 				start.getDate() === 1 &&
 				end.getDate() === new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate() &&
@@ -92,28 +95,6 @@
 			startDate = '';
 			endDate = '';
 			selectedMonth = '';
-		}
-
-		lastRestoredFiltersKey = currentFiltersKey;
-
-		setTimeout(() => {
-			isRestoring = false;
-		}, 0);
-	}
-
-	afterNavigate(() => {
-		isRestoring = false;
-		lastRestoredFiltersKey = '';
-		restoreFiltersFromData();
-	});
-
-	$effect(() => {
-		const filtersData = data.filters;
-		if (!filtersData) return;
-
-		const currentKey = JSON.stringify(filtersData);
-		if (currentKey !== lastRestoredFiltersKey) {
-			restoreFiltersFromData();
 		}
 	});
 
@@ -265,152 +246,486 @@
 		const total = Number(totalPaidAmount()) - Number(totalOrderAmount());
 		return total.toFixed(2);
 	});
+
+	// Calendar widget state and functions
+	const monthNames = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December'
+	];
+	const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+	let calendarMonth = $state(data.calendarData?.month || new Date().getMonth() + 1);
+	let calendarYear = $state(data.calendarData?.year || new Date().getFullYear());
+	let showCalendarModal = $state(false);
+	let selectedCalendarDate = $state<string | null>(null);
+	let selectedDeliveryTab = $state<'delivery' | 'finish'>('delivery');
+
+	let calendarDays = $derived(generateCalendarDays(calendarYear, calendarMonth));
+	let deliveryByDate = $derived(
+		groupRecordsByDate(data.calendarData?.deliveryRecords || [], 'dateDropoff')
+	);
+	let finishByDate = $derived(
+		groupRecordsByDate(data.calendarData?.finishByRecords || [], 'finishBy')
+	);
+
+	function generateCalendarDays(year: number, month: number) {
+		const firstDay = new Date(year, month - 1, 1);
+		const lastDay = new Date(year, month, 0);
+		const startDayOfWeek = firstDay.getDay();
+		const daysInMonth = lastDay.getDate();
+
+		const days: Array<{ date: number | null; fullDate: string | null }> = [];
+		for (let i = 0; i < startDayOfWeek; i++) {
+			days.push({ date: null, fullDate: null });
+		}
+		for (let i = 1; i <= daysInMonth; i++) {
+			const fullDate = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+			days.push({ date: i, fullDate });
+		}
+		return days;
+	}
+
+	function groupRecordsByDate(records: Array<any>, dateField: 'dateDropoff' | 'finishBy') {
+		const grouped: Record<string, typeof records> = {};
+		records.forEach((record) => {
+			const dateValue = record[dateField];
+			if (!dateValue) return;
+			const dateKey = dateValue.split('T')[0];
+			if (!grouped[dateKey]) grouped[dateKey] = [];
+			grouped[dateKey].push(record);
+		});
+		return grouped;
+	}
+
+	function navigateCalendarMonth(delta: number) {
+		let newMonth = calendarMonth + delta;
+		let newYear = calendarYear;
+		if (newMonth > 12) {
+			newMonth = 1;
+			newYear++;
+		} else if (newMonth < 1) {
+			newMonth = 12;
+			newYear--;
+		}
+		calendarMonth = newMonth;
+		calendarYear = newYear;
+	}
+
+	function openCalendarDayDetail(fullDate: string) {
+		selectedCalendarDate = fullDate;
+		showCalendarModal = true;
+	}
+
+	function closeCalendarModal() {
+		showCalendarModal = false;
+		selectedCalendarDate = null;
+	}
+
+	let selectedDateDeliveries = $derived(
+		selectedCalendarDate ? deliveryByDate[selectedCalendarDate] || [] : []
+	);
+	let selectedDateFinishBys = $derived(
+		selectedCalendarDate ? finishByDate[selectedCalendarDate] || [] : []
+	);
+	let selectedDateTotal = $derived(selectedDateDeliveries.length + selectedDateFinishBys.length);
 </script>
 
 <!-- Filter Form -->
-<div class="w-full bg-gray-50 p-2 print:hidden pb-1 border-b border-gray-200">
+<div class="w-full border-b border-gray-200 bg-gray-50 p-2 pb-1 print:hidden">
 	<form method="GET" class="mx-auto max-w-7xl">
-		<div class="rounded-lg bg-white p-3 shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
-                <div class="flex gap-2">
+		<div class="rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
+				<div class="flex gap-2">
 					<button
 						type="reset"
-						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 transition"
-						onclick={() => window.location.href = '/'}
+						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50"
+						onclick={() => (window.location.href = '/')}
 					>
 						Clear
 					</button>
 					<button
 						type="submit"
-						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-500 transition"
+						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-500"
 					>
 						Apply Filters
 					</button>
-                </div>
-            </div>
+				</div>
+			</div>
 
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
-                <div class="relative">
-					<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
-                    <input
-                        type="text"
-                        bind:value={clinicSearch}
-                        placeholder="Search clinic..."
-                        autocomplete="off"
-                        class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                        onfocus={() => { showAllClinics = true; }}
-                        onblur={() => { setTimeout(() => showAllClinics = false, 200); }}
-                        oninput={() => { selectedClinicId = null; }}
-                    />
-                    <input type="hidden" name="clinic_id" value={selectedClinicId || ''} />
-                    {#if showAllClinics && filteredClinics && filteredClinics.length > 0}
-                        <div class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg">
-                            {#each filteredClinics as clinic}
-                                <button
-                                    type="button"
-                                    class="w-full p-2 text-left text-xs hover:bg-gray-50"
-                                    onclick={() => {
-                                        handleClinicSelect(clinic);
-                                        showAllClinics = false;
-                                    }}
-                                >
-                                    {clinic.clinicName}
-                                </button>
-                            {/each}
-                        </div>
-                    {/if}
+			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+				<div class="relative">
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Clinic</label
+					>
+					<input
+						type="text"
+						bind:value={clinicSearch}
+						placeholder="Search clinic..."
+						autocomplete="off"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						onfocus={() => {
+							showAllClinics = true;
+						}}
+						onblur={() => {
+							setTimeout(() => (showAllClinics = false), 200);
+						}}
+						oninput={() => {
+							selectedClinicId = null;
+						}}
+					/>
+					<input type="hidden" name="clinic_id" value={selectedClinicId || ''} />
+					{#if showAllClinics && filteredClinics && filteredClinics.length > 0}
+						<div
+							class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg"
+						>
+							{#each filteredClinics as clinic}
+								<button
+									type="button"
+									class="w-full p-2 text-left text-xs hover:bg-gray-50"
+									onclick={() => {
+										handleClinicSelect(clinic);
+										showAllClinics = false;
+									}}
+								>
+									{clinic.clinicName}
+								</button>
+							{/each}
+						</div>
+					{/if}
 				</div>
 
-                <div>
-                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case Type</label>
-                    <select name="case_type_id" bind:value={caseTypeId} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        <option value="">All Types</option>
-                        {#each data.caseTypes as type}
-                            <option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
-                        {/each}
-                    </select>
-                </div>
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case Type</label
+					>
+					<select
+						name="case_type_id"
+						bind:value={caseTypeId}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Types</option>
+						{#each data.caseTypes as type}
+							<option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
+						{/each}
+					</select>
+				</div>
 
-                <div>
-                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Case No</label>
-                    <input type="text" name="case_no" bind:value={caseNo} placeholder="Case #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                </div>
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case No</label
+					>
+					<input
+						type="text"
+						name="case_no"
+						bind:value={caseNo}
+						placeholder="Case #"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					/>
+				</div>
 
-                <div>
-                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Patient</label>
-                    <input type="text" name="patient_name" bind:value={patientName} placeholder="Patient Name" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                </div>
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Patient</label
+					>
+					<input
+						type="text"
+						name="patient_name"
+						bind:value={patientName}
+						placeholder="Patient Name"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					/>
+				</div>
 
-                <div>
-                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Payment</label>
-                    <select name="payment_status" bind:value={paymentStatus} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        <option value="">All Status</option>
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
-                </div>
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Payment</label
+					>
+					<select
+						name="payment_status"
+						bind:value={paymentStatus}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Status</option>
+						<option value="paid">Paid</option>
+						<option value="unpaid">Unpaid</option>
+					</select>
+				</div>
 
-                <div>
-                    <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Status</label>
-                    <select name="remarks" bind:value={remarks} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        <option value="">All Remarks</option>
-                        <option value="pending">Pending</option>
-                        <option value="finished">Finished</option>
-                    </select>
-                </div>
-            </div>
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Status</label
+					>
+					<select
+						name="remarks"
+						bind:value={remarks}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Remarks</option>
+						<option value="pending">Pending</option>
+						<option value="finished">Finished</option>
+					</select>
+				</div>
+			</div>
 
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-3 mt-3 pt-3 border-t border-gray-100 md:items-end">
-                <div class="flex flex-col sm:flex-row items-center gap-2">
-                    <div class="w-full sm:flex-1">
-                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Start Date</label>
-                        <input type="date" name="start_date" bind:value={startDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                    <div class="w-full sm:flex-1">
-                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">End Date</label>
-                        <input type="date" name="end_date" bind:value={endDate} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                </div>
+			<div
+				class="mt-3 grid grid-cols-1 gap-4 border-t border-gray-100 pt-3 md:grid-cols-3 md:items-end md:gap-3"
+			>
+				<div class="flex flex-col items-center gap-2 sm:flex-row">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Start Date</label
+						>
+						<input
+							type="date"
+							name="start_date"
+							bind:value={startDate}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>End Date</label
+						>
+						<input
+							type="date"
+							name="end_date"
+							bind:value={endDate}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+				</div>
 
-                <div class="flex flex-col sm:flex-row items-center gap-2">
-                    <div class="w-full sm:flex-1">
-                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Filter by Month</label>
-                        <select bind:value={selectedMonth} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                            <option value="">Select Month</option>
-                            {#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
-                                <option value={month}>
-                                    {new Date(2000, month - 1).toLocaleString('default', { month: 'short' })}
-                                </option>
-                            {/each}
-                        </select>
-                    </div>
-                    <div class="w-full sm:w-24">
-                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Year</label>
-                        <select bind:value={selectedYear} onchange={handleMonthFilter} class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                            {#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
-                                <option value={year}>{year}</option>
-                            {/each}
-                        </select>
-                    </div>
-                </div>
+				<div class="flex flex-col items-center gap-2 sm:flex-row">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Filter by Month</label
+						>
+						<select
+							bind:value={selectedMonth}
+							onchange={handleMonthFilter}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						>
+							<option value="">Select Month</option>
+							{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
+								<option value={month}>
+									{new Date(2000, month - 1).toLocaleString('default', { month: 'short' })}
+								</option>
+							{/each}
+						</select>
+					</div>
+					<div class="w-full sm:w-24">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Year</label
+						>
+						<select
+							bind:value={selectedYear}
+							onchange={handleMonthFilter}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						>
+							{#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
+								<option value={year}>{year}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
 
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div class="w-full sm:flex-1">
-                        <label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Record ID</label>
-                        <input type="number" name="record_id" bind:value={recordId} placeholder="Record #" class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                    <div class="flex items-center sm:pt-[18px]">
-                        <label class="inline-flex items-center gap-2 cursor-pointer bg-red-50/50 hover:bg-red-50 px-2.5 py-1.5 rounded border border-red-100 transition-colors w-full sm:w-auto justify-center">
-                            <input type="checkbox" bind:checked={showDelete} class="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300" />
-                            <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Show Delete</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Record ID</label
+						>
+						<input
+							type="number"
+							name="record_id"
+							bind:value={recordId}
+							placeholder="Record #"
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+					<div class="flex items-center sm:pt-[18px]">
+						<label
+							class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
+						>
+							<input
+								type="checkbox"
+								bind:checked={showDelete}
+								class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+							/>
+							<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
+								>Show Delete</span
+							>
+						</label>
+					</div>
+				</div>
+			</div>
 		</div>
 	</form>
 </div>
+
+<!-- Compact Calendar Widget -->
+{#if data.calendarData}
+	<div class="w-full border-b border-gray-200 bg-gray-50 p-2 print:hidden">
+		<div class="mx-auto max-w-7xl">
+			<div class="rounded border border-gray-200 bg-white p-3 shadow-sm">
+				<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+					<!-- Mini Calendar -->
+					<div class="lg:col-span-1">
+						<div class="mb-2 flex items-center justify-between gap-2">
+							<div class="flex items-center gap-1.5">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-4 w-4 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+									/>
+								</svg>
+								<span class="text-sm font-medium text-gray-700"
+									>{monthNames[calendarMonth - 1]} {calendarYear}</span
+								>
+							</div>
+							<div class="flex items-center gap-2">
+								<div class="flex items-center gap-1 text-[10px]">
+									<div class="h-2 w-2 rounded-full bg-amber-500"></div>
+									<span class="text-gray-500">{data.calendarData.deliveryRecords.length}</span>
+								</div>
+								<div class="flex items-center gap-1 text-[10px]">
+									<div class="h-2 w-2 rounded-full bg-blue-500"></div>
+									<span class="text-gray-500">{data.calendarData.finishByRecords.length}</span>
+								</div>
+								<a
+									href="/calendar"
+									class="text-[10px] font-medium text-indigo-600 hover:text-indigo-500">Full →</a
+								>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-7 gap-px overflow-hidden rounded bg-gray-200">
+							{#each daysOfWeek as day}
+								<div class="bg-gray-50 py-1 text-center text-[9px] font-medium text-gray-500">
+									{day[0]}
+								</div>
+							{/each}
+							{#each calendarDays as { date, fullDate }}
+								{#if date !== null && fullDate !== null}
+									{@const deliveries = deliveryByDate[fullDate] || []}
+									{@const finishBys = finishByDate[fullDate] || []}
+									{@const totalRecords = deliveries.length + finishBys.length}
+									{@const isToday = fullDate === new Date().toISOString().split('T')[0]}
+									{@const hasRecords = totalRecords > 0}
+									{@const isSelected = selectedCalendarDate === fullDate}
+									<button
+										class="relative h-7 bg-white text-[10px] transition-all {isToday
+											? 'bg-indigo-50'
+											: ''} {isSelected ? 'ring-2 ring-indigo-500 ring-inset' : ''} {hasRecords
+											? 'cursor-pointer hover:bg-gray-50'
+											: 'cursor-default'}"
+										onclick={() => hasRecords && (selectedCalendarDate = fullDate)}
+										disabled={!hasRecords}
+									>
+										<span class={isToday ? 'font-bold text-indigo-600' : 'text-gray-700'}
+											>{date}</span
+										>
+										{#if totalRecords > 0}
+											<div class="absolute right-0 bottom-0.5 left-0 flex justify-center gap-px">
+												{#if deliveries.length > 0}
+													<div class="h-1 w-1 rounded-full bg-amber-500"></div>
+												{/if}
+												{#if finishBys.length > 0}
+													<div class="h-1 w-1 rounded-full bg-blue-500"></div>
+												{/if}
+											</div>
+										{/if}
+									</button>
+								{:else}
+									<div class="h-7 bg-gray-50"></div>
+								{/if}
+							{/each}
+						</div>
+					</div>
+
+					<!-- Selected Date Preview -->
+					<div class="lg:col-span-2">
+						{#if selectedCalendarDate}
+							<div class="h-full">
+								<div class="mb-2">
+									<h3 class="text-sm font-semibold text-gray-900">
+										{new Date(selectedCalendarDate).toLocaleDateString('en-US', {
+											weekday: 'short',
+											month: 'short',
+											day: 'numeric'
+										})}
+									</h3>
+								</div>
+								<div class="mb-2 flex gap-2">
+									<button
+										onclick={() => {
+											selectedDeliveryTab = 'delivery';
+										}}
+										class="rounded px-3 py-1 text-xs font-medium transition-colors {selectedDeliveryTab ===
+										'delivery'
+											? 'bg-amber-100 text-amber-800'
+											: 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+									>
+										Delivery ({selectedDateDeliveries.length})
+									</button>
+									<button
+										onclick={() => {
+											selectedDeliveryTab = 'finish';
+										}}
+										class="rounded px-3 py-1 text-xs font-medium transition-colors {selectedDeliveryTab ===
+										'finish'
+											? 'bg-blue-100 text-blue-800'
+											: 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+									>
+										Finish ({selectedDateFinishBys.length})
+									</button>
+								</div>
+								<div class="max-h-[100px] space-y-1.5 overflow-y-auto">
+									{#each selectedDeliveryTab === 'delivery' ? selectedDateDeliveries : selectedDateFinishBys as record}
+										<a
+											href="/details/{record.recordId}"
+											class="flex items-center gap-2 rounded bg-gray-50 p-1.5 transition-colors hover:bg-gray-100"
+										>
+											<span
+												class="h-2 w-2 rounded-full {selectedDeliveryTab === 'delivery'
+													? 'bg-amber-500'
+													: 'bg-blue-500'}"
+											></span>
+											<span class="text-xs font-medium text-gray-700">{record.patientName}</span>
+											<span class="text-xs text-gray-500">{record.clinicName}</span>
+										</a>
+									{/each}
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-sm text-gray-400">
+								<span>Click a date to preview cases</span>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <!-- Records Section -->
 <div class="min-h-[400px] bg-white">
@@ -464,70 +779,111 @@
 		{/if}
 
 		<!-- Color Legend -->
-		<div class="mb-3 flex flex-wrap items-center gap-4 px-1 text-[10px] font-medium text-gray-500 uppercase tracking-wider print:hidden">
+		<div
+			class="mb-3 flex flex-wrap items-center gap-4 px-1 text-[10px] font-medium tracking-wider text-gray-500 uppercase print:hidden"
+		>
 			<div class="flex items-center gap-1.5">
-				<div class="h-3 w-3 inline-block rounded-full bg-green-200 border border-green-300"></div>
+				<div class="inline-block h-3 w-3 rounded-full border border-green-300 bg-green-200"></div>
 				<span>Paid & Finished</span>
 			</div>
 			<div class="flex items-center gap-1.5">
-				<div class="h-3 w-3 inline-block rounded-full bg-red-300 border border-red-400"></div>
+				<div class="inline-block h-3 w-3 rounded-full border border-red-400 bg-red-300"></div>
 				<span>Unpaid & Finished</span>
 			</div>
 			<div class="flex items-center gap-1.5">
-				<div class="h-3 w-3 inline-block rounded-full bg-violet-300 border border-violet-400"></div>
+				<div class="inline-block h-3 w-3 rounded-full border border-violet-400 bg-violet-300"></div>
 				<span>Other / Partial</span>
 			</div>
 			<div class="flex items-center gap-1.5">
-				<div class="h-3 w-3 inline-block rounded-full bg-white border border-gray-300"></div>
+				<div class="inline-block h-3 w-3 rounded-full border border-gray-300 bg-white"></div>
 				<span>Pending / Normal</span>
 			</div>
 		</div>
 
 		<!-- Table -->
-		<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm pt-1">
+		<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white pt-1 shadow-sm">
 			<table class="min-w-full table-fixed divide-y divide-gray-200">
 				<thead class="bg-gray-50/50">
 					<tr>
-						<th scope="col" class="sticky top-0 bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="sticky top-0 bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Date Pickup
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Date Dropoff
 						</th>
 						{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
-							<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+							<th
+								scope="col"
+								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							>
 								Clinic
 							</th>
 						{/if}
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Patient Name
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Case Info
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Description
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Total Amount
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Paid Amount
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Balance
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
 							Status
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+						>
 							Actions
 						</th>
-						<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+						>
 							History
 						</th>
 						{#if showDelete}
-							<th scope="col" class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider print:hidden">
+							<th
+								scope="col"
+								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+							>
 								Delete
 							</th>
 						{/if}
@@ -720,18 +1076,23 @@
 				<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
 					<div class="flex items-center gap-6">
 						<p class="text-sm text-gray-700">
-							Showing <span class="font-medium">{totalOrderAmount() === '0.00' ? 0 : (currentPage - 1) * recordsPerPage + 1}</span> to
+							Showing <span class="font-medium"
+								>{totalOrderAmount() === '0.00' ? 0 : (currentPage - 1) * recordsPerPage + 1}</span
+							>
+							to
 							<span class="font-medium"
 								>{Math.min(currentPage * recordsPerPage, data.records?.length || 0)}</span
 							>
 							of <span class="font-medium">{data.records?.length || 0}</span> results
 						</p>
 						<div class="flex items-center gap-2">
-							<label for="rows-per-page" class="text-sm font-medium text-gray-700">Rows per page:</label>
+							<label for="rows-per-page" class="text-sm font-medium text-gray-700"
+								>Rows per page:</label
+							>
 							<select
 								id="rows-per-page"
 								bind:value={recordsPerPage}
-								class="rounded-md border border-gray-300 py-1 pl-2 pr-6 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+								class="rounded-md border border-gray-300 py-1 pr-6 pl-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
 							>
 								<option value={10}>10</option>
 								<option value={20}>20</option>
@@ -753,7 +1114,11 @@
 							>
 								<span class="sr-only">First</span>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-									<path fill-rule="evenodd" d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z" clip-rule="evenodd" />
+									<path
+										fill-rule="evenodd"
+										d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z"
+										clip-rule="evenodd"
+									/>
 								</svg>
 							</button>
 							<button
@@ -773,7 +1138,8 @@
 							</button>
 							{#each getPageList(totalPages, currentPage) as pageItem}
 								{#if pageItem === '...'}
-									<span class="relative inline-flex items-center px-4 py-2 text-sm text-gray-500 ring-1 ring-inset ring-gray-300"
+									<span
+										class="relative inline-flex items-center px-4 py-2 text-sm text-gray-500 ring-1 ring-gray-300 ring-inset"
 										>{pageItem}</span
 									>
 								{:else}
@@ -812,7 +1178,11 @@
 							>
 								<span class="sr-only">Last</span>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-									<path fill-rule="evenodd" d="M4.21 5.23a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L8.168 10 4.23 6.29a.75.75 0 01-.02-1.06zm6 0a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L14.168 10 10.23 6.29a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+									<path
+										fill-rule="evenodd"
+										d="M4.21 5.23a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L8.168 10 4.23 6.29a.75.75 0 01-.02-1.06zm6 0a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L14.168 10 10.23 6.29a.75.75 0 01-.02-1.06z"
+										clip-rule="evenodd"
+									/>
 								</svg>
 							</button>
 						</nav>

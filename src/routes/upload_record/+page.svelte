@@ -1,10 +1,22 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import CameraModal from '$lib/components/CameraModal.svelte';
+	import InventoryUsage from '$lib/components/upload_record/InventoryUsage.svelte';
+	import DocumentationIn from '$lib/components/upload_record/DocumentationIn.svelte';
+	import PaymentInfo from '$lib/components/upload_record/PaymentInfo.svelte';
+	import ClientInfo from '$lib/components/upload_record/ClientInfo.svelte';
+	import CaseSpecs from '$lib/components/upload_record/CaseSpecs.svelte';
+	import DeliveryWorkDetails from '$lib/components/upload_record/DeliveryWorkDetails.svelte';
 	import { deserialize, enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
+
+	// Wizard state
+	let currentStep = $state(1);
+	const totalSteps = 3;
+	let stepError = $state('');
+	const stepTitles = ['Client & Case Info', 'Materials & Logistics', 'Documentation & Payment'];
 
 	let allDoctors = $state(data?.doctors || []);
 	let allClinics = $state(data?.clinics || []);
@@ -25,6 +37,7 @@
 	let paid_amount: number | undefined = $state();
 	let date: string | undefined = $state();
 	let time: string | undefined = $state();
+	let excess_payment: number = $state(0);
 
 	let case_type_upper: number = $state(1);
 	let case_type_lower: number = $state(1);
@@ -38,9 +51,55 @@
 	let showDoctorDropdown = $state(false);
 	let showClinicDropdown = $state(false);
 	let payment_method = $state('cash');
+
+	// Delivery & technician details for new record
+	let deliveryCourier = $state('');
+	let deliveryFee: number | undefined = $state();
+	let deliveryNotes = $state('');
+	let dateDropoff = $state('');
+	let actualDropoff = $state('');
+	let finishBy = $state('');
+	let assignedTechnicians = $state('');
+
+	// Collapsible section state
+	let showDeliveryDetails = $state(true);
+
+	// Technician autocomplete state
+	let technicianInputValue = $state('');
+	let showTechnicianDropdown = $state(false);
+	let selectedTechnicians: string[] = $state([]);
+	let filteredTechnicians = $derived(
+		data?.technicians?.filter(
+			(t) =>
+				t.name.toLowerCase().includes(technicianInputValue.toLowerCase()) &&
+				!selectedTechnicians.includes(t.name)
+		) || []
+	);
+
+	function addTechnician(techName: string) {
+		if (!selectedTechnicians.includes(techName)) {
+			selectedTechnicians = [...selectedTechnicians, techName];
+			assignedTechnicians = selectedTechnicians.join(', ');
+		}
+		technicianInputValue = '';
+		showTechnicianDropdown = false;
+	}
+
+	function removeTechnician(techName: string) {
+		selectedTechnicians = selectedTechnicians.filter((t) => t !== techName);
+		assignedTechnicians = selectedTechnicians.join(', ');
+	}
+
+	function handleTechnicianInputKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && technicianInputValue.trim()) {
+			event.preventDefault();
+			addTechnician(technicianInputValue.trim());
+		}
+	}
+
 	function handleInImageChange() {
 		const files = in_file?.files;
-		
+
 		// Revoke old object URLs to avoid memory leaks
 		for (const url of in_img_urls) {
 			URL.revokeObjectURL(url);
@@ -56,25 +115,26 @@
 
 	function removeInImage(index: number) {
 		if (!in_file?.files) return;
-		
+
 		const dataTransfer = new DataTransfer();
 		const files = Array.from(in_file.files);
-		
+
 		files.forEach((file, i) => {
 			if (i !== index) {
 				dataTransfer.items.add(file);
 			}
 		});
-		
+
 		in_file.files = dataTransfer.files;
 		handleInImageChange();
 	}
 
 	function filterDoctors() {
 		const query = (doctorInputValue || '').toLowerCase();
-		filteredDoctors = allDoctors.filter((doctor) =>
-			doctor.clinicId === selectedClinic?.clinicId &&
-			doctor.doctorName.toLowerCase().includes(query)
+		filteredDoctors = allDoctors.filter(
+			(doctor) =>
+				doctor.clinicId === selectedClinic?.clinicId &&
+				doctor.doctorName.toLowerCase().includes(query)
 		);
 		showDoctorDropdown = true;
 	}
@@ -123,10 +183,10 @@
 	async function registerClinic() {
 		if (!clinicInputValue || isRegisteringClinic) return;
 		isRegisteringClinic = true;
-		
+
 		const formData = new FormData();
 		formData.append('clinic_name', clinicInputValue);
-		
+
 		try {
 			const response = await fetch('/edit_info?/addClinic', {
 				method: 'POST',
@@ -135,11 +195,14 @@
 			});
 			const text = await response.text();
 			const result = deserialize(text);
-			
+
 			if (result.type === 'success' && result.data?.success) {
 				const newClinic = {
 					clinicId: result.data.clinicId as number,
 					clinicName: clinicInputValue,
+					clinicPhone: '',
+					clinicEmail: '',
+					clinicAddress: '',
 					value: (result.data.clinicId as number).toString(),
 					label: clinicInputValue
 				};
@@ -162,11 +225,11 @@
 	async function registerDoctor() {
 		if (!doctorInputValue || !selectedClinic || isRegisteringDoctor) return;
 		isRegisteringDoctor = true;
-		
+
 		const formData = new FormData();
 		formData.append('doctor_name', doctorInputValue);
 		formData.append('clinic_id', selectedClinic.clinicId.toString());
-		
+
 		try {
 			const response = await fetch('/edit_info?/addDoctor', {
 				method: 'POST',
@@ -175,12 +238,14 @@
 			});
 			const text = await response.text();
 			const result = deserialize(text);
-			
+
 			if (result.type === 'success' && result.data?.success) {
 				const newDoctor = {
 					doctorId: result.data.doctorId as number,
 					doctorName: doctorInputValue,
 					clinicId: selectedClinic.clinicId,
+					doctorPhone: '',
+					doctorEmail: '',
 					value: (result.data.doctorId as number).toString(),
 					label: doctorInputValue
 				};
@@ -225,7 +290,9 @@
 	}
 
 	function formatCaseNumber(num: number, caseTypeId: number) {
-		return String(num).padStart(5, '0');
+		const caseType = data?.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
+		const prefix = caseType ? caseType.caseTypeName : '';
+		return prefix ? `${prefix}-${String(num).padStart(5, '0')}` : String(num).padStart(5, '0');
 	}
 
 	$effect(() => {
@@ -246,10 +313,6 @@
 		});
 	});
 
-	onDestroy(() => {
-		// Cleanup if needed
-	});
-
 	console.log('doctors', data?.doctors);
 	console.log('clinics', data?.clinics);
 
@@ -261,582 +324,340 @@
 	let lower_unit: number = $state(1);
 	let lower_cost: number = $state(0);
 
-	// Add this effect to calculate total automatically
 	$effect(() => {
 		const upperTotal =
 			selected_jaw === 'upper' || selected_jaw === 'U/L' ? upper_unit * upper_cost : 0;
 		const lowerTotal =
 			selected_jaw === 'lower' || selected_jaw === 'U/L' ? lower_unit * lower_cost : 0;
 		total_amount = upperTotal + lowerTotal;
+
+		// Calculate excess or balance
+		if (paid_amount !== undefined && total_amount !== undefined) {
+			if (paid_amount > total_amount) {
+				excess_payment = paid_amount - total_amount;
+			} else {
+				excess_payment = 0;
+			}
+		} else {
+			excess_payment = 0;
+		}
 	});
+
+	function payInFull() {
+		if (total_amount !== undefined) {
+			paid_amount = total_amount;
+		}
+	}
+
+	// Inventory Usage Tracking State
+	let inventoryUsages = $state<{ itemId: number; quantity: number; maxStock: number }[]>([]);
+	function addInventoryRow() {
+		inventoryUsages.push({ itemId: 0, quantity: 1, maxStock: 0 });
+	}
+
+	function removeInventoryRow(index: number) {
+		inventoryUsages.splice(index, 1);
+	}
+
+	function handleInventorySelect(index: number, itemIdStr: string) {
+		const id = parseInt(itemIdStr, 10);
+		const item = data?.inventoryItems?.find((i) => i.id === id);
+		if (item) {
+			inventoryUsages[index].itemId = id;
+			inventoryUsages[index].maxStock = item.currentStock;
+			if (inventoryUsages[index].quantity > item.currentStock) {
+				inventoryUsages[index].quantity = item.currentStock;
+			}
+		}
+	}
+
+	// Wizard navigation functions
+	function canProceed(): boolean {
+		stepError = '';
+		switch (currentStep) {
+			case 1:
+				if (!selectedClinic) {
+					stepError = 'Please select a clinic';
+					return false;
+				}
+				if (!selectedDoctor) {
+					stepError = 'Please select a doctor';
+					return false;
+				}
+				if (
+					(selected_jaw === 'upper' || selected_jaw === 'U/L') &&
+					(!upper_unit || upper_cost === undefined)
+				) {
+					stepError = 'Please fill in upper case details';
+					return false;
+				}
+				if (
+					(selected_jaw === 'lower' || selected_jaw === 'U/L') &&
+					(!lower_unit || lower_cost === undefined)
+				) {
+					stepError = 'Please fill in lower case details';
+					return false;
+				}
+				return true;
+			default:
+				return true;
+		}
+	}
+
+	function nextStep() {
+		if (canProceed() && currentStep < totalSteps) {
+			currentStep++;
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	}
+
+	function prevStep() {
+		if (currentStep > 1) {
+			currentStep--;
+			stepError = '';
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	}
+
+	function goToStep(step: number) {
+		if (step < currentStep) {
+			currentStep = step;
+			stepError = '';
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	}
 </script>
 
 <div class=" flex justify-center px-4 md:px-8">
 	<form
-		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-4 sm:p-6 shadow-md md:max-w-[1200px]"
+		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-4 shadow-md sm:p-6 md:max-w-[1200px]"
 		method="POST"
 		enctype="multipart/form-data"
 		use:enhance={() => {
 			isSubmitting = true;
-			return async ({ update }) => {
-				await update();
+			return async ({ update, result }) => {
+				if (
+					result.type === 'failure' ||
+					(result.type === 'success' && result.data?.success === false)
+				) {
+					alert(result.data?.error || 'An error occurred during submission.');
+					await update({ reset: false });
+				} else {
+					await update();
+				}
 				isSubmitting = false;
 			};
 		}}
 	>
-		<h2 class="text-center text-2xl font-semibold text-gray-800">Add New Record</h2>
+		<!-- Wizard Header -->
+		<div class="text-center">
+			<h2 class="text-2xl font-semibold text-gray-800">Add New Record</h2>
+			<p class="mt-1 text-sm text-gray-500">
+				Step {currentStep} of {totalSteps}: {stepTitles[currentStep - 1]}
+			</p>
+		</div>
 
-		<!-- First Row: Patient Information -->
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-			<!-- Clinic Selection -->
-			<div class="relative">
-				<label for="clinic_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-					Clinic
-					<input
-						type="text"
-						id="clinic_name"
-						autocomplete="off"
-						bind:value={clinicInputValue}
-						oninput={filterClinics}
-						onfocus={() => {
-							showClinicDropdown = true;
-						}}
-						onblur={() => setTimeout(() => (showClinicDropdown = false), 200)}
-						required
-						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-						placeholder="Clinic name"
-					/>
-				</label>
-				{#if showClinicDropdown}
-					<ul
-						class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
-						tabindex="-1"
-						role="listbox"
-						aria-labelledby="clinic_name"
+		<!-- Progress Bar -->
+		<div class="relative">
+			<div class="flex items-center justify-between">
+				{#each stepTitles as title, i}
+					{@const stepNum = i + 1}
+					<button
+						type="button"
+						onclick={() => goToStep(stepNum)}
+						class="group flex flex-col items-center gap-1"
 					>
-						{#each filteredClinics as clinic}
-							<li class="role-none relative" id={`clinic-option-${clinic.clinicId}`}>
-								<button
-									type="button"
-									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
-									onclick={() => selectClinic(clinic)}
-								>
-									<span class="block truncate">{clinic.clinicName}</span>
-								</button>
-								{#if selectedClinic?.clinicId === clinic.clinicId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
-										<svg
-											class="h-5 w-5"
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 20 20"
-											fill="currentColor"
-											aria-hidden="true"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-												clip-rule="evenodd"
-											></path>
-										</svg>
-									</span>
-								{/if}
-							</li>
-						{/each}
-						{#if clinicInputValue.length > 0 && !allClinics.some(c => c.clinicName.toLowerCase() === clinicInputValue.trim().toLowerCase())}
-							<li class="role-none relative text-gray-900">
-								<button
-									type="button"
-									class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
-									onclick={registerClinic}
-									disabled={isRegisteringClinic}
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-									</svg>
-									{isRegisteringClinic ? 'Registering...' : `Register "${clinicInputValue}" as New Clinic`}
-								</button>
-							</li>
-						{/if}
-					</ul>
-				{/if}
-				<input type="hidden" name="clinic_name" value={selectedClinic?.clinicId} />
-			</div>
-
-			<!-- Doctor Selection -->
-			<div class="relative">
-				<label for="doctor_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-					Doctor
-					<input
-						type="text"
-						id="doctor_name"
-						autocomplete="off"
-						bind:value={doctorInputValue}
-						oninput={filterDoctors}
-						onfocus={() => (showDoctorDropdown = selectedClinic != null)}
-						onblur={() => setTimeout(() => (showDoctorDropdown = false), 200)}
-						required
-						disabled={!selectedClinic}
-						class="block w-full appearance-none rounded-md border {selectedClinic
-							? 'border-gray-300'
-							: 'cursor-not-allowed border-dashed border-gray-300 bg-gray-100'} px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-						placeholder="Doctor name"
-					/>
-				</label>
-				{#if showDoctorDropdown}
-					<ul
-						class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
-						tabindex="-1"
-						role="listbox"
-						aria-labelledby="doctor_name"
-					>
-						{#each filteredDoctors as doctor}
-							<li class="role-none relative" id={`doctor-option-${doctor.doctorId}`}>
-								<button
-									type="button"
-									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
-									onclick={() => selectDoctor(doctor)}
-								>
-									<span class="block truncate">{doctor.doctorName}</span>
-								</button>
-								{#if selectedDoctor?.doctorId === doctor.doctorId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
-										<svg
-											class="h-5 w-5"
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 20 20"
-											fill="currentColor"
-											aria-hidden="true"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-												clip-rule="evenodd"
-											></path>
-										</svg>
-									</span>
-								{/if}
-							</li>
-						{/each}
-						{#if doctorInputValue.length > 0 && !allDoctors.some(d => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue.trim().toLowerCase())}
-							{#if selectedClinic}
-								<li class="role-none relative text-gray-900">
-									<button
-										type="button"
-										class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
-										onclick={registerDoctor}
-										disabled={isRegisteringDoctor}
-									>
-										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-										</svg>
-										{isRegisteringDoctor ? 'Registering...' : `Register "${doctorInputValue}" as New Doctor`}
-									</button>
-								</li>
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-colors
+								{stepNum < currentStep ? 'bg-green-500 text-white' : ''}
+								{stepNum === currentStep ? 'bg-indigo-600 text-white ring-4 ring-indigo-100' : ''}
+								{stepNum > currentStep ? 'bg-gray-200 text-gray-500 group-hover:bg-gray-300' : ''}"
+						>
+							{#if stepNum < currentStep}
+								<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+									<path
+										fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"
+									/>
+								</svg>
 							{:else}
-								<li class="relative cursor-default py-2 pr-9 pl-3 text-gray-500 select-none">
-									Select a clinic first to register.
-								</li>
+								{stepNum}
 							{/if}
-						{/if}
-					</ul>
-				{/if}
-				<input type="hidden" name="doctor_name" value={selectedDoctor?.doctorId} />
-			</div>
-
-			<!-- Patient Name -->
-			<div>
-				<label for="patient_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-					Patient Name
-					<input
-						type="text"
-						name="patient_name"
-						placeholder="Patient name"
-						autocomplete="off"
-						required
-						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-					/>
-				</label>
-			</div>
-			<!-- Jaw Selection -->
-			<div class="flex items-center justify-center">
-				<div class="inline-flex rounded-md border border-gray-200" role="group">
-					<button
-						type="button"
-						class="rounded-l-md px-2 py-3 text-xs font-medium {selected_jaw === 'upper'
-							? 'bg-indigo-600 text-white'
-							: 'bg-white text-gray-700 hover:bg-gray-50'}"
-						onclick={() => (selected_jaw = 'upper')}
-					>
-						Upper Only
+						</div>
+						<span class="hidden text-[10px] font-medium text-gray-500 sm:block">{title}</span>
 					</button>
-					<button
-						type="button"
-						class="border-r border-l px-2 text-xs font-medium {selected_jaw === 'U/L'
-							? 'bg-indigo-600 text-white'
-							: 'bg-white text-gray-700 hover:bg-gray-50'}"
-						onclick={() => (selected_jaw = 'U/L')}
-					>
-						Upper/Lower
-					</button>
-					<button
-						type="button"
-						class="rounded-r-md px-2 text-xs font-medium {selected_jaw === 'lower'
-							? 'bg-indigo-600 text-white'
-							: 'bg-white text-gray-700 hover:bg-gray-50'}"
-						onclick={() => (selected_jaw = 'lower')}
-					>
-						Lower Only
-					</button>
-					<input type="text" name="selected_jaw" bind:value={selected_jaw} hidden />
-				</div>
-			</div>
-		</div>
-
-		<!-- Second Row: Upper/Lower Sections -->
-		<div class="flex flex-col gap-4">
-			<!-- Upper Section -->
-			{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
-				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Upper</h3>
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-						<!-- Case Type -->
-						<div>
-							<label for="case_type_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case type
-								<select
-									name="case_type_upper"
-									bind:value={case_type_upper}
-									required
-									class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-								>
-									{#each data?.caseTypes as caseType}
-										<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
-									{/each}
-								</select>
-							</label>
+					{#if i < stepTitles.length - 1}
+						<div class="mx-2 h-0.5 flex-1 bg-gray-200">
+							<div
+								class="h-full bg-green-500 transition-all"
+								style="width: {stepNum < currentStep ? '100%' : '0%'}"
+							></div>
 						</div>
-
-						<!-- Case Number -->
-						<div>
-							<label for="case_number_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case number
-								<input
-									type="text"
-									name="case_number_upper"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-									placeholder="Case number"
-									value={formatCaseNumber(next_case_upper, case_type_upper)}
-									disabled
-								/>
-							</label>
-						</div>
-						<!-- Description -->
-						<div class="sm:col-span-2 lg:col-span-1">
-							<label for="upper_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Description
-								<textarea
-									name="upper_description"
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									rows="1"
-								></textarea>
-							</label>
-						</div>
-						<!-- Unit -->
-						<div>
-							<label for="upper_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Unit
-								<input
-									type="number"
-									id="upper_unit"
-									name="upper_unit"
-									bind:value={upper_unit}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Units"
-									min="1"
-									defaultvalue="1"
-								/>
-							</label>
-						</div>
-
-						<!-- Cost -->
-						<div>
-							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="upper_cost">Cost</label>
-							<div class="relative mt-1">
-								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
-								</div>
-								<input
-									type="number"
-									id="upper_cost"
-									name="upper_cost"
-									bind:value={upper_cost}
-									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="0.00"
-									min="0"
-									required
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			{/if}
-
-			<!-- Lower Section (Similar structure to Upper) -->
-			{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
-				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Lower</h3>
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-						<!-- Case Type -->
-						<div>
-							<label for="case_type_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case type
-								<select
-									name="case_type_lower"
-									bind:value={case_type_lower}
-									required
-									class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-								>
-									{#each data?.caseTypes as caseType}
-										<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
-									{/each}
-								</select>
-							</label>
-						</div>
-
-						<!-- Case Number -->
-						<div>
-							<label for="case_number_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case number
-								<input
-									type="text"
-									name="case_number_lower"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-									placeholder="Case number"
-									value={formatCaseNumber(next_case_lower, case_type_lower)}
-									disabled
-								/>
-							</label>
-						</div>
-						<!-- Description -->
-						<div class="sm:col-span-2 lg:col-span-1">
-							<label for="lower_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Description
-								<textarea
-									name="lower_description"
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									rows="1"
-								></textarea>
-							</label>
-						</div>
-						<!-- Unit -->
-						<div>
-							<label for="lower_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Unit
-								<input
-									type="number"
-									id="lower_unit"
-									name="lower_unit"
-									bind:value={lower_unit}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Units"
-									min="1"
-									defaultvalue="1"
-								/>
-							</label>
-						</div>
-
-						<!-- Cost -->
-						<div>
-							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="lower_cost">Cost</label>
-							<div class="relative mt-1">
-								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
-								</div>
-								<input
-									type="number"
-									id="lower_cost"
-									name="lower_cost"
-									bind:value={lower_cost}
-									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="0.00"
-									min="0"
-									required
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			{/if}
-		</div>
-
-		<!-- Third Row: Image and Payment -->
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-			<!-- IN Image Column -->
-			<div class="rounded-md border border-gray-200 p-4">
-				<div class="mb-2 flex flex-col gap-2">
-					<span class="block text-[10px] font-bold tracking-wider text-gray-500 uppercase"> IN Image </span>
-					{#if in_img_urls.length === 0}
-						<p class="mb-2 text-sm text-gray-500">No images uploaded yet</p>
 					{/if}
-					<div class="flex gap-2">
-						<button
-							type="button"
-							class="flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-							onclick={() => {
-								showCameraModal = true;
-							}}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="mr-2 h-5 w-5"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
-								<path
-									fill-rule="evenodd"
-									d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-							Use Camera
-						</button>
-						<label
-							class="flex cursor-pointer items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-						>
-							<input
-								type="file"
-								name="in-img"
-								class="w-24"
-								accept="image/*"
-								bind:this={in_file}
-								onchange={handleInImageChange}
-								multiple
-								required
-							/>
-						</label>
-					</div>
-				</div>
-				{#if in_img_urls.length > 0}
-					<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-						{#each in_img_urls as url, i}
-							<div class="relative group">
-								<img
-									class="h-24 w-full rounded-md object-cover shadow-sm border border-gray-100"
-									src={url}
-									alt="IN Preview"
-								/>
-								<button
-									type="button"
-									class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 focus:outline-none transition-colors"
-									onclick={() => removeInImage(i)}
-									title="Remove image"
-									aria-label="Remove image"
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-									</svg>
-								</button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-				<div class="mt-4 flex flex-col gap-2">
-					<label for="date" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-						IN Date
-						<input
-							type="date"
-							name="date"
-							placeholder="Date"
-							required
-							bind:value={date}
-							class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-						/>
-					</label>
-					<label for="time" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-						IN Time
-						<input
-							type="time"
-							name="time"
-							placeholder="Time"
-							required
-							bind:value={time}
-							class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-						/>
-					</label>
-				</div>
-			</div>
-
-			<!-- Payment Information Column -->
-			<div class="rounded-md border border-gray-200 p-4">
-				<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Payment Information</h3>
-
-				<!-- Total Amount -->
-				<div class="mb-5">
-					<label for="total_amount" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-						Total Amount
-					</label>
-					<div class="block w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-2xl font-bold text-gray-900 shadow-sm relative overflow-hidden">
-						<div class="absolute top-0 right-0 w-1.5 h-full bg-indigo-500"></div>
-						<span class="text-gray-400 font-medium mr-1 text-lg">₱</span>{total_amount?.toFixed(2) || '0.00'}
-					</div>
-					<input type="hidden" id="total_amount" name="total_amount" value={total_amount} />
-				</div>
-
-				<!-- Paid Amount -->
-				<div class="mb-4">
-					<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase" for="paid_amount">Paid Amount</label>
-					<div class="relative">
-						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-							<span class="text-gray-500 sm:text-sm font-medium">₱</span>
-						</div>
-						<input
-							type="number"
-							id="paid_amount"
-							name="paid_amount"
-							bind:value={paid_amount}
-							class="block w-full appearance-none rounded-md border border-gray-300 py-2 pl-7 pr-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-							placeholder="0.00"
-							min="0"
-							step="0.01"
-							required
-						/>
-					</div>
-				</div>
-
-				<!-- Payment Method -->
-				<div class="mb-4">
-					<label for="payment_method" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-						Payment Method
-					</label>
-					<select
-						name="payment_method"
-						bind:value={payment_method}
-						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-					>
-						<option value="cash">Cash</option>
-						<option value="gcash">GCash</option>
-						<option value="bank">Bank Transfer</option>
-						<option value="others">Others</option>
-					</select>
-				</div>
+				{/each}
 			</div>
 		</div>
 
-		<!-- Submit Button -->
-		<div class="flex flex-col items-center justify-center pt-4">
+		<!-- Step Error -->
+		{#if stepError}
+			<div class="rounded-md bg-red-50 p-3 text-sm text-red-600">
+				{stepError}
+			</div>
+		{/if}
+
+		<!-- Step 1: Client Information -->
+		{#if currentStep === 1}
+			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+				<h3 class="mb-4 text-lg font-semibold text-gray-800">Client Information</h3>
+				<ClientInfo
+					{allClinics}
+					{filteredClinics}
+					bind:clinicInputValue
+					bind:showClinicDropdown
+					{filterClinics}
+					{selectClinic}
+					{registerClinic}
+					{isRegisteringClinic}
+					{selectedClinic}
+					{allDoctors}
+					{filteredDoctors}
+					bind:doctorInputValue
+					bind:showDoctorDropdown
+					{filterDoctors}
+					{selectDoctor}
+					{registerDoctor}
+					{isRegisteringDoctor}
+					{selectedDoctor}
+					bind:selected_jaw
+				/>
+			</div>
+		{/if}
+
+		<!-- Step 1: Case Details (merged with Client Info) -->
+		{#if currentStep === 1}
+			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<h3 class="mb-4 text-lg font-semibold text-gray-800">Case Details</h3>
+					<CaseSpecs
+						{data}
+						{selected_jaw}
+						bind:case_type_upper
+						bind:case_type_lower
+						{next_case_upper}
+						{next_case_lower}
+						{formatCaseNumber}
+						bind:upper_unit
+						bind:upper_cost
+						bind:lower_unit
+						bind:lower_cost
+					/>
+				</div>
+
+				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<h3 class="mb-4 text-lg font-semibold text-gray-800">Materials</h3>
+					<InventoryUsage
+						{data}
+						bind:inventoryUsages
+						{addInventoryRow}
+						{removeInventoryRow}
+						{handleInventorySelect}
+					/>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Step 2: Materials & Logistics -->
+		{#if currentStep === 2}
+			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+				<h3 class="mb-4 text-lg font-semibold text-gray-800">Materials & Logistics</h3>
+				<div class="flex flex-col gap-4">
+					<DeliveryWorkDetails
+						bind:showDeliveryDetails
+						bind:deliveryCourier
+						bind:deliveryFee
+						bind:deliveryNotes
+						bind:dateDropoff
+						bind:actualDropoff
+						bind:finishBy
+						bind:technicianInputValue
+						bind:showTechnicianDropdown
+						{selectedTechnicians}
+						{filteredTechnicians}
+						{addTechnician}
+						{removeTechnician}
+						{handleTechnicianInputKeydown}
+						{assignedTechnicians}
+					/>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Step 3: Documentation & Payment -->
+		{#if currentStep === 3}
+			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<h3 class="mb-4 text-lg font-semibold text-gray-800">Documentation</h3>
+					<DocumentationIn
+						{in_img_urls}
+						bind:in_file
+						bind:showCameraModal
+						{handleInImageChange}
+						{removeInImage}
+						bind:date
+						bind:time
+					/>
+				</div>
+
+				<!-- Payment -->
+				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<h4 class="mb-4 text-lg font-semibold text-gray-800">Payment</h4>
+					<PaymentInfo
+						{total_amount}
+						bind:paid_amount
+						{excess_payment}
+						{payInFull}
+						bind:payment_method
+					/>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Navigation Buttons -->
+		<div class="flex items-center justify-between border-t border-gray-200 pt-4">
 			<button
-				class="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
-				type="submit"
-				disabled={isSubmitting}
+				type="button"
+				onclick={prevStep}
+				disabled={currentStep === 1}
+				class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{isSubmitting ? 'Submitting...' : 'Add Record'}
+				← Back
 			</button>
-			{#if form?.success}
-				<p class="mt-2 font-semibold text-green-500">{form.success}</p>
-			{:else if form?.error}
-				<p class="mt-2 text-red-500">Error: {form?.error}</p>
+
+			{#if currentStep < totalSteps}
+				<button
+					type="button"
+					onclick={nextStep}
+					class="rounded-md bg-indigo-600 px-6 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+				>
+					Next Step →
+				</button>
+			{:else}
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					class="rounded-md bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+				>
+					{isSubmitting ? 'Submitting...' : '✓ Add Record'}
+				</button>
 			{/if}
 		</div>
+
+		{#if form?.success}
+			<p class="text-center font-semibold text-green-500">{form.success}</p>
+		{:else if form?.error}
+			<p class="text-center text-red-500">Error: {form?.error}</p>
+		{/if}
 	</form>
 </div>
 

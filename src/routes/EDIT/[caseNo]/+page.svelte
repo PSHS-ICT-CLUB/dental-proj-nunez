@@ -28,6 +28,13 @@
 	let patientName = $state(record.patientName);
 	let remarks = $state(record.remarks || 'pending');
 
+	// Delivery & scheduling fields
+	let deliveryCourier = $state(record.deliveryCourier || '');
+	let deliveryFee = $state(record.deliveryFee ? String(record.deliveryFee) : '');
+	let deliveryNotes = $state(record.deliveryNotes || '');
+	let finishBy = $state(record.finishBy ? record.finishBy.slice(0, 16) : '');
+	let assignedTechnicians = $state(record.assignedTechnicians || '');
+
 	// Initialize with current values
 	onMount(() => {
 		// Set initial clinic
@@ -138,6 +145,56 @@
 				field: 'Remarks',
 				oldValue: originalRemarks,
 				newValue: remarks
+			});
+		}
+
+		// Check delivery courier change
+		const originalCourier = record.deliveryCourier || '';
+		if (deliveryCourier !== originalCourier) {
+			changesList.push({
+				field: 'Delivery Courier',
+				oldValue: originalCourier,
+				newValue: deliveryCourier
+			});
+		}
+
+		// Check delivery fee change
+		const originalFee = record.deliveryFee ? String(record.deliveryFee) : '';
+		if (deliveryFee !== originalFee) {
+			changesList.push({
+				field: 'Delivery Fee',
+				oldValue: originalFee,
+				newValue: deliveryFee
+			});
+		}
+
+		// Check delivery notes change
+		const originalNotes = record.deliveryNotes || '';
+		if (deliveryNotes !== originalNotes) {
+			changesList.push({
+				field: 'Delivery Notes',
+				oldValue: originalNotes,
+				newValue: deliveryNotes
+			});
+		}
+
+		// Check finish-by change
+		const originalFinishBy = record.finishBy ? record.finishBy.slice(0, 16) : '';
+		if (finishBy !== originalFinishBy) {
+			changesList.push({
+				field: 'To be finished at',
+				oldValue: originalFinishBy,
+				newValue: finishBy
+			});
+		}
+
+		// Check assigned technicians change
+		const originalTechnicians = record.assignedTechnicians || '';
+		if (assignedTechnicians !== originalTechnicians) {
+			changesList.push({
+				field: 'Assigned Technicians',
+				oldValue: originalTechnicians,
+				newValue: assignedTechnicians
 			});
 		}
 
@@ -342,6 +399,86 @@
 					<option value="pending">Pending</option>
 					<option value="finished">Finished</option>
 				</select>
+			</div>
+
+			<!-- Delivery Details -->
+			<div>
+				<label class="mb-1 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label>
+				<div class="space-y-2">
+					<div>
+						<label for="delivery_courier" class="block text-xs font-medium text-gray-600">
+							Courier
+						</label>
+						<input
+							type="text"
+							id="delivery_courier"
+							name="deliveryCourier"
+							bind:value={deliveryCourier}
+							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							placeholder="e.g. Lalamove, Grab, In-house"
+						/>
+					</div>
+					<div>
+						<label for="delivery_fee" class="block text-xs font-medium text-gray-600">
+							Delivery Fee
+						</label>
+						<input
+							type="number"
+							step="0.01"
+							min="0"
+							id="delivery_fee"
+							name="deliveryFee"
+							bind:value={deliveryFee}
+							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							placeholder="e.g. 150.00"
+						/>
+					</div>
+					<div>
+						<label for="delivery_notes" class="block text-xs font-medium text-gray-600">
+							Notes
+						</label>
+						<textarea
+							id="delivery_notes"
+							name="deliveryNotes"
+							rows="2"
+							bind:value={deliveryNotes}
+							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							placeholder="Optional delivery instructions or remarks"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<!-- To be finished at -->
+			<div>
+				<label for="finish_by" class="mb-1 block text-sm font-bold text-gray-700">
+					To be finished at (Optional)
+				</label>
+				<input
+					type="datetime-local"
+					id="finish_by"
+					name="finishBy"
+					bind:value={finishBy}
+					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				/>
+			</div>
+
+			<!-- Assigned Technicians -->
+			<div class="md:col-span-2">
+				<label for="assigned_technicians" class="mb-1 block text-sm font-bold text-gray-700">
+					Assigned Technician(s)
+				</label>
+				<textarea
+					id="assigned_technicians"
+					name="assignedTechnicians"
+					rows="2"
+					bind:value={assignedTechnicians}
+					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					placeholder="Enter one or more technician names (e.g. Juan, Maria, Pedro)"
+				/>
+				<p class="mt-1 text-xs text-gray-500">
+					You can assign multiple technicians by separating names with commas.
+				</p>
 			</div>
 
 			<!-- Submit Button -->
