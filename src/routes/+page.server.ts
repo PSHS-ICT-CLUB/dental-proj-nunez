@@ -142,8 +142,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				);
 		}
 
+		const page = parseInt(url.searchParams.get('page') || '1');
+		const limit = parseInt(url.searchParams.get('limit') || '200');
+		const offset = (page - 1) * limit;
+
 		const [recordData, caseTypeData, doctorData, clinicData] = await Promise.all([
-			baseQuery.orderBy(desc(records.datePickup)),
+			baseQuery.orderBy(desc(records.datePickup)).limit(limit).offset(offset),
 			db.select().from(caseTypes),
 			db.select().from(doctors).orderBy(desc(doctors.doctorName)),
 			db.select().from(clinics).orderBy(desc(clinics.clinicName))

@@ -51,11 +51,12 @@ export const actions: Actions = {
 		const userId = formData.get('userId') as string;
 		const name = formData.get('name') as string;
 		const email = formData.get('email') as string;
+		const role = formData.get('role') as string;
 		const password = formData.get('password') as string;
 		const confirmPassword = formData.get('confirmPassword') as string;
 
-		if (!userId || !name || !email) {
-			return fail(400, { message: 'User, name, and email are required.' });
+		if (!userId || !name || !email || !role) {
+			return fail(400, { message: 'User, name, role, and email are required.' });
 		}
 
 		const userIdNum = parseInt(userId);
@@ -95,8 +96,9 @@ export const actions: Actions = {
 				.set({
 					name,
 					email,
+					role,
 					passwordHash
-				})
+				} as any)
 				.where(eq(users.id, userIdNum));
 
 			return { success: true, message: 'Account updated successfully!' };

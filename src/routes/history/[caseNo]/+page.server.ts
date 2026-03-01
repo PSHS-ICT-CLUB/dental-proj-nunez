@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				historyDate: history.historyDate,
 				historyTime: history.historyTime,
 				recordId: history.recordId,
-				imageData: history.imageData,
+				imageUrl: history.imageUrl,
 				createdBy: history.createdBy,
 				creatorName: users.name
 			})
@@ -43,18 +43,10 @@ export const load: PageServerLoad = async ({ params }) => {
 			.where(sql`${history.recordId} = ${caseNo}`)
 			.orderBy(desc(history.historyId));
 
-		// Convert imageData Buffer to base64 string
 		data = rawData.map(item => {
-			if (item.imageData) {
-				const base64Data = Buffer.from(item.imageData).toString('base64');
-				return {
-					...item,
-					imageData: `data:image/jpeg;base64,${base64Data}`
-				};
-			}
 			return {
 				...item,
-				imageData: null
+				imageData: item.imageUrl || null
 			};
 		});
 

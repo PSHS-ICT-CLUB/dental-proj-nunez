@@ -7,7 +7,9 @@ import {
 	records,
 	supply,
 	orders,
-	orderItems
+	orderItems,
+	inventoryItems,
+	recordInventoryUsages
 } from '$lib/server/db/schema';
 import { desc, sql, and, eq, isNotNull, between } from 'drizzle-orm';
 import { convertFileToBytea } from '$lib';
@@ -106,13 +108,29 @@ export const load: PageServerLoad = async ({ url }) => {
 			.from(clinics)
 			.orderBy(clinics.clinicName);
 
+		const inventoryUsages = await db
+			.select({
+				usageId: recordInventoryUsages.id,
+				recordId: recordInventoryUsages.recordId,
+				quantityUsed: recordInventoryUsages.quantityUsed,
+				itemName: inventoryItems.name,
+				itemUnit: inventoryItems.unit,
+				itemId: inventoryItems.id,
+				cost: inventoryItems.cost
+			})
+			.from(recordInventoryUsages)
+			.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
+			.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+			.where(and(...conditions));
+
 		return {
 			currentDate: exactDate,
 			currentMonth: date.getMonth() + 1,
 			currentYear: date.getFullYear(),
 			recordData,
 			supplies,
-			clinics: allClinics
+			clinics: allClinics,
+			inventoryUsages
 		};
 	} else {
 		const currentDate = new Date();
@@ -172,12 +190,28 @@ export const load: PageServerLoad = async ({ url }) => {
 			.from(clinics)
 			.orderBy(clinics.clinicName);
 
+		const inventoryUsages = await db
+			.select({
+				usageId: recordInventoryUsages.id,
+				recordId: recordInventoryUsages.recordId,
+				quantityUsed: recordInventoryUsages.quantityUsed,
+				itemName: inventoryItems.name,
+				itemUnit: inventoryItems.unit,
+				itemId: inventoryItems.id,
+				cost: inventoryItems.cost
+			})
+			.from(recordInventoryUsages)
+			.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
+			.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+			.where(and(...conditions));
+
 		return {
 			currentMonth: selectedMonth,
 			currentYear: selectedYear,
 			recordData,
 			supplies,
-			clinics: allClinics
+			clinics: allClinics,
+			inventoryUsages
 		};
 	}
 };

@@ -20,7 +20,7 @@ export const users = pgTable('users', {
 	name: varchar('name', { length: 255 }).notNull(),
 	email: varchar('email', { length: 255 }).notNull().unique(),
 	passwordHash: varchar('password_hash', { length: 255 }).notNull(),
-	role: varchar('role', { length: 50 }).notNull().default('user'),
+	role: varchar('role', { length: 50 }).notNull().default('staff'),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 		sql`CURRENT_TIMESTAMP`
 	)
@@ -170,11 +170,6 @@ export const records = pgTable(
 		})
 	]
 );
-export const bytea = customType<{ data: Buffer; notNull: false; default: false }>({
-	dataType() {
-		return 'bytea';
-	}
-});
 export const history = pgTable(
 	'history',
 	{
@@ -183,8 +178,7 @@ export const history = pgTable(
 		historyDate: date('history_date'),
 		historyTime: time('history_time', { withTimezone: true }).default(sql`CURRENT_TIME`),
 		recordId: integer('record_id').notNull(),
-		// TODO: failed to parse database type 'bytea'
-		imageData: bytea('image_data'),
+		imageUrl: text('image_url'),
 		createdBy: integer('created_by').references(() => users.id)
 	},
 	(table) => [
@@ -229,6 +223,59 @@ export const appConfig = pgTable('app_config', {
 		sql`CURRENT_TIMESTAMP`
 	),
 	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
+});
+
+export const inventorySuppliers = pgTable('inventory_suppliers', {
+	id: serial('id').primaryKey().notNull(),
+	name: varchar('name', { length: 255 }).notNull(),
+	contactPerson: varchar('contact_person', { length: 255 }),
+	phone: varchar('phone', { length: 50 }),
+	email: varchar('email', { length: 255 }),
+	address: text('address'),
+	notes: text('notes'),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
+});
+
+export const inventoryItems = pgTable('inventory_items', {
+	id: serial('id').primaryKey().notNull(),
+	name: varchar('name', { length: 255 }).notNull(),
+	category: varchar('category', { length: 100 }),
+	currentStock: integer('current_stock').notNull().default(0),
+	unit: varchar('unit', { length: 50 }),
+	cost: numeric('cost', { precision: 10, scale: 2 }).notNull().default('0'),
+	minimumStockLevel: integer('minimum_stock_level').notNull().default(0),
+	expirationDate: date('expiration_date'),
+	supplierId: integer('supplier_id').references(() => inventorySuppliers.id),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
+});
+
+export const inventoryLogs = pgTable('inventory_logs', {
+	id: serial('id').primaryKey().notNull(),
+	itemId: integer('item_id').notNull().references(() => inventoryItems.id),
+	actionType: varchar('action_type', { length: 50 }).notNull(), // IN, OUT, ADJUSTMENT
+	quantity: integer('quantity').notNull(),
+	date: timestamp('date', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	remarks: text('remarks'),
+	createdBy: integer('created_by').references(() => users.id)
+});
+
+export const recordInventoryUsages = pgTable('record_inventory_usages', {
+	id: serial('id').primaryKey().notNull(),
+	recordId: integer('record_id').notNull().references(() => records.recordId),
+	itemId: integer('item_id').notNull().references(() => inventoryItems.id),
+	quantityUsed: integer('quantity_used').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 		sql`CURRENT_TIMESTAMP`
 	)
 });

@@ -2,7 +2,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { clinics, doctors, history, records } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
-import { convertFileToBytea } from '$lib';
+import { supabase } from '$lib/server/supabase';
 import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -49,13 +49,28 @@ export const actions = {
 			const outImageFiles = data.getAll('out-img') as File[];
 			for (const file of outImageFiles) {
 				if (file && file.size > 0 && file.name !== 'undefined') {
-					await db.insert(history).values({
-						historyType: 'out',
-						recordId,
-						imageData: await convertFileToBytea(file),
-						historyDate: data.get('date')?.toString(),
-						historyTime: data.get('time')?.toString()
-					} as typeof history.$inferInsert);
+					const fileExt = file.name.split('.').pop() || 'jpg';
+					const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+					const { error: uploadError } = await supabase.storage
+						.from('history_images')
+						.upload(fileName, file);
+
+					if (!uploadError) {
+						const { data: publicUrlData } = supabase.storage
+							.from('history_images')
+							.getPublicUrl(fileName);
+
+						await db.insert(history).values({
+							historyType: 'out',
+							recordId,
+							imageUrl: publicUrlData.publicUrl,
+							historyDate: data.get('date')?.toString(),
+							historyTime: data.get('time')?.toString()
+						});
+					} else {
+						console.error("Supabase upload error:", uploadError);
+					}
 				}
 			}
 		} catch (error) {

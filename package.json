@@ -41,6 +41,7 @@
 	"dependencies": {
 		"@auth/core": "^0.34.3",
 		"@auth/sveltekit": "^1.11.1",
+		"@supabase/supabase-js": "^2.98.0",
 		"chart.js": "^4.4.9",
 		"date-fns": "^4.1.0",
 		"discord.js": "^14.14.1",

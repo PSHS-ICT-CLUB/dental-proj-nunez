@@ -25,6 +25,7 @@
 	let paid_amount: number | undefined = $state();
 	let date: string | undefined = $state();
 	let time: string | undefined = $state();
+	let excess_payment: number = $state(0);
 
 	let case_type_upper: number = $state(1);
 	let case_type_lower: number = $state(1);
@@ -225,7 +226,9 @@
 	}
 
 	function formatCaseNumber(num: number, caseTypeId: number) {
-		return String(num).padStart(5, '0');
+		const caseType = data?.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
+		const prefix = caseType ? caseType.caseTypeName : '';
+		return prefix ? `${prefix}-${String(num).padStart(5, '0')}` : String(num).padStart(5, '0');
 	}
 
 	$effect(() => {
@@ -261,14 +264,52 @@
 	let lower_unit: number = $state(1);
 	let lower_cost: number = $state(0);
 
-	// Add this effect to calculate total automatically
 	$effect(() => {
 		const upperTotal =
 			selected_jaw === 'upper' || selected_jaw === 'U/L' ? upper_unit * upper_cost : 0;
 		const lowerTotal =
 			selected_jaw === 'lower' || selected_jaw === 'U/L' ? lower_unit * lower_cost : 0;
 		total_amount = upperTotal + lowerTotal;
+		
+		// Calculate excess or balance
+		if (paid_amount !== undefined && total_amount !== undefined) {
+			if (paid_amount > total_amount) {
+				excess_payment = paid_amount - total_amount;
+			} else {
+				excess_payment = 0;
+			}
+		} else {
+			excess_payment = 0;
+		}
 	});
+
+	function payInFull() {
+		if (total_amount !== undefined) {
+			paid_amount = total_amount;
+		}
+	}
+
+	// Inventory Usage Tracking State
+	let inventoryUsages = $state<{ itemId: number; quantity: number, maxStock: number }[]>([]);
+	function addInventoryRow() {
+		inventoryUsages.push({ itemId: 0, quantity: 1, maxStock: 0 });
+	}
+
+	function removeInventoryRow(index: number) {
+		inventoryUsages.splice(index, 1);
+	}
+	
+	function handleInventorySelect(index: number, itemIdStr: string) {
+		const id = parseInt(itemIdStr, 10);
+		const item = data?.inventoryItems?.find((i) => i.id === id);
+		if (item) {
+			inventoryUsages[index].itemId = id;
+			inventoryUsages[index].maxStock = item.currentStock;
+			if (inventoryUsages[index].quantity > item.currentStock) {
+				inventoryUsages[index].quantity = item.currentStock;
+			}
+		}
+	}
 </script>
 
 <div class=" flex justify-center px-4 md:px-8">
@@ -278,8 +319,13 @@
 		enctype="multipart/form-data"
 		use:enhance={() => {
 			isSubmitting = true;
-			return async ({ update }) => {
-				await update();
+			return async ({ update, result }) => {
+				if (result.type === 'failure' || (result.type === 'success' && result.data?.success === false)) {
+					alert(result.data?.error || 'An error occurred during submission.');
+					await update({ reset: false });
+				} else {
+					await update();
+				}
 				isSubmitting = false;
 			};
 		}}
@@ -492,181 +538,260 @@
 			</div>
 		</div>
 
-		<!-- Second Row: Upper/Lower Sections -->
-		<div class="flex flex-col gap-4">
-			<!-- Upper Section -->
-			{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
-				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Upper</h3>
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-						<!-- Case Type -->
-						<div>
-							<label for="case_type_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case type
-								<select
-									name="case_type_upper"
-									bind:value={case_type_upper}
-									required
-									class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-								>
-									{#each data?.caseTypes as caseType}
-										<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
-									{/each}
-								</select>
-							</label>
-						</div>
+		<!-- Second Row: Upper/Lower Sections AND Inventory Tracking -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+			<!-- Left Column: Jaw Sections -->
+			<div class="flex flex-col gap-4 lg:col-span-2">
+				<!-- Upper Section -->
+				{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
+					<div class="rounded-md border border-gray-200 p-4">
+						<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Upper</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+							<!-- Case Type -->
+							<div>
+								<label for="case_type_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Case type
+									<select
+										name="case_type_upper"
+										bind:value={case_type_upper}
+										required
+										class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+									>
+										{#each data?.caseTypes as caseType}
+											<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
+										{/each}
+									</select>
+								</label>
+							</div>
 
-						<!-- Case Number -->
-						<div>
-							<label for="case_number_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case number
-								<input
-									type="text"
-									name="case_number_upper"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-									placeholder="Case number"
-									value={formatCaseNumber(next_case_upper, case_type_upper)}
-									disabled
-								/>
-							</label>
-						</div>
-						<!-- Description -->
-						<div class="sm:col-span-2 lg:col-span-1">
-							<label for="upper_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Description
-								<textarea
-									name="upper_description"
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									rows="1"
-								></textarea>
-							</label>
-						</div>
-						<!-- Unit -->
-						<div>
-							<label for="upper_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Unit
-								<input
-									type="number"
-									id="upper_unit"
-									name="upper_unit"
-									bind:value={upper_unit}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Units"
-									min="1"
-									defaultvalue="1"
-								/>
-							</label>
-						</div>
+							<!-- Case Number -->
+							<div>
+								<label for="case_number_upper" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Case number
+									<input
+										type="text"
+										name="case_number_upper"
+										class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+										placeholder="Case number"
+										value={formatCaseNumber(next_case_upper, case_type_upper)}
+										disabled
+									/>
+								</label>
+							</div>
+							<!-- Description -->
+							<div class="sm:col-span-2 lg:col-span-1">
+								<label for="upper_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Description
+									<textarea
+										name="upper_description"
+										class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										rows="1"
+									></textarea>
+								</label>
+							</div>
+							<!-- Unit -->
+							<div>
+								<label for="upper_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Unit
+									<input
+										type="number"
+										id="upper_unit"
+										name="upper_unit"
+										bind:value={upper_unit}
+										class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										placeholder="Units"
+										min="1"
+										defaultvalue="1"
+									/>
+								</label>
+							</div>
 
-						<!-- Cost -->
-						<div>
-							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="upper_cost">Cost</label>
-							<div class="relative mt-1">
-								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+							<!-- Cost -->
+							<div>
+								<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="upper_cost">Cost</label>
+								<div class="relative mt-1">
+									<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+										<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+									</div>
+									<input
+										type="number"
+										id="upper_cost"
+										name="upper_cost"
+										bind:value={upper_cost}
+										class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										placeholder="0.00"
+										min="0"
+										required
+									/>
 								</div>
-								<input
-									type="number"
-									id="upper_cost"
-									name="upper_cost"
-									bind:value={upper_cost}
-									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="0.00"
-									min="0"
-									required
-								/>
 							</div>
 						</div>
 					</div>
-				</div>
-			{/if}
+				{/if}
 
-			<!-- Lower Section (Similar structure to Upper) -->
-			{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
-				<div class="rounded-md border border-gray-200 p-4">
-					<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Lower</h3>
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-						<!-- Case Type -->
-						<div>
-							<label for="case_type_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case type
-								<select
-									name="case_type_lower"
-									bind:value={case_type_lower}
-									required
-									class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-								>
-									{#each data?.caseTypes as caseType}
-										<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
-									{/each}
-								</select>
-							</label>
-						</div>
+				<!-- Lower Section (Similar structure to Upper) -->
+				{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
+					<div class="rounded-md border border-gray-200 p-4">
+						<h3 class="mb-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">Lower</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+							<!-- Case Type -->
+							<div>
+								<label for="case_type_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Case type
+									<select
+										name="case_type_lower"
+										bind:value={case_type_lower}
+										required
+										class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+									>
+										{#each data?.caseTypes as caseType}
+											<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
+										{/each}
+									</select>
+								</label>
+							</div>
 
-						<!-- Case Number -->
-						<div>
-							<label for="case_number_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Case number
-								<input
-									type="text"
-									name="case_number_lower"
-									class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-									placeholder="Case number"
-									value={formatCaseNumber(next_case_lower, case_type_lower)}
-									disabled
-								/>
-							</label>
-						</div>
-						<!-- Description -->
-						<div class="sm:col-span-2 lg:col-span-1">
-							<label for="lower_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Description
-								<textarea
-									name="lower_description"
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									rows="1"
-								></textarea>
-							</label>
-						</div>
-						<!-- Unit -->
-						<div>
-							<label for="lower_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
-								Unit
-								<input
-									type="number"
-									id="lower_unit"
-									name="lower_unit"
-									bind:value={lower_unit}
-									class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="Units"
-									min="1"
-									defaultvalue="1"
-								/>
-							</label>
-						</div>
+							<!-- Case Number -->
+							<div>
+								<label for="case_number_lower" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Case number
+									<input
+										type="text"
+										name="case_number_lower"
+										class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+										placeholder="Case number"
+										value={formatCaseNumber(next_case_lower, case_type_lower)}
+										disabled
+									/>
+								</label>
+							</div>
+							<!-- Description -->
+							<div class="sm:col-span-2 lg:col-span-1">
+								<label for="lower_description" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Description
+									<textarea
+										name="lower_description"
+										class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										rows="1"
+									></textarea>
+								</label>
+							</div>
+							<!-- Unit -->
+							<div>
+								<label for="lower_unit" class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase">
+									Unit
+									<input
+										type="number"
+										id="lower_unit"
+										name="lower_unit"
+										bind:value={lower_unit}
+										class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										placeholder="Units"
+										min="1"
+										defaultvalue="1"
+									/>
+								</label>
+							</div>
 
-						<!-- Cost -->
-						<div>
-							<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="lower_cost">Cost</label>
-							<div class="relative mt-1">
-								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-									<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+							<!-- Cost -->
+							<div>
+								<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase" for="lower_cost">Cost</label>
+								<div class="relative mt-1">
+									<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+										<span class="text-gray-500 sm:text-sm font-medium">₱</span>
+									</div>
+									<input
+										type="number"
+										id="lower_cost"
+										name="lower_cost"
+										bind:value={lower_cost}
+										class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+										placeholder="0.00"
+										min="0"
+										required
+									/>
 								</div>
-								<input
-									type="number"
-									id="lower_cost"
-									name="lower_cost"
-									bind:value={lower_cost}
-									class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-									placeholder="0.00"
-									min="0"
-									required
-								/>
 							</div>
 						</div>
 					</div>
+				{/if}
+			</div>
+
+			<!-- Right Column: Inventory Tracking (Optional) -->
+			<div class="rounded-md border border-gray-200 p-4 h-full flex flex-col">
+				<div class="flex items-center justify-between mb-3">
+					<h3 class="text-[10px] items-center flex font-bold tracking-wider text-gray-500 uppercase">
+						Inventory Usage
+						<span class="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[9px] font-semibold text-gray-500">Optional</span>
+					</h3>
+					<button
+						type="button"
+						onclick={addInventoryRow}
+						class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 flex items-center gap-1"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+						</svg>
+						Material
+					</button>
 				</div>
-			{/if}
+
+				<div class="flex-1 overflow-y-auto pr-1">
+					{#if inventoryUsages.length === 0}
+						<div class="h-full flex items-center justify-center min-h-[100px] border-2 border-dashed border-gray-100 rounded">
+							<p class="text-sm text-gray-400 italic text-center px-4">Click "Material" to track supplies used.</p>
+						</div>
+					{:else}
+						<div class="flex flex-col gap-3">
+							{#each inventoryUsages as usage, i}
+								<div class="flex flex-col gap-2 w-full bg-gray-50 p-3 rounded border border-gray-100 relative group">
+									<div class="w-full pr-6">
+										<select
+											class="block w-full appearance-none rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+											onchange={(e) => handleInventorySelect(i, e.currentTarget.value)}
+											required
+										>
+											<option value="" disabled selected={usage.itemId === 0}>Select material...</option>
+											{#each data?.inventoryItems || [] as item}
+												{#if item.currentStock > 0 || usage.itemId === item.id}
+													<option value={item.id} selected={usage.itemId === item.id}>
+														{item.name} ({item.currentStock} {item.unit || ''} left)
+													</option>
+												{/if}
+											{/each}
+										</select>
+									</div>
+									<div class="w-full flex items-center gap-2">
+										<div class="flex items-center border border-gray-300 rounded shadow-sm overflow-hidden bg-white w-24">
+											<input
+												type="number"
+												min="1"
+												max={usage.maxStock > 0 ? usage.maxStock : undefined}
+												bind:value={usage.quantity}
+												disabled={usage.itemId === 0}
+												class="block w-full py-1.5 px-2 text-sm text-center focus:outline-none disabled:bg-gray-100 disabled:text-gray-400"
+												required
+											/>
+										</div>
+										<span class="text-xs text-gray-500 font-medium">used</span>
+									</div>
+									<button
+										type="button"
+										onclick={() => removeInventoryRow(i)}
+										class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white transition-colors"
+										title="Remove Item"
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+											<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+										</svg>
+									</button>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</div>
+				<input type="hidden" name="inventory_usage" value={JSON.stringify(inventoryUsages)} />
+			</div>
 		</div>
 
 		<!-- Third Row: Image and Payment -->
@@ -784,7 +909,16 @@
 
 				<!-- Paid Amount -->
 				<div class="mb-4">
-					<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase" for="paid_amount">Paid Amount</label>
+					<div class="flex items-center justify-between mb-2">
+						<label class="block text-[10px] font-bold tracking-wider text-gray-500 uppercase" for="paid_amount">Paid Amount</label>
+						<button 
+							type="button" 
+							onclick={payInFull}
+							class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded transition-colors"
+						>
+							Pay in Full
+						</button>
+					</div>
 					<div class="relative">
 						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 							<span class="text-gray-500 sm:text-sm font-medium">₱</span>
@@ -801,6 +935,29 @@
 							required
 						/>
 					</div>
+					
+					<!-- Dynamic Balance / Excess Display -->
+					{#if paid_amount !== undefined && total_amount !== undefined}
+						<div class="mt-3 text-sm">
+							{#if paid_amount < total_amount}
+								<div class="flex justify-between items-center text-orange-600 font-medium bg-orange-50 px-3 py-2 rounded border border-orange-100">
+									<span>Remaining Balance:</span>
+									<span>₱{(total_amount - paid_amount).toFixed(2)}</span>
+								</div>
+							{:else if paid_amount > total_amount}
+								<div class="flex justify-between items-center text-green-600 font-medium bg-green-50 px-3 py-2 rounded border border-green-100">
+									<span>Change / Excess:</span>
+									<span>₱{(paid_amount - total_amount).toFixed(2)}</span>
+								</div>
+							{:else}
+								<div class="flex justify-between items-center text-gray-500 font-medium bg-gray-50 px-3 py-2 rounded border border-gray-100">
+									<span>Status:</span>
+									<span class="text-indigo-600">Fully Paid</span>
+								</div>
+							{/if}
+						</div>
+					{/if}
+					<input type="hidden" name="excess_payment" value={excess_payment} />
 				</div>
 
 				<!-- Payment Method -->

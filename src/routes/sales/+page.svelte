@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 
 	let { data, form }: PageProps = $props();
-	let { currentMonth, currentYear, recordData, supplies } = data;
+	let { currentMonth, currentYear, recordData, supplies, inventoryUsages } = data;
 	let selectedMonth = $state(currentMonth);
 	let selectedYear = $state(currentYear);
 	let remarksValue = $state('finished');
@@ -166,7 +166,7 @@
 
 	function recalculateFinancialData() {
 		// Calculate weekly data
-		const weeklyRaw = groupTransactionsByWeek(recordData, supplies, staffSalaries);
+		const weeklyRaw = groupTransactionsByWeek(recordData, supplies, staffSalaries, inventoryUsages || []);
 		// Apply week sort (week 4 → 1 or 1 → 4)
 		const weekly = weekSortDirection === 'asc' ? weeklyRaw : [...weeklyRaw].reverse();
 
@@ -276,7 +276,17 @@
 			date: string;
 			description: string;
 			amount: number;
-			type: 'supply' | 'salary';
+			type: 'supply' | 'salary' | 'inventory';
+		}>;
+		inventoryUsages: Array<{
+			usageId: number;
+			date: string;
+			itemName: string;
+			quantityUsed: number;
+			itemUnit: string;
+			cost: number;
+			totalCost: number;
+			patientName: string;
 		}>;
 		totalAmount: number;
 		totalExpenses: number;
@@ -286,7 +296,8 @@
 	function groupTransactionsByWeek(
 		records: any[],
 		supplies: any[],
-		salaries: any[]
+		salaries: any[],
+		inventoryUsagesData: any[]
 	): WeeklyTransactions[] {
 		const weeklyData = new Map<string, WeeklyTransactions>();
 
@@ -298,6 +309,7 @@
 					weekRange,
 					transactions: [],
 					expenses: [],
+					inventoryUsages: [],
 					totalAmount: 0,
 					totalExpenses: 0,
 					weeklyProfit: 0
@@ -359,6 +371,41 @@
 			weekData.expenses.sort((a, b) => sortByDate(a.date, b.date));
 			// Update profit after adding expense
 			weekData.weeklyProfit = weekData.totalAmount - weekData.totalExpenses;
+		});
+
+		// Group inventory usages by week
+		inventoryUsagesData.forEach((usage) => {
+			const record = records.find((r) => r.record.recordId === usage.recordId);
+			if (record?.record?.dateDropoff) {
+				const dropoffDate = new Date(record.record.dateDropoff);
+				const weekData = getWeekData(dropoffDate);
+				const costPerUnit = parseFloat(usage.cost || 0);
+				const totalCost = costPerUnit * usage.quantityUsed;
+				const patientName = record.record.patientName;
+
+				weekData.inventoryUsages.push({
+					usageId: usage.usageId,
+					date: record.record.dateDropoff,
+					itemName: usage.itemName,
+					quantityUsed: usage.quantityUsed,
+					itemUnit: usage.itemUnit,
+					cost: costPerUnit,
+					totalCost: totalCost,
+					patientName
+				});
+
+				// Add as an expense
+				if (totalCost > 0) {
+					weekData.expenses.push({
+						date: record.record.dateDropoff,
+						description: `Inventory Usage - ${usage.itemName} (${usage.quantityUsed} ${usage.itemUnit || ''}) for ${patientName}`,
+						amount: totalCost,
+						type: 'inventory'
+					});
+					weekData.totalExpenses += totalCost;
+                    weekData.weeklyProfit = weekData.totalAmount - weekData.totalExpenses;
+				}
+			}
 		});
 
 		// Add staff salaries to each week
@@ -838,6 +885,65 @@
 							</div>
 						</div>
 
+						<!-- Inventory Items Used Table -->
+						{#if week.inventoryUsages && week.inventoryUsages.length > 0}
+						<div class="w-full lg:w-2/5 mt-4 lg:mt-0 lg:ml-4">
+							<h4 class="text-md mb-2 font-semibold">Inventory Items Used</h4>
+							<div class="overflow-x-auto">
+								<table class="mb-4 min-w-full border-collapse rounded-lg border border-gray-200">
+									<thead class="bg-gray-50">
+										<tr>
+											<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+												Date
+											</th>
+											<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+												Item
+											</th>
+											<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+												Patient
+											</th>
+											<th class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
+												Qty
+											</th>
+											<th class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
+												Total Cost
+											</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-gray-200 bg-white">
+										{#each week.inventoryUsages as usage}
+											<tr>
+												<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
+													{formatDate(usage.date)}
+												</td>
+												<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
+													{usage.itemName}
+												</td>
+												<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+													{usage.patientName}
+												</td>
+												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900 font-medium">
+													{usage.quantityUsed} {usage.itemUnit || ''}
+												</td>
+												<td class="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
+													{fmt(usage.totalCost)}
+												</td>
+											</tr>
+										{/each}
+										<tr class="bg-gray-50 border-t-2 border-gray-300">
+											<td colspan="4" class="px-6 py-4 text-sm font-semibold whitespace-nowrap text-gray-900 text-right">
+												Total Inventory Cost
+											</td>
+											<td class="px-6 py-4 text-right text-sm font-semibold text-gray-900 whitespace-nowrap">
+												{fmt(week.inventoryUsages.reduce((sum, u) => sum + u.totalCost, 0))}
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						{/if}
+
 						<!-- Expenses Table -->
 						<div class="w-full lg:w-2/5">
 							<h4 class="text-md mb-2 font-semibold">Expenses</h4>
@@ -903,6 +1009,8 @@
 																? 'bg-blue-100 text-blue-800'
 																: expense.type === 'salary'
 																	? 'bg-purple-100 text-purple-800'
+																	: expense.type === 'inventory'
+																	? 'bg-teal-100 text-teal-800'
 																	: ''
 														}`}
 													>
