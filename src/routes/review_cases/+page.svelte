@@ -36,18 +36,61 @@
 		}, 4000);
 	}
 
+	// Per-card proof images: Map of recordId -> File[]
+	let proofImages = $state<Record<number, File[]>>({});
+	let proofPreviews = $state<Record<number, string[]>>({});
+
+	function handleProofFiles(recordId: number, files: FileList | null) {
+		if (!files || files.length === 0) return;
+		const existing = proofImages[recordId] || [];
+		const existingPreviews = proofPreviews[recordId] || [];
+		const newFiles = Array.from(files);
+
+		for (const file of newFiles) {
+			existing.push(file);
+			existingPreviews.push(URL.createObjectURL(file));
+		}
+
+		proofImages[recordId] = [...existing];
+		proofPreviews[recordId] = [...existingPreviews];
+	}
+
+	function removeProofImage(recordId: number, index: number) {
+		const files = proofImages[recordId] || [];
+		const previews = proofPreviews[recordId] || [];
+
+		// Revoke the object URL to free memory
+		if (previews[index]) URL.revokeObjectURL(previews[index]);
+
+		files.splice(index, 1);
+		previews.splice(index, 1);
+
+		proofImages[recordId] = [...files];
+		proofPreviews[recordId] = [...previews];
+	}
+
+	function handleDrop(e: DragEvent, recordId: number) {
+		e.preventDefault();
+		handleProofFiles(recordId, e.dataTransfer?.files || null);
+	}
+
 	async function approveCase(recordId: number) {
 		if (loadingCaseId) return;
 		loadingCaseId = recordId;
 
 		try {
-			const response = await fetch('/api/case-status', {
+			const formData = new FormData();
+			formData.append('recordId', recordId.toString());
+
+			// Attach proof images
+			const files = proofImages[recordId] || [];
+			for (const file of files) {
+				formData.append('proof-images', file);
+			}
+
+			const response = await fetch('/api/review-approve', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					recordId,
-					newStatus: 'to be deliver'
-				})
+				body: formData
 			});
 
 			const result = await response.json();
@@ -56,10 +99,15 @@
 				throw new Error(result.message || 'Failed to approve case');
 			}
 
+			// Revoke preview URLs
+			(proofPreviews[recordId] || []).forEach((url) => URL.revokeObjectURL(url));
+			delete proofImages[recordId];
+			delete proofPreviews[recordId];
+
 			// Remove the case from the list
 			cases = cases.filter((c) => c.recordId !== recordId);
 			showToastMessage(
-				`Case #${recordId} approved for delivery — dateOut/timeOut recorded automatically`,
+				`Case #${recordId} approved for delivery${result.imagesUploaded ? ` — ${result.imagesUploaded} proof image(s) uploaded` : ''}`,
 				'success'
 			);
 		} catch (err) {
@@ -311,8 +359,62 @@
 						</div>
 					</div>
 
-					<!-- Card Footer: Approve Button -->
+					<!-- Card Footer: Proof Image Upload & Approve -->
 					<div class="border-t border-gray-100 bg-gray-50/30 px-4 py-3">
+						<!-- Proof Image Upload Area -->
+						<div class="mb-3">
+							<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+								📎 Attach Review Proof Image(s)
+							</p>
+
+							<!-- Upload Drop Zone -->
+							<label
+								class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-white px-3 py-3 transition-colors hover:border-emerald-400 hover:bg-emerald-50/30"
+								ondragover={(e) => e.preventDefault()}
+								ondrop={(e) => handleDrop(e, caseItem.recordId)}
+							>
+								<svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+								</svg>
+								<span class="text-xs text-gray-500">Click or drop image(s) here</span>
+								<input
+									type="file"
+									accept="image/*"
+									multiple
+									class="hidden"
+									onchange={(e) => handleProofFiles(caseItem.recordId, e.currentTarget.files)}
+								/>
+							</label>
+
+							<!-- Proof Image Previews -->
+							{#if proofPreviews[caseItem.recordId]?.length > 0}
+								<div class="mt-2 grid grid-cols-4 gap-1.5">
+									{#each proofPreviews[caseItem.recordId] as preview, idx}
+										<div class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200">
+											<img
+												src={preview}
+												alt="Proof {idx + 1}"
+												class="h-full w-full object-cover"
+											/>
+											<button
+												onclick={() => removeProofImage(caseItem.recordId, idx)}
+												class="absolute top-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+												aria-label="Remove image"
+											>
+												<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+												</svg>
+											</button>
+											<div class="absolute bottom-0 left-0 right-0 bg-black/40 px-1 py-0.5 text-center text-[8px] text-white">
+												Proof {idx + 1}
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</div>
+
+						<!-- Approve Button -->
 						<button
 							onclick={() => approveCase(caseItem.recordId)}
 							disabled={loadingCaseId === caseItem.recordId}
@@ -328,6 +430,11 @@
 								</span>
 							{:else}
 								✓ Approve for Delivery
+								{#if proofPreviews[caseItem.recordId]?.length > 0}
+									<span class="ml-1 rounded bg-emerald-500 px-1.5 py-0.5 text-[10px]">
+										{proofPreviews[caseItem.recordId].length} image{proofPreviews[caseItem.recordId].length !== 1 ? 's' : ''}
+									</span>
+								{/if}
 							{/if}
 						</button>
 					</div>
