@@ -149,6 +149,8 @@ export const actions = {
 						actualDropoff: data.get('actual_dropoff')?.toString() || null,
 						finishBy: data.get('finish_by')?.toString() || null,
 						assignedTechnicians: data.get('assigned_technicians')?.toString() || null,
+						dateIn: data.get('date'),
+						timeIn: data.get('time'),
 						createdBy: userId
 					} as typeof records.$inferInsert)
 					.returning({ id: records.recordId });

@@ -13,7 +13,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			doctorName: doctors.doctorName,
 			clinicName: clinics.clinicName,
 			description: records.description,
-			remarks: records.remarks
+			remarks: records.remarks,
+			caseStatus: records.caseStatus
 		})
 		.from(records)
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
@@ -35,6 +36,23 @@ export const actions = {
 		const recordId = parseInt(data.get('recordId')?.toString() || '0');
 
 		try {
+			// Check if case status is "to be deliver" before allowing action
+			const recordCheck = await db
+				.select({ caseStatus: records.caseStatus })
+				.from(records)
+				.where(eq(records.recordId, recordId));
+
+			if (!recordCheck || recordCheck.length === 0) {
+				return { success: false, error: 'Record not found' };
+			}
+
+			if (recordCheck[0].caseStatus !== 'to be deliver') {
+				return {
+					success: false,
+					error: `Case cannot be taken out for action. Current status: ${recordCheck[0].caseStatus}. Status must be "to be deliver" to proceed.`
+				};
+			}
+
 			// Insert history records
 			const inImageFiles = data.getAll('in-img') as File[];
 			for (const file of inImageFiles) {

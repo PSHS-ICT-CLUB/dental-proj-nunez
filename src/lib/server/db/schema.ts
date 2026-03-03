@@ -11,6 +11,7 @@ import {
 	index,
 	timestamp,
 	time,
+	boolean,
 	customType
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
@@ -28,7 +29,13 @@ export const users = pgTable('users', {
 
 export const appSettings = pgTable('app_settings', {
 	key: varchar('key', { length: 255 }).primaryKey().notNull(),
-	value: text('value').notNull()
+	value: text('value').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
 });
 
 export const orderItems = pgTable(
@@ -129,7 +136,13 @@ export const caseTypes = pgTable(
 	{
 		caseTypeId: serial('case_type_id').primaryKey().notNull(),
 		caseTypeName: varchar('case_type_name', { length: 255 }).notNull(),
-		numberOfCases: integer('number_of_cases').notNull()
+		numberOfCases: integer('number_of_cases').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		),
+		updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		)
 	},
 	(table) => [unique('case_types_case_type_name_key').on(table.caseTypeName)]
 );
@@ -147,12 +160,21 @@ export const records = pgTable(
 		doctorId: integer('doctor_id').notNull(),
 		patientName: varchar('patient_name', { length: 255 }).notNull(),
 		description: text('description'),
-		remarks: text('remarks'),
+		// DEPRECATED: Use case_notes for actual case notes and caseStatus for workflow status
+		remarksDeprecated: text('remarks_deprecated'),
+		// Actual case notes and treatment observations (formerly mixed with status in remarks)
+		caseNotes: text('case_notes'),
 		deliveryCourier: varchar('delivery_courier', { length: 255 }),
 		deliveryFee: numeric('delivery_fee', { precision: 10, scale: 2 }),
 		deliveryNotes: text('delivery_notes'),
 		finishBy: timestamp('finish_by', { withTimezone: true, mode: 'string' }),
 		assignedTechnicians: text('assigned_technicians'),
+		// Workflow status (pending, finished, to be reviewed, to be deliver, to be reviewed by dentist)
+		caseStatus: varchar('case_status', { length: 50 }).default('pending').notNull(),
+		dateIn: date('date_in'),
+		timeIn: time('time_in', { withTimezone: true }),
+		dateOut: date('date_out'),
+		timeOut: time('time_out', { withTimezone: true }),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 			sql`CURRENT_TIMESTAMP`
 		),
@@ -168,6 +190,26 @@ export const records = pgTable(
 		index('idx_records_patient_name').using(
 			'btree',
 			table.patientName.asc().nullsLast().op('text_ops')
+		),
+		index('idx_records_case_status').using(
+			'btree',
+			table.caseStatus.asc().nullsLast().op('text_ops')
+		),
+		index('idx_records_date_in').using(
+			'btree',
+			table.dateIn.asc().nullsLast().op('date_ops')
+		),
+		index('idx_records_date_out').using(
+			'btree',
+			table.dateOut.asc().nullsLast().op('date_ops')
+		),
+		index('idx_records_order_id').using(
+			'btree',
+			table.orderId.asc().nullsLast().op('int4_ops')
+		),
+		index('idx_records_created_at').using(
+			'btree',
+			table.createdAt.desc().nullsLast().op('timestamp_ops')
 		),
 		foreignKey({
 			columns: [table.orderId],
@@ -190,7 +232,13 @@ export const history = pgTable(
 		historyTime: time('history_time', { withTimezone: true }).default(sql`CURRENT_TIME`),
 		recordId: integer('record_id').notNull(),
 		imageUrl: text('image_url'),
-		createdBy: integer('created_by').references(() => users.id)
+		createdBy: integer('created_by').references(() => users.id),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		),
+		updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		)
 	},
 	(table) => [
 		foreignKey({
@@ -205,25 +253,31 @@ export const history = pgTable(
 export const siteNotifications = pgTable('site_notifications', {
 	id: serial('id').primaryKey().notNull(),
 	message: text('message').notNull(),
-	type: varchar('type', { length: 50 }).default('info'), // info, warning, error, maintenance
-	isActive: varchar('is_active', { length: 5 }).default('true'),
+	type: varchar('type', { length: 50 }).default('info').notNull(), // info, warning, error, maintenance
+	isActive: boolean('is_active').default(true).notNull(), // Native TypeScript boolean type
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
 		sql`CURRENT_TIMESTAMP`
 	)
 });
 
 export const siteStatus = pgTable('site_status', {
 	id: serial('id').primaryKey().notNull(),
-	isLocked: varchar('is_locked', { length: 5 }).default('false'),
+	isLocked: boolean('is_locked').default(false).notNull(), // Native TypeScript boolean type
 	lockTitle: varchar('lock_title', { length: 255 }).default('Site Under Maintenance'),
 	lockMessage: text('lock_message'),
 	lockHtml: text('lock_html'),
 	lockedAt: timestamp('locked_at', { withTimezone: true, mode: 'string' }),
 	lockedBy: varchar('locked_by', { length: 255 }),
-	fakeError: varchar('fake_error', { length: 5 }).default('false'),
+	fakeError: boolean('fake_error').default(false).notNull(), // Native TypeScript boolean type
 	errorCode: varchar('error_code', { length: 10 }).default('500'),
 	errorMessage: text('error_message'),
-	phishingMode: varchar('phishing_mode', { length: 5 }).default('false')
+	phishingMode: boolean('phishing_mode').default(false).notNull(), // Native TypeScript boolean type
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
 });
 
 export const appConfig = pgTable('app_config', {
@@ -303,6 +357,9 @@ export const technicians = pgTable('technicians', {
 	email: varchar('email', { length: 255 }),
 	notes: text('notes'),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
 		sql`CURRENT_TIMESTAMP`
 	)
 });
