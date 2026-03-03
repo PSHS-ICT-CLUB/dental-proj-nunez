@@ -63,101 +63,70 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (url.searchParams.get('case_notes')) {
 			whereConditions.push(sql`case_notes ILIKE ${`%${url.searchParams.get('case_notes')}%`}`);
 		}
+
+		const orderItemsAgg = sql<
+			Array<{
+				caseTypeName: string;
+				caseNo: number;
+				orderDescription: string | null;
+				upOrDown: string;
+			}>
+		>`array_agg(
+			json_build_object(
+				'caseTypeName', ${caseTypes.caseTypeName},
+				'caseNo', ${orderItems.caseNo},
+				'orderDescription', ${orderItems.orderDescription},
+				'upOrDown', ${orderItems.upOrDown}
+			)
+		) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`;
+
+		const baseSelect = {
+			recordId: records.recordId,
+			datePickup: records.datePickup,
+			dateDropoff: records.actualDropoff,
+			patientName: records.patientName,
+			caseStatus: records.caseStatus,
+			caseNotes: records.caseNotes,
+			remarksDeprecated: records.remarksDeprecated,
+			doctorName: doctors.doctorName,
+			clinicName: clinics.clinicName,
+			orderTotal: orders.orderTotal,
+			paidAmount: orders.paidAmount,
+			paymentStatus: orders.paymentStatus,
+			orderItems: orderItemsAgg
+		};
+
+		const baseGroupBy = [
+			records.recordId,
+			doctors.doctorName,
+			clinics.clinicName,
+			orders.orderTotal,
+			orders.paidAmount,
+			orders.paymentStatus
+		] as const;
+
 		let baseQuery;
 		if (whereConditions.length > 0) {
 			baseQuery = db
-				.select({
-					recordId: records.recordId,
-					datePickup: records.datePickup,
-					dateDropoff: records.actualDropoff,
-					patientName: records.patientName,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes,
-					remarksDeprecated: records.remarksDeprecated,
-					doctorName: doctors.doctorName,
-					clinicName: clinics.clinicName,
-					orderTotal: orders.orderTotal,
-					paidAmount: orders.paidAmount,
-					paymentStatus: orders.paymentStatus,
-					orderItems: sql<
-						Array<{
-							caseTypeName: string;
-							caseNo: number;
-							orderDescription: string | null;
-							upOrDown: string;
-						}>
-					>`
-          array_agg(
-            json_build_object(
-              'caseTypeName', ${caseTypes.caseTypeName},
-              'caseNo', ${orderItems.caseNo},
-              'orderDescription', ${orderItems.orderDescription},
-              'upOrDown', ${orderItems.upOrDown}
-            )
-          )`
-				})
+				.select(baseSelect)
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
-				.groupBy(
-					records.recordId,
-					doctors.doctorName,
-					clinics.clinicName,
-					orders.orderTotal,
-					orders.paidAmount,
-					orders.paymentStatus
-				)
-
+				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.groupBy(...baseGroupBy)
 				.where(and(...whereConditions));
 		} else {
 			baseQuery = db
-				.select({
-					recordId: records.recordId,
-					datePickup: records.datePickup,
-					dateDropoff: records.actualDropoff,
-					patientName: records.patientName,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes,
-					remarksDeprecated: records.remarksDeprecated,
-					doctorName: doctors.doctorName,
-					clinicName: clinics.clinicName,
-					orderTotal: orders.orderTotal,
-					paidAmount: orders.paidAmount,
-					paymentStatus: orders.paymentStatus,
-					orderItems: sql<
-						Array<{
-							caseTypeName: string;
-							caseNo: number;
-							orderDescription: string | null;
-							upOrDown: string;
-						}>
-					>`
-          array_agg(
-            json_build_object(
-              'caseTypeName', ${caseTypes.caseTypeName},
-              'caseNo', ${orderItems.caseNo},
-              'orderDescription', ${orderItems.orderDescription},
-              'upOrDown', ${orderItems.upOrDown}
-            )
-          )`
-				})
+				.select(baseSelect)
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
-				.groupBy(
-					records.recordId,
-					doctors.doctorName,
-					clinics.clinicName,
-					orders.orderTotal,
-					orders.paidAmount,
-					orders.paymentStatus
-				);
+				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.groupBy(...baseGroupBy);
 		}
 
 		const page = parseInt(url.searchParams.get('page') || '1');
@@ -203,22 +172,21 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`
-						array_agg(
-							json_build_object(
-								'caseTypeName', ${caseTypes.caseTypeName},
-								'caseNo', ${orderItems.caseNo},
-								'orderDescription', ${orderItems.orderDescription},
-								'upOrDown', ${orderItems.upOrDown}
-							)
-						)`
+					>`array_agg(
+						json_build_object(
+							'caseTypeName', ${caseTypes.caseTypeName},
+							'caseNo', ${orderItems.caseNo},
+							'orderDescription', ${orderItems.orderDescription},
+							'upOrDown', ${orderItems.upOrDown}
+						)
+					) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`
 				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.where(
 					and(
 						isNotNull(records.dateDropoff),
@@ -245,22 +213,21 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`
-						array_agg(
-							json_build_object(
-								'caseTypeName', ${caseTypes.caseTypeName},
-								'caseNo', ${orderItems.caseNo},
-								'orderDescription', ${orderItems.orderDescription},
-								'upOrDown', ${orderItems.upOrDown}
-							)
-						)`
+					>`array_agg(
+						json_build_object(
+							'caseTypeName', ${caseTypes.caseTypeName},
+							'caseNo', ${orderItems.caseNo},
+							'orderDescription', ${orderItems.orderDescription},
+							'upOrDown', ${orderItems.upOrDown}
+						)
+					) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`
 				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.where(
 					and(
 						isNotNull(records.finishBy),
