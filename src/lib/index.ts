@@ -54,7 +54,9 @@ interface RecordItem {
 	orderItems: OrderItem[];
 	orderTotal: number;
 	paidAmount: number;
-	remarks?: string;
+	caseStatus: string;
+	caseNotes?: string;
+	remarksDeprecated?: string;
 	paymentStatus: 'paid' | 'unpaid';
 	createdAt: Date | string;
 }
@@ -189,9 +191,9 @@ export function generateRecordsSummary(records: RecordItem[]): RecordsSummary {
 				acc.allPaid = false;
 			}
 
-			if (record.remarks === 'pending') {
+			if (record.caseStatus === 'pending') {
 				acc.hasPending = true;
-			} else if (record.remarks !== 'finished') {
+			} else if (record.caseStatus !== 'finished') {
 				acc.allFinished = false;
 			}
 

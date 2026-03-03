@@ -57,8 +57,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (url.searchParams.get('payment_status')) {
 			whereConditions.push(sql`orders.payment_status = ${url.searchParams.get('payment_status')}`);
 		}
-		if (url.searchParams.get('remarks')) {
-			whereConditions.push(eq(records.remarks, url.searchParams.get('remarks')));
+		if (url.searchParams.get('case_status')) {
+			whereConditions.push(eq(records.caseStatus, url.searchParams.get('case_status')!));
 		}
 		let baseQuery;
 		if (whereConditions.length > 0) {
@@ -68,7 +68,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
+					remarksDeprecated: records.remarksDeprecated,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -114,7 +116,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
+					remarksDeprecated: records.remarksDeprecated,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -175,7 +179,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					dateDropoff: records.dateDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
+					remarksDeprecated: records.remarksDeprecated,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
@@ -215,7 +221,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					finishBy: records.finishBy,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
+					remarksDeprecated: records.remarksDeprecated,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<

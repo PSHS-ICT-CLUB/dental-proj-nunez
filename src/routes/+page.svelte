@@ -27,7 +27,7 @@
 	let caseNo = $state('');
 	let patientName = $state('');
 	let paymentStatus = $state('');
-	let remarks = $state('');
+	let caseStatus = $state('');
 	let recordId = $state('');
 
 	// Synchronize filter states from URL parameters (data.filters) directly
@@ -41,7 +41,7 @@
 			caseTypeId = '';
 			caseNo = '';
 			patientName = '';
-			remarks = '';
+			caseStatus = '';
 			paymentStatus = '';
 			recordId = '';
 			startDate = '';
@@ -67,7 +67,7 @@
 		caseTypeId = filtersData.case_type_id ? String(filtersData.case_type_id) : '';
 		caseNo = filtersData.case_no ? String(filtersData.case_no) : '';
 		patientName = filtersData.patient_name || '';
-		remarks = filtersData.remarks || '';
+		caseStatus = filtersData.case_status || '';
 		paymentStatus = filtersData.payment_status || '';
 		recordId = filtersData.record_id ? String(filtersData.record_id) : '';
 
@@ -467,13 +467,16 @@
 						>Status</label
 					>
 					<select
-						name="remarks"
-						bind:value={remarks}
+						name="case_status"
+						bind:value={caseStatus}
 						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
 					>
-						<option value="">All Remarks</option>
+						<option value="">All Status</option>
 						<option value="pending">Pending</option>
 						<option value="finished">Finished</option>
+						<option value="to be reviewed">To Be Reviewed</option>
+						<option value="to be deliver">To Be Delivered</option>
+						<option value="to be reviewed by dentist">Reviewed by Dentist</option>
 					</select>
 				</div>
 			</div>
@@ -895,11 +898,11 @@
 							class={`
 							border-b border-gray-100 transition-colors hover:bg-black/5
 							${
-								record.paymentStatus === 'paid' && record.remarks === 'finished'
+								record.paymentStatus === 'paid' && record.caseStatus === 'finished'
 									? 'bg-green-200'
-									: record.paymentStatus === 'unpaid' && record.remarks === 'finished'
+									: record.paymentStatus === 'unpaid' && record.caseStatus === 'finished'
 										? 'bg-red-300'
-										: record.paymentStatus === 'unpaid' && record.remarks === 'pending'
+										: record.paymentStatus === 'unpaid' && record.caseStatus === 'pending'
 											? 'bg-white'
 											: 'bg-violet-300'
 							}
@@ -948,7 +951,10 @@
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">
 								<span class="flex flex-col gap-0.5">
-									<span class="font-medium">{record.remarks || 'No remarks'}</span>
+									<span class="font-medium capitalize">{record.caseStatus || 'No status'}</span>
+									{#if record.caseNotes}
+										<span class="text-[10px] text-gray-500 max-w-[150px] truncate" title={record.caseNotes}>{record.caseNotes}</span>
+									{/if}
 									<span
 										class={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium 
 										${record.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
@@ -1249,7 +1255,7 @@
 									{modalDeleteRecord.paymentStatus}
 								</span>
 								<span class="text-xs text-gray-600"
-									>({modalDeleteRecord.remarks || 'No remarks'})</span
+									>({modalDeleteRecord.caseStatus || 'No status'})</span
 								>
 							</span>
 						</div>
