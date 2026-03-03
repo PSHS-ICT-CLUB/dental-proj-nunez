@@ -39,9 +39,15 @@ export const load: PageServerLoad = async ({ params }) => {
 			throw error(404, 'Record not found');
 		}
 
-		const doctorsData = await db.select().from(doctors);
+		const doctorsData = await db.select({
+			doctorId: doctors.doctorId,
+			doctorName: doctors.doctorName
+		}).from(doctors);
 
-		const clinicsData = await db.select().from(clinics).orderBy(desc(clinics.clinicName));
+		const clinicsData = await db.select({
+			clinicId: clinics.clinicId,
+			clinicName: clinics.clinicName
+		}).from(clinics).orderBy(desc(clinics.clinicName));
 
 		const passwordIsSet = await isPasswordSet();
 

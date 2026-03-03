@@ -173,9 +173,18 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			calendarFinishByRecords
 		] = await Promise.all([
 			baseQuery.orderBy(desc(records.datePickup)).limit(limit).offset(offset),
-			db.select().from(caseTypes),
-			db.select().from(doctors).orderBy(desc(doctors.doctorName)),
-			db.select().from(clinics).orderBy(desc(clinics.clinicName)),
+			db.select({
+				caseTypeId: caseTypes.caseTypeId,
+				caseTypeName: caseTypes.caseTypeName
+			}).from(caseTypes),
+			db.select({
+				doctorId: doctors.doctorId,
+				doctorName: doctors.doctorName
+			}).from(doctors).orderBy(desc(doctors.doctorName)),
+			db.select({
+				clinicId: clinics.clinicId,
+				clinicName: clinics.clinicName
+			}).from(clinics).orderBy(desc(clinics.clinicName)),
 			// Calendar delivery records
 			db
 				.select({

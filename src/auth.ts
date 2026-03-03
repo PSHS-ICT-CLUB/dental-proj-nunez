@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { pbkdf2Sync, timingSafeEqual } from 'node:crypto';
+import { env } from '$env/dynamic/private';
 
 // Reuse hashing verification logic
 function verifyPassword(password: string, storedHash: string): boolean {
@@ -39,7 +40,16 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 				const password = String(credentials.password);
 
 				// Find user by email
-				const [user] = await db.select().from(users).where(eq(users.email, email));
+				const [user] = await db
+					.select({
+						id: users.id,
+						email: users.email,
+						name: users.name,
+						passwordHash: users.passwordHash,
+						role: users.role
+					})
+					.from(users)
+					.where(eq(users.email, email));
 
 				if (!user) {
 					return null;
@@ -62,6 +72,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 			}
 		})
 	],
+	secret: env.AUTH_SECRET,
 	callbacks: {
 		jwt: async ({ token, user }) => {
 			if (user) {
@@ -88,6 +99,5 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 	pages: {
 		signIn: '/login'
 	},
-	basePath: '/auth',
 	trustHost: true
 });

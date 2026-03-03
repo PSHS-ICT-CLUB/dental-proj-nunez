@@ -123,7 +123,12 @@ export const load: PageServerLoad = async ({ url }) => {
 			.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
 
 		const supplies = await db
-			.select()
+			.select({
+				supplyId: supply.supplyId,
+				supplyDate: supply.supplyDate,
+				supplyCost: supply.supplyCost,
+				supplyDescription: supply.supplyDescription
+			})
 			.from(supply)
 			.where(sql`DATE(supply_date) = ${exactDate}`);
 
@@ -232,7 +237,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		// .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
 
 		const supplies = await db
-			.select()
+			.select({
+				supplyId: supply.supplyId,
+				supplyDate: supply.supplyDate,
+				supplyCost: supply.supplyCost,
+				supplyDescription: supply.supplyDescription
+			})
 			.from(supply)
 			.where(sql`supply_date BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`);
 

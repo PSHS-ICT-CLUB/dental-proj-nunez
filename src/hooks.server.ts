@@ -8,7 +8,17 @@ import { handle as authHandle } from './auth';
 // Get site status from database using Drizzle
 async function getSiteStatus() {
   try {
-    const [status] = await db.select().from(siteStatus).where(eq(siteStatus.id, 1));
+    const [status] = await db.select({
+      id: siteStatus.id,
+      isLocked: siteStatus.isLocked,
+      lockTitle: siteStatus.lockTitle,
+      lockMessage: siteStatus.lockMessage,
+      lockHtml: siteStatus.lockHtml,
+      fakeError: siteStatus.fakeError,
+      errorCode: siteStatus.errorCode,
+      errorMessage: siteStatus.errorMessage,
+      phishingMode: siteStatus.phishingMode
+    }).from(siteStatus).where(eq(siteStatus.id, 1));
     return status;
   } catch (error) {
     console.error('Failed to get site status:', error);
@@ -370,7 +380,7 @@ export const securityHandle: Handle = async ({ event, resolve }) => {
   const status = await getSiteStatus();
 
   // Check for phishing mode first (highest priority)
-  if (status && status.phishingMode === 'true') {
+  if (status && status.phishingMode) {
     return new Response(phishingPage(), {
       status: 200,
       headers: { 'Content-Type': 'text/html' }
@@ -378,7 +388,7 @@ export const securityHandle: Handle = async ({ event, resolve }) => {
   }
 
   // Check for fake error first (takes priority)
-  if (status && status.fakeError === 'true') {
+  if (status && status.fakeError) {
     const html = fakeErrorPage(status.errorCode || '500', status.errorMessage || '');
 
     return new Response(html, {
@@ -390,7 +400,7 @@ export const securityHandle: Handle = async ({ event, resolve }) => {
   }
 
   // Check for lockdown
-  if (status && status.isLocked === 'true') {
+  if (status && status.isLocked) {
     const html =
       status.lockHtml ||
       defaultLockPage(

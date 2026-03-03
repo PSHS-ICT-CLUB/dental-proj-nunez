@@ -31,7 +31,11 @@ export const load: PageServerLoad = async ({ params }) => {
 		.limit(1);
 
 	// Get case types for dropdown with their current case numbers
-	const caseTypesData = await db.select().from(caseTypes);
+	const caseTypesData = await db.select({
+		caseTypeId: caseTypes.caseTypeId,
+		caseTypeName: caseTypes.caseTypeName,
+		numberOfCases: caseTypes.numberOfCases
+	}).from(caseTypes);
 
 	return {
 		recordId: params.caseNo,

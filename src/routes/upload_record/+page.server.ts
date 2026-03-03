@@ -16,15 +16,34 @@ import {
 import { desc, eq, sql } from 'drizzle-orm';
 import { supabase } from '$lib/server/supabase';
 import { redirect } from '@sveltejs/kit';
-import { Console } from 'console';
+
 
 export const load: PageServerLoad = async ({ params }) => {
 	return {
-		caseTypes: await db.select().from(caseTypes),
-		doctors: await db.select().from(doctors).orderBy(desc(doctors.doctorName)),
-		clinics: await db.select().from(clinics).orderBy(desc(clinics.clinicName)),
-		inventoryItems: await db.select().from(inventoryItems).orderBy(inventoryItems.name),
-		technicians: await db.select().from(technicians).orderBy(technicians.name)
+		caseTypes: await db.select({
+			caseTypeId: caseTypes.caseTypeId,
+			caseTypeName: caseTypes.caseTypeName,
+			numberOfCases: caseTypes.numberOfCases
+		}).from(caseTypes),
+		doctors: await db.select({
+			doctorId: doctors.doctorId,
+			doctorName: doctors.doctorName
+		}).from(doctors).orderBy(desc(doctors.doctorName)),
+		clinics: await db.select({
+			clinicId: clinics.clinicId,
+			clinicName: clinics.clinicName
+		}).from(clinics).orderBy(desc(clinics.clinicName)),
+		inventoryItems: await db.select({
+			id: inventoryItems.id,
+			name: inventoryItems.name,
+			unit: inventoryItems.unit,
+			cost: inventoryItems.cost,
+			currentStock: inventoryItems.currentStock
+		}).from(inventoryItems).orderBy(inventoryItems.name),
+		technicians: await db.select({
+			id: technicians.id,
+			name: technicians.name
+		}).from(technicians).orderBy(technicians.name)
 	};
 };
 
@@ -198,8 +217,8 @@ export const actions = {
 								await tx
 									.update(inventoryItems)
 									.set({
-										currentStock: sql`${inventoryItems.currentStock} - ${usage.quantity}` as any
-									})
+										currentStock: sql`${inventoryItems.currentStock} - ${usage.quantity}`
+									} as any)
 									.where(eq(inventoryItems.id, usage.itemId));
 
 								// Log the usage into the audit table
