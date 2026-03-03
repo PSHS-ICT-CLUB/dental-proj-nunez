@@ -573,18 +573,20 @@
 						/>
 					</div>
 					<div class="flex items-center sm:pt-[18px]">
-						<label
-							class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
-						>
-							<input
-								type="checkbox"
-								bind:checked={showDelete}
-								class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
-							/>
-							<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
-								>Show Delete</span
+						{#if data.user && data.user.role === 'admin'}
+							<label
+								class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
 							>
-						</label>
+								<input
+									type="checkbox"
+									bind:checked={showDelete}
+									class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+								/>
+								<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
+									>Show Delete</span
+								>
+							</label>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -898,7 +900,7 @@
 						>
 							History
 						</th>
-						{#if showDelete}
+						{#if showDelete && data.user && data.user.role === 'admin'}
 							<th
 								scope="col"
 								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
@@ -1027,7 +1029,7 @@
 									History
 								</a>
 							</td>
-							{#if showDelete}
+							{#if showDelete && data.user && data.user.role === 'admin'}
 								<td class="px-3 py-2 text-sm font-medium whitespace-nowrap print:hidden">
 									<button
 										type="button"
@@ -1226,7 +1228,7 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 print:hidden">
 		<div class="mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg">
 			<div class="p-4">
-				<h3 class="text-lg font-medium text-gray-900">Confirm delete</h3>
+				<h3 class="text-lg font-medium text-red-600">Confirm Admin Deletion</h3>
 				<div class="mt-3 rounded-md bg-gray-50 p-3 text-sm">
 					<p class="mb-2 font-semibold text-gray-900">Record Information:</p>
 					<div class="space-y-1.5 text-gray-700">
@@ -1278,7 +1280,7 @@
 					</div>
 				</div>
 				<p class="mt-3 text-sm text-gray-600">
-					Enter your password to confirm deletion of this record.
+					Enter your <strong>Admin Confirmation Password</strong> to confirm deletion.
 				</p>
 				<form
 					bind:this={deleteForm}

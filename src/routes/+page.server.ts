@@ -269,7 +269,18 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 export const actions = {
-	deleteRecord: async ({ request }) => {
+	deleteRecord: async ({ request, locals }) => {
+		const session = await locals.auth();
+
+		if (!session?.user) {
+			return fail(401, { error: 'You must be logged in to delete records' });
+		}
+
+		// @ts-ignore
+		if (session.user.role !== 'admin') {
+			return fail(403, { error: 'Unauthorized: Only admins can delete records' });
+		}
+
 		const data = await request.formData();
 		const recordId = data.get('record_id')?.toString();
 		const confirmPassword = data.get('confirm_password')?.toString() ?? '';

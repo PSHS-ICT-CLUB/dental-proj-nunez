@@ -47,6 +47,8 @@
 			case '/inventory/logs':
 				return 'Inventory Logs';
 
+		case '/review_cases':
+			return 'Review Cases';
 			default:
 				return 'Dental Records';
 		}
@@ -104,6 +106,12 @@
 		<div class="flex items-center gap-2">
 			<!-- Desktop Action Buttons -->
 			<div class="hidden items-center gap-2 lg:flex">
+				{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
+					<a
+						class="rounded border border-purple-600/50 bg-purple-900/40 px-3 py-1.5 text-xs font-bold text-purple-200 transition-all hover:bg-purple-800/60"
+						href="/review_cases">REVIEW CASES</a
+					>
+				{/if}
 				{#if data?.session?.user?.role === 'admin'}
 					<a
 						class="rounded border border-amber-600/50 bg-amber-900/40 px-3 py-1.5 text-xs font-bold text-amber-200 transition-all hover:bg-amber-800/60"
@@ -176,6 +184,13 @@
 
 				<div class="my-2 border-t border-white/10"></div>
 
+				{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
+					<a
+						class="block rounded bg-purple-900/40 px-3 py-2 text-sm font-bold text-purple-200"
+						href="/review_cases"
+						onclick={() => (isMenuOpen = false)}>REVIEW CASES</a
+					>
+				{/if}
 				{#if data?.session?.user?.role === 'admin'}
 					<a
 						class="block rounded bg-amber-900/40 px-3 py-2 text-sm font-bold text-amber-200"
