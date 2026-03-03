@@ -38,8 +38,10 @@
 				return 'Data';
 			case '/admin':
 				return 'Admin Panel';
-			case '/calendar':
-				return 'Calendar';
+		case '/calendar':
+			return 'Calendar';
+		case '/inventory':
+			return 'Inventory Dashboard';
 			case '/inventory/suppliers':
 				return 'Inventory Suppliers';
 			case '/inventory/logs':
