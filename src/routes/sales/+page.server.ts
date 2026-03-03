@@ -49,8 +49,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	// If remarks parameter exists but is empty string, show all (null)
 	// If remarks parameter doesn't exist, default to 'finished'
 	// If remarks parameter has a value, use that value
-	const remarksParam = searchParams.get('remarks');
-	const remarks = remarksParam === null ? 'finished' : remarksParam === '' ? null : remarksParam;
+	const caseStatusParam = searchParams.get('case_status');
+	const caseStatus = caseStatusParam === null ? 'finished' : caseStatusParam === '' ? null : caseStatusParam;
+	const caseNotesSearch = searchParams.get('case_notes');
 	const clinicId = searchParams.get('clinic_id') || null;
 	// if (import.meta.env && import.meta.env.DEV && devMocks) {
 	//   // Use mock data in development
@@ -73,17 +74,44 @@ export const load: PageServerLoad = async ({ url }) => {
 		const conditions = [
 			sql`DATE(${records.dateDropoff}) = ${exactDate}`,
 			status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
-			remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
+			caseStatus && caseStatus !== '' ? eq(records.caseStatus, caseStatus) : undefined,
+			caseNotesSearch && caseNotesSearch !== '' ? sql`case_notes ILIKE ${`%${caseNotesSearch}%`}` : undefined,
 			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
 		// Query for exact date with proper joins
 		const recordData = await db
 			.select({
-				record: records,
-				order: orders,
+				record: {
+					recordId: records.recordId,
+					patientName: records.patientName,
+					dateDropoff: records.dateDropoff,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes
+				},
+				order: {
+					orderTotal: orders.orderTotal,
+					paidAmount: orders.paidAmount,
+					paymentStatus: orders.paymentStatus,
+					paymentMethod: orders.paymentMethod
+				},
 				clinicName: clinics.clinicName,
-				items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
+				items: sql<
+					Array<{
+						caseNo: string;
+						orderDescription: string | null;
+						itemCost: string;
+						itemQuantity: number;
+					}>
+				>`
+          json_agg(
+            json_build_object(
+              'caseNo', ${orderItems.caseNo},
+              'orderDescription', ${orderItems.orderDescription},
+              'itemCost', ${orderItems.itemCost},
+              'itemQuantity', ${orderItems.itemQuantity}
+            )
+          )`,
 				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
 			})
 			.from(records)
@@ -153,16 +181,43 @@ export const load: PageServerLoad = async ({ url }) => {
 			isNotNull(records.dateDropoff),
 			sql`${records.dateDropoff} BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`,
 			status && status !== '' ? eq(orders.paymentStatus, status) : undefined,
-			remarks && remarks !== '' ? eq(records.remarks, remarks) : undefined,
+			caseStatus && caseStatus !== '' ? eq(records.caseStatus, caseStatus) : undefined,
+			caseNotesSearch && caseNotesSearch !== '' ? sql`case_notes ILIKE ${`%${caseNotesSearch}%`}` : undefined,
 			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
 		const recordData = await db
 			.select({
-				record: records,
-				order: orders,
+				record: {
+					recordId: records.recordId,
+					patientName: records.patientName,
+					dateDropoff: records.dateDropoff,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes
+				},
+				order: {
+					orderTotal: orders.orderTotal,
+					paidAmount: orders.paidAmount,
+					paymentStatus: orders.paymentStatus,
+					paymentMethod: orders.paymentMethod
+				},
 				clinicName: clinics.clinicName,
-				items: sql<Array<typeof orderItems>>`json_agg(${orderItems})`,
+				items: sql<
+					Array<{
+						caseNo: string;
+						orderDescription: string | null;
+						itemCost: string;
+						itemQuantity: number;
+					}>
+				>`
+          json_agg(
+            json_build_object(
+              'caseNo', ${orderItems.caseNo},
+              'orderDescription', ${orderItems.orderDescription},
+              'itemCost', ${orderItems.itemCost},
+              'itemQuantity', ${orderItems.itemQuantity}
+            )
+          )`,
 				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
 			})
 			.from(records)

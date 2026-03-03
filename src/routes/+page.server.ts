@@ -60,6 +60,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (url.searchParams.get('case_status')) {
 			whereConditions.push(eq(records.caseStatus, url.searchParams.get('case_status')!));
 		}
+		if (url.searchParams.get('case_notes')) {
+			whereConditions.push(sql`case_notes ILIKE ${`%${url.searchParams.get('case_notes')}%`}`);
+		}
 		let baseQuery;
 		if (whereConditions.length > 0) {
 			baseQuery = db

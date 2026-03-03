@@ -17,7 +17,9 @@ export const load: PageServerLoad = async ({ params }) => {
 				doctorId: records.doctorId,
 				patientName: records.patientName,
 				description: records.description,
-				remarks: records.remarks,
+				caseStatus: records.caseStatus,
+				caseNotes: records.caseNotes,
+				remarksDeprecated: records.remarksDeprecated,
 				deliveryCourier: records.deliveryCourier,
 				deliveryFee: records.deliveryFee,
 				deliveryNotes: records.deliveryNotes,
@@ -63,7 +65,8 @@ export const actions = {
 		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
 		const patientName = formData.get('patientName')?.toString() ?? '';
-		const remarks = formData.get('remarks')?.toString() ?? '';
+		const caseStatus = formData.get('caseStatus')?.toString() ?? '';
+		const caseNotes = formData.get('caseNotes')?.toString() ?? '';
 
 		const deliveryCourier = formData.get('deliveryCourier')?.toString() ?? '';
 		const deliveryFeeRaw = formData.get('deliveryFee')?.toString() ?? '';
@@ -102,7 +105,8 @@ export const actions = {
 				.set({
 					doctorId,
 					patientName,
-					remarks,
+					caseStatus,
+					caseNotes,
 					deliveryCourier: deliveryCourier || null,
 					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,
 					deliveryNotes: deliveryNotes || null,

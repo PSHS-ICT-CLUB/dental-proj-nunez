@@ -13,8 +13,9 @@ export const load: PageServerLoad = async ({ params }) => {
 			doctorName: doctors.doctorName,
 			clinicName: clinics.clinicName,
 			description: records.description,
-			remarks: records.remarks,
-			caseStatus: records.caseStatus
+			caseStatus: records.caseStatus,
+			caseNotes: records.caseNotes,
+			remarksDeprecated: records.remarksDeprecated
 		})
 		.from(records)
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))

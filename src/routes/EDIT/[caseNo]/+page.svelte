@@ -26,7 +26,8 @@
 
 	// State for form fields to preserve user input
 	let patientName = $state(record.patientName);
-	let remarks = $state(record.remarks || 'pending');
+	let caseStatus = $state(record.caseStatus || 'pending');
+	let caseNotes = $state(record.caseNotes || '');
 
 	// Delivery & scheduling fields
 	let deliveryCourier = $state(record.deliveryCourier || '');
@@ -138,13 +139,23 @@
 			});
 		}
 
-		// Check remarks change
-		const originalRemarks = record.remarks || 'pending';
-		if (remarks !== originalRemarks) {
+		// Check status change
+		const originalStatus = record.caseStatus || 'pending';
+		if (caseStatus !== originalStatus) {
 			changesList.push({
-				field: 'Remarks',
-				oldValue: originalRemarks,
-				newValue: remarks
+				field: 'Status',
+				oldValue: originalStatus,
+				newValue: caseStatus
+			});
+		}
+
+		// Check notes change
+		const originalNotes = record.caseNotes || '';
+		if (caseNotes !== originalNotes) {
+			changesList.push({
+				field: 'Case Notes',
+				oldValue: originalNotes,
+				newValue: caseNotes
 			});
 		}
 
@@ -169,11 +180,11 @@
 		}
 
 		// Check delivery notes change
-		const originalNotes = record.deliveryNotes || '';
-		if (deliveryNotes !== originalNotes) {
+		const originalDeliveryNotes = record.deliveryNotes || '';
+		if (deliveryNotes !== originalDeliveryNotes) {
 			changesList.push({
 				field: 'Delivery Notes',
-				oldValue: originalNotes,
+				oldValue: originalDeliveryNotes,
 				newValue: deliveryNotes
 			});
 		}
@@ -387,18 +398,34 @@
 				</label>
 			</div>
 
-			<!-- Remarks -->
+			<!-- Status -->
 			<div>
-				<label for="remarks" class="block text-sm font-medium text-gray-700">Remarks</label>
+				<label for="caseStatus" class="block text-sm font-bold text-gray-700">Status</label>
 				<select
-					id="remarks"
-					name="remarks"
-					bind:value={remarks}
+					id="caseStatus"
+					name="caseStatus"
+					bind:value={caseStatus}
 					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 				>
 					<option value="pending">Pending</option>
 					<option value="finished">Finished</option>
+					<option value="to be reviewed">To Be Reviewed</option>
+					<option value="to be deliver">To Be Delivered</option>
+					<option value="to be reviewed by dentist">Reviewed by Dentist</option>
 				</select>
+			</div>
+
+			<!-- Case Notes -->
+			<div class="md:col-span-2">
+				<label for="caseNotes" class="block text-sm font-bold text-gray-700">Case Notes</label>
+				<textarea
+					id="caseNotes"
+					name="caseNotes"
+					rows="3"
+					bind:value={caseNotes}
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					placeholder="Enter patient observations, treatment notes, etc."
+				></textarea>
 			</div>
 
 			<!-- Delivery Details -->
@@ -532,9 +559,15 @@
 								<span>{record.dateDropoff || '-'}</span>
 							</div>
 							<div class="flex">
-								<span class="w-28 font-medium">Remarks:</span>
-								<span>{record.remarks || 'No remarks'}</span>
+								<span class="w-28 font-medium">Status:</span>
+								<span>{record.caseStatus || 'No status'}</span>
 							</div>
+							{#if record.caseNotes}
+								<div class="flex">
+									<span class="w-28 font-medium">Notes:</span>
+									<span class="truncate">{record.caseNotes}</span>
+								</div>
+							{/if}
 						</div>
 					</div>
 

@@ -9,7 +9,8 @@
 	let { currentMonth, currentYear, recordData, supplies, inventoryUsages } = data;
 	let selectedMonth = $state(currentMonth);
 	let selectedYear = $state(currentYear);
-	let remarksValue = $state('finished');
+	let caseStatusValue = $state('finished');
+	let caseNotesValue = $state('');
 	let statusValue = $state('');
 	let clinicValue = $state('');
 
@@ -24,17 +25,16 @@
 	onMount(() => {
 		try {
 			const p = new URLSearchParams(window.location.search);
-			const remarksParam = p.get('remarks');
-			// If remarks parameter doesn't exist, default to 'finished' and update URL
-			// If it exists (even if empty string), use that value
-			if (remarksParam === null) {
-				remarksValue = 'finished';
-				p.set('remarks', 'finished');
+			const caseStatusParam = p.get('case_status');
+			if (caseStatusParam === null) {
+				caseStatusValue = 'finished';
+				p.set('case_status', 'finished');
 				const base = window.location.pathname + '?' + p.toString();
 				window.history.replaceState({}, '', base);
 			} else {
-				remarksValue = remarksParam || '';
+				caseStatusValue = caseStatusParam || '';
 			}
+			caseNotesValue = p.get('case_notes') || '';
 			statusValue = p.get('status') || '';
 			clinicValue = p.get('clinic_id') || '';
 		} catch (e) {
@@ -51,7 +51,8 @@
 			orderTotal: number;
 			paymentMethod: string;
 			paymentStatus: string;
-			remarks: string;
+			caseStatus: string;
+			caseNotes: string;
 		}>;
 		totalIncome: number;
 	}
@@ -267,7 +268,8 @@
 			paymentStatus: string;
 			balance?: number;
 			record?: {
-				remarks: string;
+				caseStatus: string;
+				caseNotes: string;
 				patientName: string;
 				dateDropoff: string;
 			};
@@ -341,7 +343,8 @@
 					paymentMethod: record.order?.paymentMethod,
 					paymentStatus: record.order?.paymentStatus,
 					record: {
-						remarks: record.record.remarks || 'pending',
+						caseStatus: record.record.caseStatus || 'pending',
+						caseNotes: record.record.caseNotes || '',
 						patientName: record.record.patientName,
 						dateDropoff: record.record.dateDropoff
 					}
@@ -461,7 +464,7 @@
 		| 'orderTotal'
 		| 'paidAmount'
 		| 'status'
-		| 'remarks';
+		| 'case_status';
 
 	type ExpensesSortColumn = 'date' | 'description' | 'amount' | 'type';
 
@@ -539,10 +542,10 @@
 				return compareValues(a.paidAmount, b.paidAmount, incomeSort.direction);
 			case 'status':
 				return compareValues(a.paymentStatus, b.paymentStatus, incomeSort.direction);
-			case 'remarks':
+			case 'case_status':
 				return compareValues(
-					a.record?.remarks ?? 'pending',
-					b.record?.remarks ?? 'pending',
+					a.record?.caseStatus ?? 'pending',
+					b.record?.caseStatus ?? 'pending',
 					incomeSort.direction
 				);
 		}
@@ -662,17 +665,17 @@
 			</div>
 
 			<div class="col-span-1 flex flex-col justify-end">
-				<!-- Remarks filter -->
-				<label for="remarks-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Remarks</label>
+				<!-- Case Status filter -->
+				<label for="case-status-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Status</label>
 				<select
-					id="remarks-filter"
+					id="case-status-filter"
 					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					value={remarksValue}
+					value={caseStatusValue}
 					onchange={(e) => {
 						const val = (e.target as HTMLSelectElement).value;
-						remarksValue = val;
+						caseStatusValue = val;
 						const params = new URLSearchParams(window.location.search);
-						params.set('remarks', val || '');
+						params.set('case_status', val || '');
 						const base = window.location.pathname + '?' + params.toString();
 						window.location.href = base;
 					}}
@@ -680,7 +683,28 @@
 					<option value="">All</option>
 					<option value="finished">Finished</option>
 					<option value="pending">Pending</option>
+					<option value="to be deliver">To Be Delivered</option>
 				</select>
+			</div>
+
+			<div class="col-span-1 flex flex-col justify-end">
+				<label for="case-notes-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Notes</label>
+				<input
+					id="case-notes-filter"
+					type="text"
+					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					placeholder="Search notes..."
+					value={caseNotesValue}
+					onchange={(e) => {
+						const val = (e.target as HTMLInputElement).value;
+						caseNotesValue = val;
+						const params = new URLSearchParams(window.location.search);
+						if (val) params.set('case_notes', val);
+						else params.delete('case_notes');
+						const base = window.location.pathname + '?' + params.toString();
+						window.location.href = base;
+					}}
+				/>
 			</div>
 
 			<div class="col-span-1 flex flex-col justify-end relative z-10 w-full">
@@ -803,10 +827,10 @@
 											</th>
 											<th
 												class="cursor-pointer px-6 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase select-none"
-												onclick={() => toggleIncomeSort('status')}
+												onclick={() => toggleIncomeSort('case_status')}
 											>
 												Status / Remarks
-												{#if incomeSort.column === 'status' || incomeSort.column === 'remarks'}
+												{#if incomeSort.column === 'case_status'}
 													<span>{incomeSort.direction === 'asc' ? ' ▲' : ' ▼'}</span>
 												{/if}
 											</th>
@@ -819,13 +843,13 @@
 												border-b border-gray-200 transition-colors
 												${
 													transaction.paymentStatus === 'paid' &&
-													(transaction.record?.remarks || 'pending') === 'finished'
+													(transaction.record?.caseStatus || 'pending') === 'finished'
 														? 'bg-green-200'
 														: transaction.paymentStatus === 'unpaid' &&
-															  (transaction.record?.remarks || 'pending') === 'finished'
+															  (transaction.record?.caseStatus || 'pending') === 'finished'
 															? 'bg-red-300'
 															: transaction.paymentStatus === 'unpaid' &&
-																  (transaction.record?.remarks || 'pending') === 'pending'
+																  (transaction.record?.caseStatus || 'pending') === 'pending'
 																? 'bg-white'
 																: 'bg-violet-300'
 												}
@@ -856,12 +880,12 @@
 													</span>
 													<span
 														class="ml-2 rounded-full px-2 py-1 text-xs font-semibold"
-														class:bg-green-100={transaction.record?.remarks === 'finished'}
-														class:text-green-800={transaction.record?.remarks === 'finished'}
-														class:bg-yellow-100={transaction.record?.remarks === 'pending'}
-														class:text-yellow-800={transaction.record?.remarks === 'pending'}
+														class:bg-green-100={transaction.record?.caseStatus === 'finished'}
+														class:text-green-800={transaction.record?.caseStatus === 'finished'}
+														class:bg-yellow-100={transaction.record?.caseStatus === 'pending'}
+														class:text-yellow-800={transaction.record?.caseStatus === 'pending'}
 													>
-														{transaction.record?.remarks || 'pending'}
+														{transaction.record?.caseStatus || 'pending'}
 													</span>
 												</td>
 											</tr>

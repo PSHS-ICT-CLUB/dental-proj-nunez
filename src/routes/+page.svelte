@@ -28,6 +28,7 @@
 	let patientName = $state('');
 	let paymentStatus = $state('');
 	let caseStatus = $state('');
+	let caseNotesSearch = $state('');
 	let recordId = $state('');
 
 	// Synchronize filter states from URL parameters (data.filters) directly
@@ -42,6 +43,7 @@
 			caseNo = '';
 			patientName = '';
 			caseStatus = '';
+			caseNotesSearch = '';
 			paymentStatus = '';
 			recordId = '';
 			startDate = '';
@@ -68,6 +70,7 @@
 		caseNo = filtersData.case_no ? String(filtersData.case_no) : '';
 		patientName = filtersData.patient_name || '';
 		caseStatus = filtersData.case_status || '';
+		caseNotesSearch = filtersData.case_notes || '';
 		paymentStatus = filtersData.payment_status || '';
 		recordId = filtersData.record_id ? String(filtersData.record_id) : '';
 
@@ -478,6 +481,19 @@
 						<option value="to be deliver">To Be Delivered</option>
 						<option value="to be reviewed by dentist">Reviewed by Dentist</option>
 					</select>
+				</div>
+				
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case Notes</label
+					>
+					<input
+						type="text"
+						name="case_notes"
+						bind:value={caseNotesSearch}
+						placeholder="Search notes..."
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					/>
 				</div>
 			</div>
 

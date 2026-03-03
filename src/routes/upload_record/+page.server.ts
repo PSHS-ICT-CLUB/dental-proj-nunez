@@ -141,7 +141,7 @@ export const actions = {
 						timePickup: data.get('time'),
 						doctorId: data.get('doctor_name') as unknown as number,
 						patientName: data.get('patient_name'),
-						remarks: 'pending',
+						caseStatus: 'pending',
 						deliveryCourier: data.get('delivery_courier')?.toString() || null,
 						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,
 						deliveryNotes: data.get('delivery_notes')?.toString() || null,
@@ -173,11 +173,11 @@ export const actions = {
 							await tx.insert(history).values({
 								historyType: 'in',
 								imageUrl: publicUrlData.publicUrl,
-								historyDate: data.get('date'),
+								historyDate: data.get('date')?.toString() || null,
 								recordId: record[0].id,
-								historyTime: data.get('time'),
+								historyTime: data.get('time')?.toString() || null,
 								createdBy: userId
-							});
+							} as any);
 						} else {
 							console.error('Supabase upload error:', uploadError);
 						}

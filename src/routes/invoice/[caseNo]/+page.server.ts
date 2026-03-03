@@ -16,7 +16,8 @@ export const load = (async ({ params }) => {
 				timePickup: records.timePickup,
 				timeDropoff: records.timeDropoff,
 				patientName: records.patientName,
-				remarks: records.remarks,
+				caseStatus: records.caseStatus,
+				caseNotes: records.caseNotes,
 				orderTotal: orders.orderTotal,
 				paidAmount: orders.paidAmount,
 				paymentStatus: orders.paymentStatus,
@@ -25,7 +26,13 @@ export const load = (async ({ params }) => {
 				deliveryCourier: records.deliveryCourier,
 				deliveryFee: records.deliveryFee,
 				assignedTechnicians: records.assignedTechnicians,
-				orderItems: orderItems,
+				orderItems: {
+					itemQuantity: orderItems.itemQuantity,
+					upOrDown: orderItems.upOrDown,
+					itemCost: orderItems.itemCost,
+					caseNo: orderItems.caseNo,
+					orderDescription: orderItems.orderDescription
+				},
 				caseTypeName: caseTypes.caseTypeName,
 				orderCreatedAt: orders.createdAt,
 				// Use COALESCE to get the latest available date: dateDropoff > datePickup > order createdAt
@@ -63,7 +70,8 @@ export const load = (async ({ params }) => {
 				amount: Number(item.orderItems.itemCost) * Number(item.orderItems.itemQuantity),
 				case_no: `${item.caseTypeName} - ${item.orderItems.caseNo}`
 			})),
-			remarks: result[0].remarks,
+			remarks: result[0].caseStatus,
+			case_notes: result[0].caseNotes,
 			payment_status: result[0].paymentStatus,
 			delivery_courier: result[0].deliveryCourier,
 			delivery_fee: result[0].deliveryFee,
