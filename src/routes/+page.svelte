@@ -1228,7 +1228,7 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 print:hidden">
 		<div class="mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg">
 			<div class="p-4">
-				<h3 class="text-lg font-medium text-red-600">Confirm Admin Deletion</h3>
+				<h3 class="text-lg font-medium text-red-600">Confirm Deletion</h3>
 				<div class="mt-3 rounded-md bg-gray-50 p-3 text-sm">
 					<p class="mb-2 font-semibold text-gray-900">Record Information:</p>
 					<div class="space-y-1.5 text-gray-700">
@@ -1280,7 +1280,7 @@
 					</div>
 				</div>
 				<p class="mt-3 text-sm text-gray-600">
-					Enter your <strong>Admin Confirmation Password</strong> to confirm deletion.
+					Enter your <strong>Account Password</strong> to confirm deletion.
 				</p>
 				<form
 					bind:this={deleteForm}
@@ -1292,7 +1292,7 @@
 							if (result.type === 'failure') {
 								cancel();
 								closeDeleteModal();
-								alert('Wrong password');
+								alert('Incorrect account password');
 								return;
 							}
 							if (result.type === 'redirect') {

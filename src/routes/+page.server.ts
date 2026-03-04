@@ -11,7 +11,7 @@ import {
 import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
+import { verifyAdminPassword, isPasswordSet, verifyUserPassword } from '$lib/server/auth';
 import { canDelete } from '$lib/server/roles';
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
@@ -292,17 +292,9 @@ export const actions = {
 			return { success: false, error: 'Record ID for deletion is required' };
 		}
 
-		// Check if password is set
-		const passwordIsSet = await isPasswordSet();
-		if (!passwordIsSet) {
-			return fail(400, {
-				error: 'No password is set. Please set a password first in the Change Password page.'
-			});
-		}
-
-		const ok = await verifyAdminPassword(confirmPassword);
+		const ok = await verifyUserPassword(parseInt(session.user.id), confirmPassword);
 		if (!ok) {
-			return fail(400, { error: 'Wrong password' });
+			return fail(400, { error: 'Incorrect account password' });
 		}
 
 		try {

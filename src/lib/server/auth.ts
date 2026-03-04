@@ -1,5 +1,5 @@
 import { db } from './db';
-import { appSettings } from './db/schema';
+import { appSettings, users } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { pbkdf2Sync, timingSafeEqual, randomBytes } from 'node:crypto';
 
@@ -80,5 +80,22 @@ export async function removeAdminPassword(): Promise<void> {
 	} catch (e) {
 		console.error('Error removing admin password:', e);
 		throw e;
+	}
+}
+
+export async function verifyUserPassword(userId: number, password: string): Promise<boolean> {
+	try {
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(eq(users.id, userId))
+			.limit(1);
+
+		if (!user?.passwordHash) return false;
+
+		return verifyPassword(password, user.passwordHash);
+	} catch (e) {
+		console.error('Error verifying user password:', e);
+		return false;
 	}
 }
