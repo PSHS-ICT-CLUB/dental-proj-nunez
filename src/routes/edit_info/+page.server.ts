@@ -2,8 +2,10 @@ import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { clinics, doctors, caseTypes, technicians } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
+import { requireDeletePermission } from '$lib/server/roles';
 
-export const load = (async () => {
+export const load = (async (event) => {
+	const session = await event.locals.auth();
 	const [doctorsData, clinicsData, caseTypesData, techniciansData] = await Promise.all([
 		db
 			.select({
@@ -70,7 +72,8 @@ export const load = (async () => {
 			clinicEmail: c.clinicEmail
 		})),
 		caseTypes: caseTypesData,
-		technicians: techniciansData
+		technicians: techniciansData,
+		user: session?.user
 	};
 }) satisfies PageServerLoad;
 
@@ -187,7 +190,10 @@ export const actions = {
 			return { success: false, error: 'Clinic name and doctor name are required' };
 		}
 	},
-	deleteDoctor: async ({ request }) => {
+	deleteDoctor: async ({ request, locals }) => {
+		const denied = await requireDeletePermission(locals);
+		if (denied) return denied;
+
 		const data = await request.formData();
 		const doctorIdToDelete = data.get('doctor_id')?.toString();
 
@@ -206,7 +212,10 @@ export const actions = {
 			return { success: false, error: 'Doctor ID not provided for deletion' };
 		}
 	},
-	deleteClinic: async ({ request }) => {
+	deleteClinic: async ({ request, locals }) => {
+		const denied = await requireDeletePermission(locals);
+		if (denied) return denied;
+
 		const data = await request.formData();
 		const clinicIdToDelete = data.get('clinic_id')?.toString();
 
@@ -253,7 +262,10 @@ export const actions = {
 			return { success: false, error: 'Failed to add case type' };
 		}
 	},
-	deleteCaseType: async ({ request }) => {
+	deleteCaseType: async ({ request, locals }) => {
+		const denied = await requireDeletePermission(locals);
+		if (denied) return denied;
+
 		const data = await request.formData();
 		const caseTypeId = data.get('case_type_id')?.toString();
 
@@ -324,7 +336,10 @@ export const actions = {
 			return { success: false, error: 'Failed to add technician' };
 		}
 	},
-	deleteTechnician: async ({ request }) => {
+	deleteTechnician: async ({ request, locals }) => {
+		const denied = await requireDeletePermission(locals);
+		if (denied) return denied;
+
 		const data = await request.formData();
 		const techId = data.get('technician_id')?.toString();
 

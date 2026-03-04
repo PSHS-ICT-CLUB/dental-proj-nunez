@@ -109,6 +109,7 @@
 										Adjust Stock
 									</button>
 									<span class="text-gray-300">|</span>
+									{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 									<form method="POST" action="?/deleteItem" use:enhance class="inline-flex">
 										<input type="hidden" name="item_id" value={item.id} />
 										<button
@@ -121,6 +122,7 @@
 											Delete
 										</button>
 									</form>
+									{/if}
 								</div>
 							</td>
 						</tr>

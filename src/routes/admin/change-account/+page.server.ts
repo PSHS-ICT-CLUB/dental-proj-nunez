@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { pbkdf2Sync, randomBytes } from 'node:crypto';
+import { isValidRole } from '$lib/server/roles';
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
@@ -57,6 +58,10 @@ export const actions: Actions = {
 
 		if (!userId || !name || !email || !role) {
 			return fail(400, { message: 'User, name, role, and email are required.' });
+		}
+
+		if (!isValidRole(role)) {
+			return fail(400, { message: 'Invalid role selected.' });
 		}
 
 		const userIdNum = parseInt(userId);

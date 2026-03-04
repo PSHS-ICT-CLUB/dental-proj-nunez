@@ -186,6 +186,7 @@
 								{fmt(record.supplyCost)}
 							</td>
 							<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
+								{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 								<form method="POST" action="?/deleteExpenses" class="inline-block" use:enhance>
 									<input type="hidden" name="supply_id" value={record.supplyId} />
 									<button
@@ -199,6 +200,7 @@
 										</svg>
 									</button>
 								</form>
+								{/if}
 							</td>
 						</tr>
 					{/each}

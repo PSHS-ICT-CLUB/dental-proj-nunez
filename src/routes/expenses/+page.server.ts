@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { clinics, doctors, history, records, supply } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
+import { requireDeletePermission } from '$lib/server/roles';
 
 const formatDate = (date: Date): string => {
 	const year = date.getFullYear();
@@ -11,7 +12,8 @@ const formatDate = (date: Date): string => {
 	return `${year}-${month}-${day}`;
 };
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
+	const session = await locals.auth();
 	// Get the month and year from URL params or use current date
 	const searchParams = url.searchParams;
 	const currentDate = new Date();
@@ -39,7 +41,8 @@ export const load: PageServerLoad = async ({ url }) => {
 	return {
 		currentMonth: selectedMonth,
 		currentYear: selectedYear,
-		recordData
+		recordData,
+		user: session?.user
 	};
 };
 
@@ -86,7 +89,10 @@ export const actions = {
 		throw redirect(303, `?month=${month}&year=${year}`);
 	},
 
-	deleteExpenses: async ({ request }) => {
+	deleteExpenses: async ({ request, locals }) => {
+		const denied = await requireDeletePermission(locals);
+		if (denied) return denied;
+
 		const data = await request.formData();
 		const supplyId = data.get('supply_id')?.toString();
 

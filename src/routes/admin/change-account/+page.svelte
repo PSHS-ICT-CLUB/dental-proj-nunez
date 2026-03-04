@@ -107,22 +107,19 @@
 
 			<div>
 				<label for="role" class="block text-sm font-medium text-gray-700">User Role</label>
-				<input
+				<select
 					id="role"
 					name="role"
-					type="text"
-					list="roles-list"
 					required
 					bind:value={role}
 					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
-					placeholder="e.g. staff, admin, doctor"
-				/>
-				<datalist id="roles-list">
-					<option value="staff"></option>
-					<option value="admin"></option>
-				</datalist>
+				>
+					<option value="staff">Staff</option>
+					<option value="dentist">Dentist</option>
+					<option value="admin">Admin</option>
+				</select>
 				<p class="mt-1 text-xs text-gray-500">
-					Select a standard role or type a custom one.
+					Select the role for this user.
 				</p>
 			</div>
 

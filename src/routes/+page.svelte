@@ -573,7 +573,7 @@
 						/>
 					</div>
 					<div class="flex items-center sm:pt-[18px]">
-						{#if data.user && data.user.role === 'admin'}
+						{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 							<label
 								class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
 							>

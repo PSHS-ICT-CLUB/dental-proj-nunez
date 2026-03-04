@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { pbkdf2Sync, randomBytes } from 'node:crypto';
+import { isValidRole } from '$lib/server/roles';
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
@@ -44,6 +45,10 @@ export const actions: Actions = {
 
 		if (!name || !email || !password || !role) {
 			return fail(400, { message: 'All fields are required.', name, email, role });
+		}
+
+		if (!isValidRole(role)) {
+			return fail(400, { message: 'Invalid role. Must be staff, dentist, or admin.', name, email, role });
 		}
 
 		// Check if email already exists

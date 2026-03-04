@@ -234,6 +234,7 @@ let newTechnicianNotes = $state('');
 							</div>
 						</td>
 						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 							<form action="?/deleteDoctor" method="post">
 								<input type="hidden" name="doctor_id" value={doctor.id} />
 								<button
@@ -243,6 +244,7 @@ let newTechnicianNotes = $state('');
 									Delete Doctor
 								</button>
 							</form>
+							{/if}
 						</td>
 					</tr>
 				{/each}
@@ -302,6 +304,7 @@ let newTechnicianNotes = $state('');
 							</div>
 						</td>
 						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 							<form action="?/deleteTechnician" method="post">
 								<input type="hidden" name="technician_id" value={tech.id} />
 								<button
@@ -311,6 +314,7 @@ let newTechnicianNotes = $state('');
 									Delete
 								</button>
 							</form>
+							{/if}
 						</td>
 					</tr>
 				{/each}
@@ -358,6 +362,7 @@ let newTechnicianNotes = $state('');
 							</div>
 						</td>
 						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 							<form action="?/deleteClinic" method="post">
 								<input type="hidden" name="clinic_id" value={clinic.clinicId} />
 								<button
@@ -367,6 +372,7 @@ let newTechnicianNotes = $state('');
 									Delete Clinic
 								</button>
 							</form>
+							{/if}
 						</td>
 					</tr>
 				{/each}
@@ -707,6 +713,7 @@ let newTechnicianNotes = $state('');
 								</form>
 							</td>
 							<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 								<form action="?/deleteCaseType" method="post" class="inline">
 									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
 									<button
@@ -716,6 +723,7 @@ let newTechnicianNotes = $state('');
 										Delete Case Type
 									</button>
 								</form>
+								{/if}
 							</td>
 						</tr>
 					{/each}

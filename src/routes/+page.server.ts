@@ -12,8 +12,10 @@ import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
+import { canDelete } from '$lib/server/roles';
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const session = await locals.auth();
 	try {
 		// Get current month/year for calendar data
 		const now = new Date();
@@ -255,6 +257,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			clinics: clinicData,
 			filters: Object.fromEntries(url.searchParams),
 			passwordIsSet,
+			user: session?.user,
 			calendarData: {
 				deliveryRecords: calendarDeliveryRecords,
 				finishByRecords: calendarFinishByRecords,
@@ -277,8 +280,8 @@ export const actions = {
 		}
 
 		// @ts-ignore
-		if (session.user.role !== 'admin') {
-			return fail(403, { error: 'Unauthorized: Only admins can delete records' });
+		if (!canDelete(session.user.role)) {
+			return fail(403, { error: 'Unauthorized: Only admins and dentists can delete records' });
 		}
 
 		const data = await request.formData();

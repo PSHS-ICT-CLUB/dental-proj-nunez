@@ -2,8 +2,10 @@ import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { inventoryItems, inventorySuppliers, inventoryLogs, users } from '$lib/server/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
+import { requireDeletePermission } from '$lib/server/roles';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const session = await locals.auth();
   // Fetch all items with their supplier's name
   const itemsWithSuppliers = await db
     .select({
@@ -27,7 +29,8 @@ export const load: PageServerLoad = async () => {
 
   return {
     items: itemsWithSuppliers,
-    suppliers
+    suppliers,
+    user: session?.user
   };
 };
 
@@ -139,7 +142,10 @@ export const actions: Actions = {
     }
   },
 
-  deleteItem: async ({ request }) => {
+  deleteItem: async ({ request, locals }) => {
+    const denied = await requireDeletePermission(locals);
+    if (denied) return denied;
+
     const data = await request.formData();
     const idStr = data.get('item_id')?.toString();
 
