@@ -6,7 +6,10 @@ import {
 	history,
 	records,
 	orders,
-	orderItems
+	orderItems,
+	recordInventoryUsages,
+	inventoryItems,
+	inventoryLogs
 } from '$lib/server/db/schema';
 import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
@@ -86,6 +89,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			recordId: records.recordId,
 			datePickup: records.datePickup,
 			dateDropoff: records.actualDropoff,
+			finishBy: records.finishBy,
 			patientName: records.patientName,
 			caseStatus: records.caseStatus,
 			caseNotes: records.caseNotes,
@@ -306,6 +310,35 @@ export const actions = {
 					.limit(1);
 
 				if (record.length > 0) {
+					// 1. Manage Inventory Refunds
+					const usages = await tx
+						.select()
+						.from(recordInventoryUsages)
+						.where(eq(recordInventoryUsages.recordId, parseInt(recordId)));
+
+					for (const usage of usages) {
+						// Refund the stock
+						await tx
+							.update(inventoryItems)
+							.set({
+								currentStock: sql`${inventoryItems.currentStock} + ${usage.quantityUsed}`
+							} as any)
+							.where(eq(inventoryItems.id, usage.itemId));
+
+						// Log the refund
+						await tx.insert(inventoryLogs).values({
+							itemId: usage.itemId,
+							actionType: 'ADJUSTMENT',
+							quantity: usage.quantityUsed,
+							remarks: `Refunded from deleted record ID ${recordId}`,
+							createdBy: parseInt(session.user.id)
+						} as any);
+					}
+
+					// 2. Delete the record usages so foreign key constraint is satisfied
+					await tx.delete(recordInventoryUsages).where(eq(recordInventoryUsages.recordId, parseInt(recordId)));
+
+					// 3. Delete normal record relationships
 					await tx.delete(history).where(eq(history.recordId, parseInt(recordId)));
 					await tx.delete(orderItems).where(eq(orderItems.orderId, record[0].orderId!));
 					await tx.delete(records).where(eq(records.recordId, parseInt(recordId)));

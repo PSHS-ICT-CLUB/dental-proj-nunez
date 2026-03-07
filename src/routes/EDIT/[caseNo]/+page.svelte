@@ -25,8 +25,6 @@
 	let filteredClinics = $state(allClinics);
 
 	// State for form fields to preserve user input
-	let patientName = $state(record.patientName);
-	let caseStatus = $state(record.caseStatus || 'pending');
 	let caseNotes = $state(record.caseNotes || '');
 
 	// Delivery & scheduling fields
@@ -136,16 +134,6 @@
 				field: 'Patient Name',
 				oldValue: originalPatientName,
 				newValue: patientName
-			});
-		}
-
-		// Check status change
-		const originalStatus = record.caseStatus || 'pending';
-		if (caseStatus !== originalStatus) {
-			changesList.push({
-				field: 'Status',
-				oldValue: originalStatus,
-				newValue: caseStatus
 			});
 		}
 
@@ -398,21 +386,21 @@
 				</label>
 			</div>
 
-			<!-- Status -->
-			<div>
-				<label for="caseStatus" class="block text-sm font-bold text-gray-700">Status</label>
-				<select
-					id="caseStatus"
-					name="caseStatus"
-					bind:value={caseStatus}
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+			<!-- Timeline Redirect -->
+			<div class="md:col-span-2 rounded bg-indigo-50 p-4 border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+				<div>
+					<h3 class="text-sm font-bold text-indigo-900">Manage Workflow Status</h3>
+					<p class="text-xs text-indigo-700 mt-1">Status changes are now managed in the dedicated workflow timeline to enforce proper staging logic.</p>
+				</div>
+				<a
+					href={`/status/${record.recordId}`}
+					class="whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus-visible:outline flex items-center gap-2"
 				>
-					<option value="pending">Pending</option>
-					<option value="finished">Finished</option>
-					<option value="to be reviewed">To Be Reviewed</option>
-					<option value="to be deliver">To Be Delivered</option>
-					<option value="to be reviewed by dentist">Reviewed by Dentist</option>
-				</select>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+					</svg>
+					Go to Timeline
+				</a>
 			</div>
 
 			<!-- Case Notes -->

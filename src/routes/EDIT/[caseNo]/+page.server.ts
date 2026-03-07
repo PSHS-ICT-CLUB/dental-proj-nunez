@@ -71,7 +71,6 @@ export const actions = {
 		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
 		const patientName = formData.get('patientName')?.toString() ?? '';
-		const caseStatus = formData.get('caseStatus')?.toString() ?? '';
 		const caseNotes = formData.get('caseNotes')?.toString() ?? '';
 
 		const deliveryCourier = formData.get('deliveryCourier')?.toString() ?? '';
@@ -111,7 +110,6 @@ export const actions = {
 				.set({
 					doctorId,
 					patientName,
-					caseStatus,
 					caseNotes,
 					deliveryCourier: deliveryCourier || null,
 					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,

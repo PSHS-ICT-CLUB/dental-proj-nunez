@@ -91,13 +91,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const updateData: any = {
       caseStatus: CASE_STATUSES.TO_BE_DELIVER,
-      updatedBy: userId,
-      dateOut: now.toISOString().split('T')[0],
-      timeOut: now.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
+      updatedBy: userId
     };
 
     await db

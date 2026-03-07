@@ -805,15 +805,15 @@
 		>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-green-300 bg-green-200"></div>
-				<span>Paid & Finished</span>
+				<span>Paid & Delivered</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-red-400 bg-red-300"></div>
-				<span>Unpaid & Finished</span>
+				<span>Unpaid & Delivered</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-violet-400 bg-violet-300"></div>
-				<span>Other / Partial</span>
+				<span>In Progress / Other</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-gray-300 bg-white"></div>
@@ -837,6 +837,12 @@
 							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
 						>
 							Date Dropoff
+						</th>
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
+							Deadline
 						</th>
 						{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 							<th
@@ -916,9 +922,9 @@
 							class={`
 							border-b border-gray-100 transition-colors hover:bg-black/5
 							${
-								record.paymentStatus === 'paid' && record.caseStatus === 'finished'
+								record.paymentStatus === 'paid' && record.caseStatus === 'delivered'
 									? 'bg-green-200'
-									: record.paymentStatus === 'unpaid' && record.caseStatus === 'finished'
+									: record.paymentStatus === 'unpaid' && record.caseStatus === 'delivered'
 										? 'bg-red-300'
 										: record.paymentStatus === 'unpaid' && record.caseStatus === 'pending'
 											? 'bg-white'
@@ -931,6 +937,9 @@
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
 								{record.dateDropoff ? record.dateDropoff : '-'}
+							</td>
+							<td class="px-3 py-2 text-xs whitespace-nowrap text-red-600 font-medium tracking-tight">
+								{record.finishBy ? record.finishBy.split('T')[0] : 'None'}
 							</td>
 							{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 								<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
@@ -996,6 +1005,12 @@
 										Invoice
 									</a>
 									<a
+										href={`/status/${record.recordId}`}
+										class="inline-flex items-center rounded bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
+									>
+										Timeline
+									</a>
+									<a
 										href={`/IN/${record.recordId}`}
 										class="inline-flex items-center rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-700/10 hover:bg-green-100"
 									>
@@ -1046,7 +1061,7 @@
 				{#if Object.keys(data.filters).length > 0}
 					<tfoot>
 						<tr class="border-t-2 border-gray-300 bg-gray-50 font-medium">
-							<td colspan={showDelete ? 6 : 5} class="px-3 py-2 text-right text-xs"> Total: </td>
+							<td colspan={showDelete ? 7 : 6} class="px-3 py-2 text-right text-xs"> Total: </td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalOrderAmount()}</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalPaidAmount()}</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">

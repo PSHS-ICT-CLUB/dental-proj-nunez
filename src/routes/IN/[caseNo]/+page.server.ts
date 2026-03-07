@@ -76,12 +76,22 @@ export const actions = {
 							imageUrl: publicUrlData.publicUrl,
 							historyDate: data.get('date')?.toString(),
 							historyTime: data.get('time')?.toString()
-						});
+						} as any);
 					} else {
 						console.error("Supabase upload error:", uploadError);
 					}
 				}
 			}
+
+			// Record the physical dispatch (OUT from lab)
+			await db
+				.update(records)
+				.set({
+					dateOut: data.get('date')?.toString(),
+					timeOut: data.get('time')?.toString()
+				} as any)
+				.where(eq(records.recordId, recordId));
+
 		} catch (error) {
 			console.error('Error processing IN record:', error);
 			return { success: false, error: 'Failed to process IN record' };

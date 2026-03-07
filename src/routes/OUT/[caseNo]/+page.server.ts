@@ -42,7 +42,7 @@ export const actions = {
 				.update(records)
 				.set({
 					actualDropoff: data.get('date')?.toString(),
-					caseStatus: data.get('finished') ? 'finished' : 'pending'
+					caseStatus: data.get('finished') ? 'delivered' : 'to be deliver'
 				} as any)
 				.where(eq(records.recordId, recordId));
 
@@ -68,7 +68,7 @@ export const actions = {
 							imageUrl: publicUrlData.publicUrl,
 							historyDate: data.get('date')?.toString(),
 							historyTime: data.get('time')?.toString()
-						});
+						} as any);
 					} else {
 						console.error('Supabase upload error:', uploadError);
 					}

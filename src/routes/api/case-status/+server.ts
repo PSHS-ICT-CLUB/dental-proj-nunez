@@ -3,7 +3,7 @@ import { db } from '$lib/server/db';
 import { records } from '$lib/server/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
-import { CASE_STATUSES, canChangeToStatus, ROLE_PERMISSIONS } from '$lib/utils/caseStatusUtils';
+import { CASE_STATUSES, canChangeToStatus, ROLE_PERMISSIONS, getStatusWorkflow } from '$lib/utils/caseStatusUtils';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   try {
@@ -46,6 +46,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       throw error(404, 'Record not found');
     }
 
+    // Validate workflow progression for non-admins
+    if (userRole !== 'admin') {
+      const currentState = currentRecord[0].caseStatus;
+      const workflow = getStatusWorkflow().find(s => s.status === currentState);
+
+      const isForward = workflow?.nextStages.includes(newStatus as any);
+      if (!isForward && currentState !== newStatus) {
+        throw error(403, `Role '${userRole}' can only advance cases forward in the workflow. Reversions require admin access.`);
+      }
+    }
+
     // Update the status
     const userId = parseInt(session.user.id);
 
@@ -54,17 +65,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       caseStatus: newStatus,
       updatedBy: userId
     };
-
-    // If changing to "to be deliver", set the OUT date and time
-    if (newStatus === CASE_STATUSES.TO_BE_DELIVER) {
-      const now = new Date();
-      updateData.dateOut = now.toISOString().split('T')[0]; // YYYY-MM-DD
-      updateData.timeOut = now.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    }
 
     const updatedRecord = await db
       .update(records)

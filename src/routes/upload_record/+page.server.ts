@@ -27,7 +27,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		}).from(caseTypes),
 		doctors: await db.select({
 			doctorId: doctors.doctorId,
-			doctorName: doctors.doctorName
+			doctorName: doctors.doctorName,
+			clinicId: doctors.clinicId
 		}).from(doctors).orderBy(desc(doctors.doctorName)),
 		clinics: await db.select({
 			clinicId: clinics.clinicId,

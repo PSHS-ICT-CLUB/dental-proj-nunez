@@ -5,8 +5,10 @@
 
 export const CASE_STATUSES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in progress',
   TO_BE_REVIEWED_BY_DENTIST: 'to be reviewed by dentist',
-  TO_BE_DELIVER: 'to be deliver'
+  TO_BE_DELIVER: 'to be deliver',
+  DELIVERED: 'delivered'
 } as const;
 
 export type CaseStatus = (typeof CASE_STATUSES)[keyof typeof CASE_STATUSES];
@@ -16,8 +18,14 @@ export type CaseStatus = (typeof CASE_STATUSES)[keyof typeof CASE_STATUSES];
  */
 export const ROLE_PERMISSIONS: Record<string, CaseStatus[]> = {
   dentist: [CASE_STATUSES.TO_BE_DELIVER],
-  staff: [CASE_STATUSES.PENDING, CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST],
-  admin: [CASE_STATUSES.PENDING, CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST, CASE_STATUSES.TO_BE_DELIVER]
+  staff: [CASE_STATUSES.PENDING, CASE_STATUSES.IN_PROGRESS, CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST],
+  admin: [
+    CASE_STATUSES.PENDING,
+    CASE_STATUSES.IN_PROGRESS,
+    CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST,
+    CASE_STATUSES.TO_BE_DELIVER,
+    CASE_STATUSES.DELIVERED
+  ]
 };
 
 /**
@@ -63,6 +71,13 @@ export function getStatusConfig(status: string): {
       icon: '⏳',
       description: 'Case is pending - awaiting review or action'
     },
+    [CASE_STATUSES.IN_PROGRESS]: {
+      label: 'In Progress',
+      color: 'text-purple-700',
+      bgColor: 'bg-purple-100',
+      icon: '⚙️',
+      description: 'Case is currently being worked on by technicians'
+    },
     [CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST]: {
       label: 'To Be Reviewed By Dentist',
       color: 'text-blue-700',
@@ -76,6 +91,13 @@ export function getStatusConfig(status: string): {
       bgColor: 'bg-green-100',
       icon: '✓',
       description: 'Case is ready for delivery/action'
+    },
+    [CASE_STATUSES.DELIVERED]: {
+      label: 'Delivered',
+      color: 'text-indigo-700',
+      bgColor: 'bg-indigo-100',
+      icon: '📦',
+      description: 'Case has been physically delivered to the clinic'
     }
   };
 
@@ -114,6 +136,11 @@ export function getStatusWorkflow(): Array<{
     {
       status: CASE_STATUSES.PENDING,
       label: 'Pending',
+      nextStages: [CASE_STATUSES.IN_PROGRESS, CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST]
+    },
+    {
+      status: CASE_STATUSES.IN_PROGRESS,
+      label: 'In Progress',
       nextStages: [CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST]
     },
     {
@@ -124,6 +151,11 @@ export function getStatusWorkflow(): Array<{
     {
       status: CASE_STATUSES.TO_BE_DELIVER,
       label: 'To Be Deliver',
+      nextStages: [CASE_STATUSES.DELIVERED]
+    },
+    {
+      status: CASE_STATUSES.DELIVERED,
+      label: 'Delivered',
       nextStages: []
     }
   ];
