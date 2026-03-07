@@ -16,7 +16,7 @@
 
 	const clinicOptions = $derived([
 		{ value: '', label: 'All Clinics' },
-		...((data as any).clinics?.map((clinic: any) => ({
+		...((data as { clinics?: any[] }).clinics?.map((clinic: any) => ({
 			value: clinic.clinicId.toString(),
 			label: clinic.clinicName
 		})) || [])

@@ -20,7 +20,7 @@ export const load: PageServerLoad = async (event) => {
   }
 
   // Only admin and dentist can access this page
-  const userRole = (session.user as any).role || 'staff';
+  const userRole = (session.user as { role?: string }).role || 'staff';
   if (userRole !== 'admin' && userRole !== 'dentist') {
     redirect(303, '/');
   }

@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       throw error(401, 'Unauthorized');
     }
 
-    const userRole = (session.user as any).role || 'staff';
+    const userRole = (session.user as { role?: string }).role || 'staff';
 
     // Only admin and dentist can use this endpoint
     if (userRole !== 'admin' && userRole !== 'dentist') {
@@ -80,7 +80,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
               second: '2-digit'
             }),
             createdBy: userId
-          } as any);
+          } as typeof history.$inferInsert);
 
           uploadedUrls.push(publicUrlData.publicUrl);
         } else {
@@ -89,14 +89,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       }
     }
 
-    const updateData: any = {
-      caseStatus: CASE_STATUSES.TO_BE_DELIVER,
-      updatedBy: userId
-    };
-
     await db
       .update(records)
-      .set(updateData)
+      .set({
+        caseStatus: CASE_STATUSES.TO_BE_DELIVER,
+        updatedBy: userId
+      } as any)
       .where(eq(records.recordId, recordId));
 
     return json({

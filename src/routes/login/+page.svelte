@@ -14,9 +14,8 @@
 		const result = (await signIn('credentials', {
 			email,
 			password,
-			redirect: true,
-			callbackUrl: '/'
-		})) as any;
+			redirect: false
+		})) as { error?: string } | undefined;
 
 		if (result?.error) {
 			errorMsg = 'Invalid email or password';

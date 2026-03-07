@@ -122,7 +122,7 @@ export const actions: Actions = {
 
       // 1. Update stock
       await db.update(inventoryItems)
-        .set({ currentStock: newStock })
+        .set({ currentStock: newStock } as any)
         .where(eq(inventoryItems.id, itemId));
 
       // 2. Insert log

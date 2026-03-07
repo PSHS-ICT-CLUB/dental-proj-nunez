@@ -1,6 +1,5 @@
 <script lang="ts">
-	export let selectedMonth: number;
-	export let selectedYear: number;
+	let { selectedMonth = $bindable(), selectedYear = $bindable() }: { selectedMonth: number, selectedYear: number } = $props();
 
 	const months = [
 		{ value: 1, label: 'January' },

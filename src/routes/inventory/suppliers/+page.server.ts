@@ -30,14 +30,14 @@ export const actions: Actions = {
     }
 
     try {
-      await db.insert(inventorySuppliers).values({
+      const [newSupplier] = await db.insert(inventorySuppliers).values({
         name,
         contactPerson,
         phone,
         email,
         address,
         notes
-      });
+      } as any).returning();
 
       return {
         success: true,

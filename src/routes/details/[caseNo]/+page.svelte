@@ -212,7 +212,7 @@
 					Remarks
 				</h3>
 				<div class="rounded bg-gray-50 p-3 text-sm text-gray-700 w-full border border-gray-100">
-					{record.remarks || 'No remarks provided.'}
+					{record.caseStatus || 'No remarks provided.'}
 				</div>
 			</div>
 			<!-- Inventory Usage Section -->

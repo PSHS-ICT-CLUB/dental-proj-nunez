@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData } from '../../../routes/upload_record/$types';
+	import type { PageData } from '../../../routes/upload-record/$types';
 
 	let showInventory = $state(false);
 
@@ -75,7 +75,7 @@
 								required
 							>
 								<option value="" disabled selected={usage.itemId === 0}>Select material...</option>
-								{#each data?.inventoryItems || [] as item}
+								{#each data?.inventoryTableItems || [] as item}
 									{#if item.currentStock > 0 || usage.itemId === item.id}
 										<option value={item.id} selected={usage.itemId === item.id}>
 											{item.name} ({item.currentStock} {item.unit || ''} left)

@@ -41,7 +41,8 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const doctorsData = await db.select({
 			doctorId: doctors.doctorId,
-			doctorName: doctors.doctorName
+			doctorName: doctors.doctorName,
+			clinicId: doctors.clinicId
 		}).from(doctors);
 
 		const clinicsData = await db.select({

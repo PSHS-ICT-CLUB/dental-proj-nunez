@@ -11,7 +11,7 @@ export const load: PageServerLoad = async (event) => {
     redirect(303, '/login');
   }
 
-  const userRole = (session.user as any).role || 'staff';
+  const userRole = (session.user as { role?: string }).role || 'staff';
 
   try {
     const recordData = await db

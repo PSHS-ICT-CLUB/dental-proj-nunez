@@ -2,12 +2,12 @@
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import CameraModal from '$lib/components/CameraModal.svelte';
-	import InventoryUsage from '$lib/components/upload_record/InventoryUsage.svelte';
-	import DocumentationIn from '$lib/components/upload_record/DocumentationIn.svelte';
-	import PaymentInfo from '$lib/components/upload_record/PaymentInfo.svelte';
-	import ClientInfo from '$lib/components/upload_record/ClientInfo.svelte';
-	import CaseSpecs from '$lib/components/upload_record/CaseSpecs.svelte';
-	import DeliveryWorkDetails from '$lib/components/upload_record/DeliveryWorkDetails.svelte';
+	import InventoryUsage from '$lib/components/upload-record/InventoryUsage.svelte';
+	import DocumentationIn from '$lib/components/upload-record/DocumentationIn.svelte';
+	import PaymentInfo from '$lib/components/upload-record/PaymentInfo.svelte';
+	import ClientInfo from '$lib/components/upload-record/ClientInfo.svelte';
+	import CaseSpecs from '$lib/components/upload-record/CaseSpecs.svelte';
+	import DeliveryWorkDetails from '$lib/components/upload-record/DeliveryWorkDetails.svelte';
 	import { deserialize, enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
@@ -188,7 +188,7 @@
 		formData.append('clinic_name', clinicInputValue);
 
 		try {
-			const response = await fetch('/edit_info?/addClinic', {
+			const response = await fetch('/edit-info?/addClinic', {
 				method: 'POST',
 				body: formData,
 				headers: { 'x-sveltekit-action': 'true' }
@@ -231,7 +231,7 @@
 		formData.append('clinic_id', selectedClinic.clinicId.toString());
 
 		try {
-			const response = await fetch('/edit_info?/addDoctor', {
+			const response = await fetch('/edit-info?/addDoctor', {
 				method: 'POST',
 				body: formData,
 				headers: { 'x-sveltekit-action': 'true' }
@@ -361,7 +361,7 @@
 
 	function handleInventorySelect(index: number, itemIdStr: string) {
 		const id = parseInt(itemIdStr, 10);
-		const item = data?.inventoryItems?.find((i) => i.id === id);
+		const item = data?.inventoryTableItems?.find((i) => i.id === id);
 		if (item) {
 			inventoryUsages[index].itemId = id;
 			inventoryUsages[index].maxStock = item.currentStock;

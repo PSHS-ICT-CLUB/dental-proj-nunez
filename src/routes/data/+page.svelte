@@ -4,7 +4,7 @@
 	import Chart from 'chart.js/auto';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 
 	let dailyChartCanvas: HTMLCanvasElement;
 	let clinicChartCanvas: HTMLCanvasElement;
@@ -70,24 +70,30 @@
 	};
 
 	// Add reactive statement to update charts when data changes
-	$: if (dailyChart) {
-		dailyChart.data.labels = Object.keys(data.chartData);
-		dailyChart.data.datasets[0].label = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Total Amount`;
-		dailyChart.data.datasets[0].data = Object.values(data.chartData) as number[];
-		dailyChart.options.plugins.title.text = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue`;
-		dailyChart.update();
-	}
+	$effect(() => {
+		if (dailyChart) {
+			dailyChart.data.labels = Object.keys(data.chartData);
+			dailyChart.data.datasets[0].label = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Total Amount`;
+			dailyChart.data.datasets[0].data = Object.values(data.chartData) as number[];
+			dailyChart.options.plugins.title!.text = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue`;
+			dailyChart.update();
+		}
+	});
 
-	$: if (caseTypeChart) {
-		caseTypeChart.data.labels = Object.keys(data.summary.caseTypeTotals);
-		caseTypeChart.data.datasets[0].data = Object.values(data.summary.caseTypeTotals) as number[];
-		caseTypeChart.update();
-	}
+	$effect(() => {
+		if (caseTypeChart) {
+			caseTypeChart.data.labels = Object.keys(data.summary.caseTypeTotals);
+			caseTypeChart.data.datasets[0].data = Object.values(data.summary.caseTypeTotals) as number[];
+			caseTypeChart.update();
+		}
+	});
 
-	$: if (paymentChart) {
-		paymentChart.data.datasets[0].data = [data.summary.paymentStatusData.paid, data.summary.paymentStatusData.unpaid];
-		paymentChart.update();
-	}
+	$effect(() => {
+		if (paymentChart) {
+			paymentChart.data.datasets[0].data = [data.summary.paymentStatusData.paid, data.summary.paymentStatusData.unpaid];
+			paymentChart.update();
+		}
+	});
 
 	onMount(() => {
 		// Main chart

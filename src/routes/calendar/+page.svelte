@@ -27,8 +27,8 @@
 
 	let calendarDays = $derived(generateCalendarDays(currentYear, currentMonth));
 
-	let deliveryByDate = $derived(groupRecordsByDate(data.deliveryRecords, 'dateDropoff'));
-	let finishByDate = $derived(groupRecordsByDate(data.finishByRecords, 'finishBy'));
+	let deliveryByDate = $derived(groupRecordsByDate(data.deliveryRecords as any, 'dateDropoff'));
+	let finishByDate = $derived(groupRecordsByDate(data.finishByRecords as any, 'finishBy'));
 
 	let selectedDateDeliveries = $derived(selectedDate ? deliveryByDate[selectedDate] || [] : []);
 	let selectedDateFinishBys = $derived(selectedDate ? finishByDate[selectedDate] || [] : []);

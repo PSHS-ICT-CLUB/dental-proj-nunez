@@ -15,8 +15,8 @@
 		{ label: 'BALANCES', href: '/balance' },
 		{ label: 'EXPENSES', href: '/expenses', textColor: 'text-red-400' },
 		{ label: 'INVENTORY', href: '/inventory', textColor: 'text-emerald-400' },
-		{ label: 'EDIT INFO', href: '/edit_info' },
-		{ label: 'CHANGE PASSWORD', href: '/change_password' }
+		{ label: 'EDIT INFO', href: '/edit-info' },
+		{ label: 'CHANGE PASSWORD', href: '/change-password' }
 	];
 
 	// Create a function to get the current page title
@@ -28,11 +28,12 @@
 				return 'Sales';
 			case '/expenses':
 				return 'Expenses';
-			case '/edit_info':
+			case '/edit-info':
+			case '/status':
 				return 'Edit Info';
-			case '/change_password':
+			case '/change-password':
 				return 'Change Password';
-			case '/upload_record':
+			case '/upload-record':
 				return 'Add Record';
 			case '/data':
 				return 'Data';
@@ -47,7 +48,7 @@
 			case '/inventory/logs':
 				return 'Inventory Logs';
 
-		case '/review_cases':
+		case '/review-cases':
 			return 'Review Cases';
 			default:
 				return 'Dental Records';
@@ -109,7 +110,7 @@
 				{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
 					<a
 						class="rounded border border-purple-600/50 bg-purple-900/40 px-3 py-1.5 text-xs font-bold text-purple-200 transition-all hover:bg-purple-800/60"
-						href="/review_cases">REVIEW CASES</a
+						href="/review-cases">REVIEW CASES</a
 					>
 				{/if}
 				{#if data?.session?.user?.role === 'admin'}
@@ -129,7 +130,7 @@
 				>
 				<a
 					class="rounded border border-emerald-600/50 bg-emerald-600 px-3 py-1.5 text-xs font-bold transition-all hover:bg-emerald-700"
-					href="/upload_record">ADD RECORD</a
+					href="/upload-record">ADD RECORD</a
 				>
 				<button
 					onclick={() => signOut()}
@@ -187,7 +188,7 @@
 				{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
 					<a
 						class="block rounded bg-purple-900/40 px-3 py-2 text-sm font-bold text-purple-200"
-						href="/review_cases"
+						href="/review-cases"
 						onclick={() => (isMenuOpen = false)}>REVIEW CASES</a
 					>
 				{/if}
@@ -213,7 +214,7 @@
 				>
 				<a
 					class="block rounded bg-emerald-600 px-3 py-2 text-sm font-bold transition-all"
-					href="/upload_record"
+					href="/upload-record"
 					onclick={() => (isMenuOpen = false)}>ADD NEW RECORD</a
 				>
 				<button

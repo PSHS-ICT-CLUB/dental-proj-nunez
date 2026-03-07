@@ -39,13 +39,13 @@
 		use:enhance={() => {
 			return async ({ result, update }) => {
 				if (result.type === 'failure') {
-					const d = result.data as any;
+					const d = result.data as Record<string, any>;
 					error = d?.error || 'Failed to update password';
 					message = '';
 					return;
 				}
 				if (result.type === 'success') {
-					const d = result.data as any;
+					const d = result.data as Record<string, any>;
 					message =
 						d?.message ||
 						(data.isSet ? 'Password updated successfully' : 'Password set successfully');
@@ -151,12 +151,12 @@
 				use:enhance={() => {
 					return async ({ result, update }) => {
 						if (result.type === 'failure') {
-							const d = result.data as any;
+							const d = result.data as Record<string, any>;
 							resetError = d?.error || 'Failed to reset password';
 							return;
 						}
 						if (result.type === 'success') {
-							const d = result.data as any;
+							const d = result.data as Record<string, any>;
 							message = d?.message || 'Password has been removed successfully';
 							error = '';
 							resetError = '';

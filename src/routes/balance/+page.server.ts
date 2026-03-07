@@ -23,8 +23,8 @@ export const load: PageServerLoad = async ({ url }) => {
 				clinicName: clinics.clinicName,
 				totalOrders: sql`coalesce(sum(${orders.orderTotal}), 0)`,
 				totalPaid: sql`coalesce(sum(${orders.paidAmount}), 0)`,
-				pendingOrders: sql`coalesce(sum(case when ${records.remarks} = 'pending' then ${orders.orderTotal} else 0 end), 0)`,
-				finishedOrders: sql`coalesce(sum(case when ${records.remarks} = 'finished' then ${orders.orderTotal} else 0 end), 0)`,
+				pendingOrders: sql`coalesce(sum(case when ${records.caseStatus} = 'pending' then ${orders.orderTotal} else 0 end), 0)`,
+				finishedOrders: sql`coalesce(sum(case when ${records.caseStatus} = 'finished' then ${orders.orderTotal} else 0 end), 0)`,
 				balance: sql`coalesce(sum(${orders.paidAmount}), 0) - coalesce(sum(${orders.orderTotal}), 0)`
 			})
 			.from(clinics)

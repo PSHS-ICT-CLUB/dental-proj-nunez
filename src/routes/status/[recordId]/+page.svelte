@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData, PageProps } from './$types';
-	import { getStatusWorkflow, getAvailableStatusesForRole, getStatusConfig } from '$lib/utils/caseStatusUtils';
+	import { getStatusWorkflow, getAvailableStatusesForRole, getStatusConfig, type CaseStatus } from '$lib/utils/caseStatusUtils';
 	import { invalidateAll } from '$app/navigation';
 
 	let { data }: PageProps = $props();
@@ -12,7 +12,7 @@
 
 	const workflowConfig = getStatusWorkflow();
 
-	async function updateStatus(newStatus: string) {
+	async function updateStatus(newStatus: CaseStatus) {
 		isLoading = true;
 		errorMessage = '';
 		successMessage = '';
@@ -46,19 +46,19 @@
 		}
 	}
 
-	function canAdvanceTo(newStatus: string) {
+	function canAdvanceTo(newStatus: CaseStatus) {
 		const currentState = record.caseStatus || 'pending';
 		const availableForRole = getAvailableStatusesForRole(data.userRole);
 
 		// Must be allowed for the user's role
-		if (!availableForRole.includes(newStatus as any)) return false;
+		if (!availableForRole.includes(newStatus)) return false;
 
 		// Admins can jump anywhere
 		if (data.userRole === 'admin') return true;
 
 		// Otherwise, must be a strictly forward linear stage according to the workflow
 		const currentStage = workflowConfig.find((stage) => stage.status === currentState);
-		return currentStage?.nextStages.includes(newStatus as any) ?? false;
+		return currentStage?.nextStages.includes(newStatus) ?? false;
 	}
 </script>
 
@@ -74,7 +74,7 @@
 		</div>
 		<div class="flex items-center gap-3">
             <a
-				href="/EDIT/{record.recordId}"
+				href="/edit/{record.recordId}"
 				class="rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
 			>
 				Edit Info

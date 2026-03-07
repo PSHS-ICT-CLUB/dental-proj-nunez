@@ -9,7 +9,7 @@ export const GET: RequestHandler = async () => {
 		const notifications = await db
 			.select()
 			.from(siteNotifications)
-			.where(eq(siteNotifications.isActive, 'true'));
+			.where(eq(siteNotifications.isActive, true));
 
 		return json({ notifications });
 	} catch (error) {

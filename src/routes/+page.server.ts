@@ -328,9 +328,9 @@ export const actions = {
 						// Log the refund
 						await tx.insert(inventoryLogs).values({
 							itemId: usage.itemId,
-							actionType: 'ADJUSTMENT',
+							actionType: 'IN',
 							quantity: usage.quantityUsed,
-							remarks: `Refunded from deleted record ID ${recordId}`,
+							remarks: `Refund from deleted record #${recordId}`,
 							createdBy: parseInt(session.user.id)
 						} as any);
 					}

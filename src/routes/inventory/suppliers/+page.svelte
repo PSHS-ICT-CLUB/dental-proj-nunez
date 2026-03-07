@@ -138,7 +138,7 @@
 									{#if supplier.notes}<div class="text-xs italic text-gray-400">{supplier.notes}</div>{/if}
 								</td>
 								<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
-									{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
+									{#if data.session?.user && (data.session.user.role === 'admin' || data.session.user.role === 'dentist')}
 									<form method="POST" action="?/deleteSupplier" class="inline-block" use:enhance>
 										<input type="hidden" name="id" value={supplier.id} />
 										<button

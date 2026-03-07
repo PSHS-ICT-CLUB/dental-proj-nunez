@@ -4,7 +4,7 @@ import {
 	caseTypes,
 	clinics,
 	doctors,
-	history,
+	history as historyTable,
 	orderItems,
 	orders,
 	records,
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			clinicId: clinics.clinicId,
 			clinicName: clinics.clinicName
 		}).from(clinics).orderBy(desc(clinics.clinicName)),
-		inventoryItems: await db.select({
+		inventoryTableItems: await db.select({
 			id: inventoryItems.id,
 			name: inventoryItems.name,
 			unit: inventoryItems.unit,
@@ -190,12 +190,12 @@ export const actions = {
 								.from('history_images')
 								.getPublicUrl(fileName);
 
-							await tx.insert(history).values({
+							await tx.insert(historyTable).values({
 								historyType: 'in',
 								imageUrl: publicUrlData.publicUrl,
-								historyDate: data.get('date')?.toString() || null,
+								historyDate: (data.get('date')?.toString() || null) as any,
 								recordId: record[0].id,
-								historyTime: data.get('time')?.toString() || null,
+								historyTime: (data.get('time')?.toString() || null) as any,
 								createdBy: userId
 							} as any);
 						} else {

@@ -93,7 +93,7 @@ export const actions = {
 						.update(orderItems)
 						.set({
 							caseTypeId: item.caseTypeId,
-							caseNo: parseInt(data.get(`caseNo_${index}`)?.toString() || '0'),
+							caseNo: data.get(`caseNo_${index}`)?.toString() || '0',
 							itemQuantity: item.itemQuantity,
 							itemCost: item.itemCost,
 							orderDescription: item.orderDescription

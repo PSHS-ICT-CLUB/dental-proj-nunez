@@ -1011,25 +1011,25 @@
 										Timeline
 									</a>
 									<a
-										href={`/IN/${record.recordId}`}
+										href={`/in/${record.recordId}`}
 										class="inline-flex items-center rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-700/10 hover:bg-green-100"
 									>
 										In
 									</a>
 									<a
-										href={`/OUT/${record.recordId}`}
+										href={`/out/${record.recordId}`}
 										class="inline-flex items-center rounded bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-yellow-700/10 hover:bg-yellow-100"
 									>
 										Out
 									</a>
 									<a
-										href={`/EDIT/${record.recordId}`}
+										href={`/edit/${record.recordId}`}
 										class="inline-flex items-center rounded bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-700/10 hover:bg-purple-100"
 									>
 										Edit
 									</a>
 									<a
-										href={`/AMOUNT/${record.recordId}`}
+										href={`/amount/${record.recordId}`}
 										class="inline-flex items-center rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
 									>
 										Amount

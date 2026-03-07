@@ -315,8 +315,9 @@ client.on('interactionCreate', async (interaction) => {
 					const truncated = output.length > 1900 ? output.substring(0, 1900) + '...' : output;
 
 					await interaction.editReply(`\`\`\`\n${truncated}\n\`\`\``);
-				} catch (error: any) {
-					await interaction.editReply(`❌ Error: ${error.message}`);
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					await interaction.editReply(`❌ Error: ${errorMessage}`);
 				}
 				break;
 			}
@@ -335,8 +336,9 @@ client.on('interactionCreate', async (interaction) => {
 					const truncated = output.length > 1900 ? output.substring(0, 1900) + '...' : output;
 
 					await interaction.editReply(`\`\`\`\n${truncated}\n\`\`\``);
-				} catch (error: any) {
-					await interaction.editReply(`❌ Error: ${error.message}`);
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					await interaction.editReply(`❌ Error: ${errorMessage}`);
 				}
 				break;
 			}
@@ -372,8 +374,9 @@ client.on('interactionCreate', async (interaction) => {
 					await interaction.editReply(
 						`✅ Loaded HTML from \`${filepath}\` (${html.length} characters)`
 					);
-				} catch (error: any) {
-					await interaction.editReply(`❌ Error reading file: ${error.message}`);
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					await interaction.editReply(`❌ Error reading file: ${errorMessage}`);
 				}
 				break;
 			}

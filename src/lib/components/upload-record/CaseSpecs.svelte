@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData } from '../../../routes/upload_record/$types';
+	import type { PageData } from '../../../routes/upload-record/$types';
 
 	let showUpper = $state(true);
 	let showLower = $state(true);

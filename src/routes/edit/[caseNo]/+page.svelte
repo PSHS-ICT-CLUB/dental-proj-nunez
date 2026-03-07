@@ -14,8 +14,8 @@
 	// Simplify state management - remove dropdown visibility states
 	let selectedDoctor = $state(data.record.doctorId);
 	let selectedClinic = $state(data.record.clinicId);
-	let availableDoctors = $state(allDoctors.filter((d) => d.clinicId === record.clinicId));
-	let filteredDoctors = $state(allDoctors.filter((d) => d.clinicId === record.clinicId));
+	let availableDoctors = $state((allDoctors as any).filter((d: any) => d.clinicId === record.clinicId));
+	let filteredDoctors = $state((allDoctors as any).filter((d: any) => d.clinicId === record.clinicId));
 
 	// Additional state for searchable dropdowns
 	let doctorInputValue = $state(record.doctorName);
@@ -25,6 +25,7 @@
 	let filteredClinics = $state(allClinics);
 
 	// State for form fields to preserve user input
+	let patientName = $state(record.patientName || '');
 	let caseNotes = $state(record.caseNotes || '');
 
 	// Delivery & scheduling fields
@@ -43,7 +44,7 @@
 			selectedClinic = clinic.clinicId;
 
 			// Filter doctors for this clinic
-			availableDoctors = allDoctors.filter((d) => d.clinicId === clinic.clinicId);
+			availableDoctors = (allDoctors as any).filter((d: any) => d.clinicId === clinic.clinicId);
 			filteredDoctors = availableDoctors;
 
 			// Set initial doctor
@@ -87,7 +88,7 @@
 		doctorInputValue = '';
 
 		// Update available doctors for this clinic
-		availableDoctors = allDoctors.filter((doctor) => doctor.clinicId === clinic.clinicId);
+		availableDoctors = (allDoctors as any).filter((doctor: any) => doctor.clinicId === clinic.clinicId);
 		filteredDoctors = availableDoctors;
 
 		// Auto-select if only one doctor
@@ -234,7 +235,7 @@
 			<p class="font-semibold">⚠️ No password is set</p>
 			<p class="mt-1 text-sm">
 				You need to set a password before you can edit records. Please
-				<a href="/change_password" class="font-medium underline">set a password</a> first.
+				<a href="/change-password" class="font-medium underline">set a password</a> first.
 			</p>
 		</div>
 	{/if}

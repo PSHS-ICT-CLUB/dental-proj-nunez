@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				timeDropoff: records.timeDropoff,
 				patientName: records.patientName,
 				description: records.description,
-				remarks: records.remarks,
+				caseStatus: records.caseStatus,
 				deliveryCourier: records.deliveryCourier,
 				deliveryFee: records.deliveryFee,
 				deliveryNotes: records.deliveryNotes,
@@ -76,7 +76,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			.orderBy(desc(history.historyDate));
 
 		// Convert imageData Buffer to base64 string
-		const processedHistory = caseHistory.map(item => {
+		const processedHistory = caseHistory.map((item: any) => {
 			if (item.imageData) {
 				const base64Data = Buffer.from(item.imageData).toString('base64');
 				return {

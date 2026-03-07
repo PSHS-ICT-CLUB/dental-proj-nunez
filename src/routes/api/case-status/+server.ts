@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     // Get user role
-    const userRole = (session.user as any).role || 'staff';
+    const userRole = (session.user as { role?: string }).role || 'staff';
 
     // Parse request body
     const body = await request.json();
@@ -51,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       const currentState = currentRecord[0].caseStatus;
       const workflow = getStatusWorkflow().find(s => s.status === currentState);
 
-      const isForward = workflow?.nextStages.includes(newStatus as any);
+      const isForward = workflow?.nextStages.includes(newStatus as typeof workflow.nextStages[number]);
       if (!isForward && currentState !== newStatus) {
         throw error(403, `Role '${userRole}' can only advance cases forward in the workflow. Reversions require admin access.`);
       }
@@ -60,15 +60,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // Update the status
     const userId = parseInt(session.user.id);
 
-    // Prepare update data
-    const updateData: any = {
-      caseStatus: newStatus,
-      updatedBy: userId
-    };
-
     const updatedRecord = await db
       .update(records)
-      .set(updateData)
+      .set({
+        caseStatus: newStatus,
+        updatedBy: userId
+      } as any)
       .where(eq(records.recordId, recordId))
       .returning({
         recordId: records.recordId,
