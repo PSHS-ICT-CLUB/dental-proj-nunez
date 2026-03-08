@@ -114,12 +114,12 @@ export function getStatusConfig(status: string): {
 
 /**
  * Check if a case can be taken out for action (IN page)
- * Cases can only be actioned if status is "to be deliver"
+ * Cases can only be actioned if status is "pending"
  * @param caseStatus The current case status
  * @returns True if the case can be actioned
  */
 export function canActionCase(caseStatus: string): boolean {
-  return caseStatus === CASE_STATUSES.TO_BE_DELIVER;
+  return caseStatus === CASE_STATUSES.PENDING;
 }
 
 /**

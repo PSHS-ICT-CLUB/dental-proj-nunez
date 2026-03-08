@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { caseTypes, clinics, doctors, records } from '$lib/server/db/schema';
+import { caseTypes, clinics, doctors, records, orders, orderItems } from '$lib/server/db/schema';
 import { error, redirect, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { desc, eq, sql } from 'drizzle-orm';
@@ -27,17 +27,40 @@ export const load: PageServerLoad = async ({ params }) => {
 				assignedTechnicians: records.assignedTechnicians,
 				doctorName: doctors.doctorName,
 				clinicId: doctors.clinicId,
-				clinicName: clinics.clinicName
+				clinicName: clinics.clinicName,
+				orderId: records.orderId,
+				orderTotal: orders.orderTotal,
+				paidAmount: orders.paidAmount,
+				paymentMethod: orders.paymentMethod,
+				excessPayment: orders.excessPayment,
+				items: sql<any>`json_agg(json_build_object(
+					'orderItemId', ${orderItems.orderItemId},
+					'upOrDown', ${orderItems.upOrDown},
+					'caseTypeId', ${orderItems.caseTypeId},
+					'caseNo', ${orderItems.caseNo},
+					'itemCost', ${orderItems.itemCost},
+					'itemQuantity', ${orderItems.itemQuantity},
+					'orderDescription', ${orderItems.orderDescription}
+				))`
 			})
 			.from(records)
 			.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
 			.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+			.leftJoin(orders, eq(records.orderId, orders.orderId))
+			.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+			.groupBy(records.recordId, doctors.doctorId, clinics.clinicId, orders.orderId)
 			.where(sql`${records.recordId} = ${params.caseNo}`)
 			.limit(1);
 
 		if (!recordData || recordData.length === 0) {
 			throw error(404, 'Record not found');
 		}
+
+		const caseTypesData = await db.select({
+			caseTypeId: caseTypes.caseTypeId,
+			caseTypeName: caseTypes.caseTypeName,
+			numberOfCases: caseTypes.numberOfCases
+		}).from(caseTypes);
 
 		const doctorsData = await db.select({
 			doctorId: doctors.doctorId,
@@ -56,6 +79,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			record: recordData[0],
 			doctors: doctorsData,
 			clinics: clinicsData,
+			caseTypes: caseTypesData,
 			passwordIsSet
 		};
 	} catch (e) {
@@ -102,23 +126,71 @@ export const actions = {
 		try {
 			// Parse the recordId to ensure it's a number
 			const recordIdNum = parseInt(recordId?.toString() || '0');
+			const orderIdNum = parseInt(formData.get('orderId')?.toString() || '0');
 			if (!recordIdNum) throw new Error('Invalid record ID');
 
 			const deliveryFee = deliveryFeeRaw ? parseFloat(deliveryFeeRaw) : NaN;
+			const orderItemsData = JSON.parse(formData.get('orderItems')?.toString() || '[]');
+			const totalAmount = formData.get('total_amount')?.toString();
 
-			await db
-				.update(records)
-				.set({
-					doctorId,
-					patientName,
-					caseNotes,
-					deliveryCourier: deliveryCourier || null,
-					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee.toString(),
-					deliveryNotes: deliveryNotes || null,
-					finishBy: finishBy || null,
-					assignedTechnicians: assignedTechnicians || null
-				} as any)
-				.where(eq(records.recordId, recordIdNum));
+			const currentItems = await db
+				.select({
+					orderItemId: orderItems.orderItemId,
+					caseTypeId: orderItems.caseTypeId
+				})
+				.from(orderItems)
+				.where(eq(orderItems.orderId, orderIdNum));
+
+			await db.transaction(async (tx) => {
+				await tx
+					.update(records)
+					.set({
+						doctorId,
+						patientName,
+						caseNotes,
+						deliveryCourier: deliveryCourier || null,
+						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee.toString(),
+						deliveryNotes: deliveryNotes || null,
+						finishBy: finishBy || null,
+						assignedTechnicians: assignedTechnicians || null
+					} as any)
+					.where(eq(records.recordId, recordIdNum));
+
+				if (totalAmount) {
+					await tx.update(orders).set({
+						orderTotal: totalAmount
+					} as any).where(eq(orders.orderId, orderIdNum));
+				}
+
+				// Update order items and case numbers
+				for (const [index, item] of orderItemsData.entries()) {
+					// Find the current item to compare case type
+					const currentItem = currentItems.find((ci) => ci.orderItemId === item.orderItemId);
+					if (currentItem && currentItem.caseTypeId !== item.caseTypeId) {
+						await tx
+							.update(caseTypes)
+							.set({
+								numberOfCases: parseInt(formData.get(`caseNo_${index}`)?.toString() || '0')
+							})
+							.where(eq(caseTypes.caseTypeId, item.caseTypeId));
+						console.log(
+							`Updated case type ${item.caseTypeId} with new case number: ${formData.get(`caseNo_${index}`)}`
+						);
+					}
+
+					// Always update order item regardless of case type changes
+					await tx
+						.update(orderItems)
+						.set({
+							caseTypeId: item.caseTypeId,
+							caseNo: formData.get(`caseNo_${index}`)?.toString() || '0',
+							itemQuantity: item.itemQuantity,
+							itemCost: item.itemCost,
+							orderDescription: item.orderDescription
+						} as any)
+						.where(eq(orderItems.orderItemId, item.orderItemId));
+				}
+			});
 
 			return {
 				success: true,

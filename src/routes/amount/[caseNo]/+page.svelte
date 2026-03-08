@@ -9,28 +9,6 @@
 	let other_payment_method = $state('');
 	let orderItems = $state(record?.items || []);
 
-	// Initialize case numbers and totals once at startup
-	function initializeOrderItems() {
-		orderItems = orderItems.map((item) => ({
-			...item,
-			caseNo: item.caseNo || getNextCaseNumber(item.caseTypeId)
-		}));
-		calculateTotalAmount();
-	}
-
-	function getNextCaseNumber(caseTypeId: number) {
-		const caseType = data.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
-		const baseNumber = caseType ? caseType.numberOfCases + 1 : 1;
-
-		// Find the highest case number used in the current order items for this case type
-		const highestExistingNumber = orderItems
-			.filter((item) => item.caseTypeId === caseTypeId)
-			.map((item) => parseInt(item.caseNo))
-			.reduce((max, current) => Math.max(max, current || 0), baseNumber - 1);
-
-		return highestExistingNumber + 1;
-	}
-
 	function calculateTotalAmount() {
 		total_amount = orderItems.reduce(
 			(sum, item) => sum + (parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1),
@@ -44,25 +22,6 @@
 	let isExcess = $derived(diff > 0);
 	let isExact = $derived(diff === 0 && paid_amount > 0);
 	let isPending = $derived(diff < 0);
-
-	function updateOrderItem(index: number, field: string, value: any) {
-		const item = orderItems[index];
-		const updates: any = { [field]: value }; // If changing case type, update case number
-		if (field === 'caseTypeId') {
-			updates.caseNo = getNextCaseNumber(value);
-		}
-
-		// Update the item
-		orderItems[index] = { ...item, ...updates };
-
-		// Only recalculate total if cost or quantity changed
-		if (field === 'itemCost' || field === 'itemQuantity') {
-			calculateTotalAmount();
-		}
-	}
-
-	// Initialize once when component mounts
-	initializeOrderItems();
 
 	let isSubmitting = $state(false);
 
@@ -156,9 +115,9 @@
 											<div class="flex-1">
 												<label class="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
 												<select
-													class="block w-full rounded-md border border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+													class="block w-full rounded-md border border-gray-200 bg-gray-50 py-2 text-sm shadow-sm text-gray-700 cursor-not-allowed"
 													value={item.caseTypeId}
-													onchange={(e) => updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
+													disabled
 												>
 													{#each data.caseTypes as caseType}
 														<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
@@ -183,8 +142,8 @@
 											<input
 												type="text"
 												value={item.orderDescription || ''}
-												oninput={(e) => updateOrderItem(i, 'orderDescription', e.currentTarget.value)}
-												class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+												disabled
+												class="block w-full rounded-md border-gray-200 bg-gray-50 py-2 text-sm shadow-sm text-gray-700 cursor-not-allowed"
 												placeholder="Tooth details, shade, etc."
 											/>
 										</div>
@@ -197,8 +156,8 @@
 													type="number"
 													value={item.itemQuantity}
 													min="1"
-													oninput={(e) => updateOrderItem(i, 'itemQuantity', parseInt(e.currentTarget.value))}
-													class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+													disabled
+													class="block w-full rounded-md border-gray-200 bg-gray-50 py-2 text-sm shadow-sm text-gray-700 cursor-not-allowed"
 												/>
 											</div>
 											<div class="flex-1">
@@ -211,8 +170,8 @@
 														type="number"
 														value={item.itemCost}
 														step="0.01"
-														oninput={(e) => updateOrderItem(i, 'itemCost', parseFloat(e.currentTarget.value))}
-														class="block w-full rounded-md border-gray-300 py-2 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+														disabled
+														class="block w-full rounded-md border-gray-200 bg-gray-50 py-2 pl-8 text-sm shadow-sm text-gray-700 cursor-not-allowed"
 													/>
 												</div>
 											</div>

@@ -35,6 +35,52 @@
 	let finishBy = $state(record.finishBy ? record.finishBy.slice(0, 16) : '');
 	let assignedTechnicians = $state(record.assignedTechnicians || '');
 
+	// Order items logic
+	let orderItems = $state(record?.items || []);
+
+	function initializeOrderItems() {
+		orderItems = orderItems.map((item: any) => ({
+			...item,
+			caseNo: item.caseNo || getNextCaseNumber(item.caseTypeId)
+		}));
+		calculateTotalAmount();
+	}
+
+	function getNextCaseNumber(caseTypeId: number) {
+		const caseType = data.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
+		const baseNumber = caseType ? caseType.numberOfCases + 1 : 1;
+
+		const highestExistingNumber = orderItems
+			.filter((item: any) => item.caseTypeId === caseTypeId)
+			.map((item: any) => parseInt(item.caseNo))
+			.reduce((max: number, current: number) => Math.max(max, current || 0), baseNumber - 1);
+
+		return highestExistingNumber + 1;
+	}
+
+	function calculateTotalAmount() {
+		total_amount = orderItems.reduce(
+			(sum: number, item: any) => sum + (parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1),
+			0
+		);
+	}
+
+	let total_amount = $state(parseFloat(record?.orderTotal) || 0);
+
+	function updateOrderItem(index: number, field: string, value: any) {
+		const item = orderItems[index];
+		const updates: any = { [field]: value };
+		if (field === 'caseTypeId') {
+			updates.caseNo = getNextCaseNumber(value);
+		}
+
+		orderItems[index] = { ...item, ...updates };
+
+		if (field === 'itemCost' || field === 'itemQuantity') {
+			calculateTotalAmount();
+		}
+	}
+
 	// Initialize with current values
 	onMount(() => {
 		// Set initial clinic
@@ -54,6 +100,8 @@
 				selectedDoctor = doctor.doctorId;
 			}
 		}
+
+		initializeOrderItems();
 	});
 
 	function filterDoctors() {
@@ -198,6 +246,54 @@
 			});
 		}
 
+		// Track total amount changes
+		const originalTotalAmount = parseFloat(record?.orderTotal) || 0;
+		if (total_amount !== originalTotalAmount) {
+			changesList.push({
+				field: 'Total Amount',
+				oldValue: `₱${originalTotalAmount.toFixed(2)}`,
+				newValue: `₱${total_amount.toFixed(2)}`
+			});
+		}
+
+		// track order item changes
+		const originalItems = record?.items || [];
+		orderItems.forEach((item: any, index: number) => {
+			const original = originalItems[index];
+			if (original) {
+				if (item.caseTypeId !== original.caseTypeId) {
+					const oldCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === original.caseTypeId)?.caseTypeName || '';
+					const newCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === item.caseTypeId)?.caseTypeName || '';
+					changesList.push({
+						field: `Item ${index + 1} Case Type`,
+						oldValue: oldCaseType,
+						newValue: newCaseType
+					});
+				}
+				if (item.orderDescription !== original.orderDescription) {
+					changesList.push({
+						field: `Item ${index + 1} Description`,
+						oldValue: original.orderDescription || '(empty)',
+						newValue: item.orderDescription || '(empty)'
+					});
+				}
+				if (parseFloat(item.itemCost) !== parseFloat(original.itemCost)) {
+					changesList.push({
+						field: `Item ${index + 1} Cost`,
+						oldValue: `₱${parseFloat(original.itemCost).toFixed(2)}`,
+						newValue: `₱${parseFloat(item.itemCost).toFixed(2)}`
+					});
+				}
+				if (parseInt(item.itemQuantity) !== parseInt(original.itemQuantity)) {
+					changesList.push({
+						field: `Item ${index + 1} Qty`,
+						oldValue: (original.itemQuantity || 1).toString(),
+						newValue: (item.itemQuantity || 1).toString()
+					});
+				}
+			}
+		});
+
 		return changesList;
 	});
 
@@ -280,8 +376,16 @@
 		class="space-y-6 rounded-lg bg-white p-6 shadow-lg"
 	>
 		<input type="hidden" name="recordId" value={record.recordId} />
+		<input type="hidden" name="orderId" value={record.orderId} />
+		<input type="hidden" name="orderItems" value={JSON.stringify(orderItems)} />
+		<input type="hidden" name="total_amount" value={total_amount} />
 
 		<div class="grid gap-6 md:grid-cols-2">
+			<!-- RECORD DETAILS SECTION -->
+			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2">
+				<h2 class="text-lg font-semibold text-gray-900">Record Details</h2>
+			</div>
+
 			<!-- Clinic Name with Dropdown -->
 			<div class="relative">
 				<label for="clinic_name" class="mb-2 block text-sm font-bold text-gray-700">
@@ -415,6 +519,105 @@
 					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 					placeholder="Enter patient observations, treatment notes, etc."
 				></textarea>
+			</div>
+
+			<!-- ORDER ITEMS SECTION -->
+			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2 mt-4">
+				<h2 class="text-lg font-semibold text-gray-900">Order Items</h2>
+			</div>
+			
+			<div class="md:col-span-2 space-y-4">
+				{#each orderItems as item, i}
+					<div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+						<div class="mb-4 flex items-center justify-between">
+							<h4 class="text-sm font-bold text-indigo-600 tracking-wide uppercase">
+								{item.upOrDown === 'up' ? 'Upper Case' : 'Lower Case'}
+							</h4>
+							<div class="text-sm font-medium text-gray-500">
+								Subtotal: <span class="text-gray-900 font-bold ml-1">₱{((parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1)).toFixed(2)}</span>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
+							<!-- Case Type & No -->
+							<div class="sm:col-span-1 lg:col-span-4 flex gap-2">
+								<div class="flex-1">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
+									<select
+										class="block w-full rounded-md border border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+										value={item.caseTypeId}
+										onchange={(e) => updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
+									>
+										{#each data.caseTypes as caseType}
+											<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
+										{/each}
+									</select>
+								</div>
+								<div class="w-16 shrink-0">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">No.</label>
+									<input
+										type="text"
+										value={item.caseNo}
+										disabled
+										class="block w-full cursor-not-allowed rounded-md border-gray-200 bg-gray-100 py-2 text-center text-sm font-medium text-gray-500"
+									/>
+									<input type="hidden" name={`caseNo_${i}`} value={item.caseNo} />
+								</div>
+							</div>
+
+							<!-- Description -->
+							<div class="sm:col-span-1 lg:col-span-4">
+								<label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+								<input
+									type="text"
+									value={item.orderDescription || ''}
+									oninput={(e) => updateOrderItem(i, 'orderDescription', e.currentTarget.value)}
+									class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+									placeholder="Tooth details, shade, etc."
+								/>
+							</div>
+
+							<!-- Units & Cost -->
+							<div class="sm:col-span-2 lg:col-span-4 flex gap-3">
+								<div class="w-20 shrink-0">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Units</label>
+									<input
+										type="number"
+										value={item.itemQuantity}
+										min="1"
+										oninput={(e) => updateOrderItem(i, 'itemQuantity', parseInt(e.currentTarget.value))}
+										class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+									/>
+								</div>
+								<div class="flex-1">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Cost per Unit</label>
+									<div class="relative">
+										<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+											<span class="text-gray-500 sm:text-sm">₱</span>
+										</div>
+										<input
+											type="number"
+											value={item.itemCost}
+											step="0.01"
+											oninput={(e) => updateOrderItem(i, 'itemCost', parseFloat(e.currentTarget.value))}
+											class="block w-full rounded-md border-gray-300 py-2 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/each}
+				<div class="flex justify-end pt-2">
+					<div class="text-base font-medium text-gray-700">
+						Total Order Amount: <span class="text-xl font-bold tracking-tight text-gray-900 ml-2">₱{total_amount?.toFixed(2) || '0.00'}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- DELIVERY & SCHEDULING SECTION -->
+			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2 mt-4">
+				<h2 class="text-lg font-semibold text-gray-900">Delivery & Scheduling</h2>
 			</div>
 
 			<!-- Delivery Details -->

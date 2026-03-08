@@ -51,15 +51,6 @@ export const actions = {
 		const orderItemsData = JSON.parse(data.get('orderItems')?.toString() || '[]');
 
 		try {
-			// First, get the current order items to compare with
-			const currentItems = await db
-				.select({
-					orderItemId: orderItems.orderItemId,
-					caseTypeId: orderItems.caseTypeId
-				})
-				.from(orderItems)
-				.where(eq(orderItems.orderId, orderId));
-
 			await db.transaction(async (tx) => {
 				// Update order
 				await tx
@@ -71,35 +62,6 @@ export const actions = {
 						paymentMethod: data.get('final_payment_method')?.toString()
 					} as any)
 					.where(eq(orders.orderId, orderId));
-
-				// Update order items and case numbers
-				for (const [index, item] of orderItemsData.entries()) {
-					// Find the current item to compare case type
-					const currentItem = currentItems.find((ci) => ci.orderItemId === item.orderItemId); // Only update case type's number of cases if the case type was changed
-					if (currentItem && currentItem.caseTypeId !== item.caseTypeId) {
-						await tx
-							.update(caseTypes)
-							.set({
-								numberOfCases: parseInt(data.get(`caseNo_${index}`)?.toString() || '0')
-							})
-							.where(eq(caseTypes.caseTypeId, item.caseTypeId));
-						console.log(
-							`Updated case type ${item.caseTypeId} with new case number: ${data.get(`caseNo_${index}`)}`
-						);
-					}
-
-					// Always update order item regardless of case type changes
-					await tx
-						.update(orderItems)
-						.set({
-							caseTypeId: item.caseTypeId,
-							caseNo: data.get(`caseNo_${index}`)?.toString() || '0',
-							itemQuantity: item.itemQuantity,
-							itemCost: item.itemCost,
-							orderDescription: item.orderDescription
-						} as any)
-						.where(eq(orderItems.orderItemId, item.orderItemId));
-				}
 			});
 
 			return { success: true };
