@@ -113,7 +113,7 @@ export const actions = {
 					patientName,
 					caseNotes,
 					deliveryCourier: deliveryCourier || null,
-					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,
+					deliveryFee: isNaN(deliveryFee) ? null : deliveryFee.toString(),
 					deliveryNotes: deliveryNotes || null,
 					finishBy: finishBy || null,
 					assignedTechnicians: assignedTechnicians || null

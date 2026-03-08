@@ -626,7 +626,7 @@
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
 			<!-- Month Year Picker Form -->
 			<div class="col-span-1 sm:col-span-2 lg:col-span-2">
-				<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+				<label for="period" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 					>Period</label
 				>
 				<form method="POST" action="?/changeDate" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 print:hidden">

@@ -418,9 +418,9 @@
 			</div>
 
 			<!-- Delivery Details -->
-			<div>
-				<label class="mb-1 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label>
-				<div class="space-y-2">
+			<div class="md:col-span-2">
+				<label class="mb-3 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label>
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<div>
 						<label for="delivery_courier" class="block text-xs font-medium text-gray-600">
 							Courier
@@ -449,25 +449,25 @@
 							placeholder="e.g. 150.00"
 						/>
 					</div>
-					<div>
+					<div class="sm:col-span-2 lg:col-span-1">
 						<label for="delivery_notes" class="block text-xs font-medium text-gray-600">
 							Notes
 						</label>
 						<textarea
 							id="delivery_notes"
 							name="deliveryNotes"
-							rows="2"
+							rows="1"
 							bind:value={deliveryNotes}
 							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Optional delivery instructions or remarks"
-						/>
+						></textarea>
 					</div>
 				</div>
 			</div>
 
 			<!-- To be finished at -->
 			<div>
-				<label for="finish_by" class="mb-1 block text-sm font-bold text-gray-700">
+				<label for="finish_by" class="mb-2 block text-sm font-bold text-gray-700">
 					To be finished at (Optional)
 				</label>
 				<input

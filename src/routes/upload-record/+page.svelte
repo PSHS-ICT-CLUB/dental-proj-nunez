@@ -12,11 +12,7 @@
 
 	let { data, form }: PageProps = $props();
 
-	// Wizard state
-	let currentStep = $state(1);
-	const totalSteps = 3;
 	let stepError = $state('');
-	const stepTitles = ['Client & Case Info', 'Materials & Logistics', 'Documentation & Payment'];
 
 	let allDoctors = $state(data?.doctors || []);
 	let allClinics = $state(data?.clinics || []);
@@ -268,8 +264,6 @@
 	// Add jaw selection state
 	let selected_jaw = $state('upper');
 
-	// Removed internal camera logic: using CameraModal component
-
 	// Add function to get next case number
 	function getNextCaseNumber(caseTypeId: number) {
 		const caseType = data?.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
@@ -318,7 +312,6 @@
 
 	let isSubmitting = $state(false);
 
-	// Add these variables near the other state declarations at the top
 	let upper_unit: number = $state(1);
 	let upper_cost: number = $state(0);
 	let lower_unit: number = $state(1);
@@ -371,68 +364,47 @@
 		}
 	}
 
-	// Wizard navigation functions
-	function canProceed(): boolean {
+	// Single-page submission validation
+	function validateForm(): boolean {
 		stepError = '';
-		switch (currentStep) {
-			case 1:
-				if (!selectedClinic) {
-					stepError = 'Please select a clinic';
-					return false;
-				}
-				if (!selectedDoctor) {
-					stepError = 'Please select a doctor';
-					return false;
-				}
-				if (
-					(selected_jaw === 'upper' || selected_jaw === 'U/L') &&
-					(!upper_unit || upper_cost === undefined)
-				) {
-					stepError = 'Please fill in upper case details';
-					return false;
-				}
-				if (
-					(selected_jaw === 'lower' || selected_jaw === 'U/L') &&
-					(!lower_unit || lower_cost === undefined)
-				) {
-					stepError = 'Please fill in lower case details';
-					return false;
-				}
-				return true;
-			default:
-				return true;
+		if (!selectedClinic) {
+			stepError = 'Please select a clinic';
+			return false;
 		}
+		if (!selectedDoctor) {
+			stepError = 'Please select a doctor';
+			return false;
+		}
+		if (
+			(selected_jaw === 'upper' || selected_jaw === 'U/L') &&
+			(!upper_unit || upper_cost === undefined)
+		) {
+			stepError = 'Please fill in upper case details';
+			return false;
+		}
+		if (
+			(selected_jaw === 'lower' || selected_jaw === 'U/L') &&
+			(!lower_unit || lower_cost === undefined)
+		) {
+			stepError = 'Please fill in lower case details';
+			return false;
+		}
+		return true;
 	}
 
-	function nextStep() {
-		if (canProceed() && currentStep < totalSteps) {
-			currentStep++;
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		}
-	}
-
-	function prevStep() {
-		if (currentStep > 1) {
-			currentStep--;
-			stepError = '';
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		}
-	}
-
-	function goToStep(step: number) {
-		if (step < currentStep) {
-			currentStep = step;
-			stepError = '';
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		}
-	}
 </script>
 
-<div class=" flex justify-center px-4 md:px-8">
+<div class="flex justify-center px-4 md:px-8 pb-32">
 	<form
-		class="mb-4 flex w-full flex-col gap-6 rounded-md bg-white p-4 shadow-md sm:p-6 md:max-w-[1200px]"
+		class="w-full max-w-[1400px]"
 		method="POST"
 		enctype="multipart/form-data"
+		onsubmit={(e) => {
+			if (!validateForm()) {
+				e.preventDefault();
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+		}}
 		use:enhance={() => {
 			isSubmitting = true;
 			return async ({ update, result }) => {
@@ -449,215 +421,221 @@
 			};
 		}}
 	>
-		<!-- Wizard Header -->
-		<div class="text-center">
-			<h2 class="text-2xl font-semibold text-gray-800">Add New Record</h2>
-			<p class="mt-1 text-sm text-gray-500">
-				Step {currentStep} of {totalSteps}: {stepTitles[currentStep - 1]}
-			</p>
-		</div>
-
-		<!-- Progress Bar -->
-		<div class="relative">
-			<div class="flex items-center justify-between">
-				{#each stepTitles as title, i}
-					{@const stepNum = i + 1}
-					<button
-						type="button"
-						onclick={() => goToStep(stepNum)}
-						class="group flex flex-col items-center gap-1"
-					>
-						<div
-							class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-colors
-								{stepNum < currentStep ? 'bg-green-500 text-white' : ''}
-								{stepNum === currentStep ? 'bg-indigo-600 text-white ring-4 ring-indigo-100' : ''}
-								{stepNum > currentStep ? 'bg-gray-200 text-gray-500 group-hover:bg-gray-300' : ''}"
-						>
-							{#if stepNum < currentStep}
-								<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							{:else}
-								{stepNum}
-							{/if}
-						</div>
-						<span class="hidden text-[10px] font-medium text-gray-500 sm:block">{title}</span>
-					</button>
-					{#if i < stepTitles.length - 1}
-						<div class="mx-2 h-0.5 flex-1 bg-gray-200">
-							<div
-								class="h-full bg-green-500 transition-all"
-								style="width: {stepNum < currentStep ? '100%' : '0%'}"
-							></div>
-						</div>
-					{/if}
-				{/each}
+		<!-- Header -->
+		<div class="mb-6 mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+			<div>
+				<h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Add New Record</h2>
+				<p class="mt-1 text-sm text-gray-500">
+					Create a new case record for processing. All required fields are across the dashboard.
+				</p>
 			</div>
-		</div>
-
-		<!-- Step Error -->
-		{#if stepError}
-			<div class="rounded-md bg-red-50 p-3 text-sm text-red-600">
-				{stepError}
-			</div>
-		{/if}
-
-		<!-- Step 1: Client Information -->
-		{#if currentStep === 1}
-			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<h3 class="mb-4 text-lg font-semibold text-gray-800">Client Information</h3>
-				<ClientInfo
-					{allClinics}
-					{filteredClinics}
-					bind:clinicInputValue
-					bind:showClinicDropdown
-					{filterClinics}
-					{selectClinic}
-					{registerClinic}
-					{isRegisteringClinic}
-					{selectedClinic}
-					{allDoctors}
-					{filteredDoctors}
-					bind:doctorInputValue
-					bind:showDoctorDropdown
-					{filterDoctors}
-					{selectDoctor}
-					{registerDoctor}
-					{isRegisteringDoctor}
-					{selectedDoctor}
-					bind:selected_jaw
-				/>
-			</div>
-		{/if}
-
-		<!-- Step 1: Case Details (merged with Client Info) -->
-		{#if currentStep === 1}
-			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-					<h3 class="mb-4 text-lg font-semibold text-gray-800">Case Details</h3>
-					<CaseSpecs
-						{data}
-						{selected_jaw}
-						bind:case_type_upper
-						bind:case_type_lower
-						{next_case_upper}
-						{next_case_lower}
-						{formatCaseNumber}
-						bind:upper_unit
-						bind:upper_cost
-						bind:lower_unit
-						bind:lower_cost
-					/>
+			
+			{#if stepError}
+				<div class="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+					{stepError}
 				</div>
-
-				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-					<h3 class="mb-4 text-lg font-semibold text-gray-800">Materials</h3>
-					<InventoryUsage
-						{data}
-						bind:inventoryUsages
-						{addInventoryRow}
-						{removeInventoryRow}
-						{handleInventorySelect}
-					/>
+			{/if}
+			{#if form?.success}
+				<div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200 font-medium">
+					{form.success}
 				</div>
-			</div>
-		{/if}
-
-		<!-- Step 2: Materials & Logistics -->
-		{#if currentStep === 2}
-			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<h3 class="mb-4 text-lg font-semibold text-gray-800">Materials & Logistics</h3>
-				<div class="flex flex-col gap-4">
-					<DeliveryWorkDetails
-						bind:showDeliveryDetails
-						bind:deliveryCourier
-						bind:deliveryFee
-						bind:deliveryNotes
-						bind:dateDropoff
-						bind:actualDropoff
-						bind:finishBy
-						bind:technicianInputValue
-						bind:showTechnicianDropdown
-						{selectedTechnicians}
-						{filteredTechnicians}
-						{addTechnician}
-						{removeTechnician}
-						{handleTechnicianInputKeydown}
-						{assignedTechnicians}
-					/>
+			{:else if form?.error}
+				<div class="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+					Error: {form.error}
 				</div>
-			</div>
-		{/if}
-
-		<!-- Step 3: Documentation & Payment -->
-		{#if currentStep === 3}
-			<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-					<h3 class="mb-4 text-lg font-semibold text-gray-800">Documentation</h3>
-					<DocumentationIn
-						{in_img_urls}
-						bind:in_file
-						bind:showCameraModal
-						{handleInImageChange}
-						{removeInImage}
-						bind:date
-						bind:time
-					/>
-				</div>
-
-				<!-- Payment -->
-				<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-					<h4 class="mb-4 text-lg font-semibold text-gray-800">Payment</h4>
-					<PaymentInfo
-						{total_amount}
-						bind:paid_amount
-						{excess_payment}
-						{payInFull}
-						bind:payment_method
-					/>
-				</div>
-			</div>
-		{/if}
-
-		<!-- Navigation Buttons -->
-		<div class="flex items-center justify-between border-t border-gray-200 pt-4">
-			<button
-				type="button"
-				onclick={prevStep}
-				disabled={currentStep === 1}
-				class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-			>
-				← Back
-			</button>
-
-			{#if currentStep < totalSteps}
-				<button
-					type="button"
-					onclick={nextStep}
-					class="rounded-md bg-indigo-600 px-6 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-				>
-					Next Step →
-				</button>
-			{:else}
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					class="rounded-md bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
-				>
-					{isSubmitting ? 'Submitting...' : '✓ Add Record'}
-				</button>
 			{/if}
 		</div>
 
-		{#if form?.success}
-			<p class="text-center font-semibold text-green-500">{form.success}</p>
-		{:else if form?.error}
-			<p class="text-center text-red-500">Error: {form?.error}</p>
-		{/if}
+		<!-- Main Grid Layout -->
+		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+			
+			<!-- Column 1: Essential Client & Case Info -->
+			<div class="flex flex-col gap-6">
+				<!-- Client Info Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+							</svg>
+							Client Details
+						</h3>
+					</div>
+					<div class="p-4">
+						<ClientInfo
+							{allClinics}
+							{filteredClinics}
+							bind:clinicInputValue
+							bind:showClinicDropdown
+							{filterClinics}
+							{selectClinic}
+							{registerClinic}
+							{isRegisteringClinic}
+							{selectedClinic}
+							{allDoctors}
+							{filteredDoctors}
+							bind:doctorInputValue
+							bind:showDoctorDropdown
+							{filterDoctors}
+							{selectDoctor}
+							{registerDoctor}
+							{isRegisteringDoctor}
+							{selectedDoctor}
+							bind:selected_jaw
+						/>
+					</div>
+				</section>
+				
+				<!-- Case Details Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+							</svg>
+							Case Configuration
+						</h3>
+					</div>
+					<div class="p-4 bg-gray-50/30">
+						<CaseSpecs
+							{data}
+							{selected_jaw}
+							bind:case_type_upper
+							bind:case_type_lower
+							{next_case_upper}
+							{next_case_lower}
+							{formatCaseNumber}
+							bind:upper_unit
+							bind:upper_cost
+							bind:lower_unit
+							bind:lower_cost
+						/>
+					</div>
+				</section>
+			</div>
+
+			<!-- Column 2: Logistics & Materials -->
+			<div class="flex flex-col gap-6">
+				<!-- Materials Usage Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+							</svg>
+							Inventory Usage
+						</h3>
+					</div>
+					<div class="p-4">
+						<InventoryUsage
+							{data}
+							bind:inventoryUsages
+							{addInventoryRow}
+							{removeInventoryRow}
+							{handleInventorySelect}
+						/>
+					</div>
+				</section>
+				
+				<!-- Delivery & Work Details Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+							</svg>
+							Logistics & Team
+						</h3>
+					</div>
+					<div class="p-4 flex-1">
+						<DeliveryWorkDetails
+							bind:showDeliveryDetails
+							bind:deliveryCourier
+							bind:deliveryFee
+							bind:deliveryNotes
+							bind:dateDropoff
+							bind:actualDropoff
+							bind:finishBy
+							bind:technicianInputValue
+							bind:showTechnicianDropdown
+							{selectedTechnicians}
+							{filteredTechnicians}
+							{addTechnician}
+							{removeTechnician}
+							{handleTechnicianInputKeydown}
+							{assignedTechnicians}
+						/>
+					</div>
+				</section>
+			</div>
+
+			<!-- Column 3: Documentation & Payment -->
+			<div class="flex flex-col gap-6">
+				<!-- Documentation In Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+							</svg>
+							Time IN & Documentation
+						</h3>
+					</div>
+					<div class="p-4">
+						<DocumentationIn
+							{in_img_urls}
+							bind:in_file
+							bind:showCameraModal
+							{handleInImageChange}
+							{removeInImage}
+							bind:date
+							bind:time
+						/>
+					</div>
+				</section>
+
+				<!-- Payment Details Card -->
+				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
+							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+							</svg>
+							Billing Details
+						</h3>
+					</div>
+					<div class="p-4">
+						<PaymentInfo
+							{total_amount}
+							bind:paid_amount
+							{excess_payment}
+							{payInFull}
+							bind:payment_method
+						/>
+					</div>
+				</section>
+			</div>
+		</div>
+
+		<!-- Sticky Footer Bar -->
+		<div class="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white/90 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md z-40">
+			<div class="mx-auto flex w-full max-w-[1400px] flex-col sm:flex-row flex-wrap items-center justify-between gap-4 px-4 md:px-8">
+				<div class="flex flex-wrap items-baseline gap-3">
+					<span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Amount</span>
+					<span class="text-2xl font-bold text-gray-900">
+						<span class="text-sm font-medium text-gray-500">₱</span>{total_amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+					</span>
+				</div>
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					class="w-full sm:w-auto rounded-lg bg-indigo-600 px-10 py-3 text-sm font-bold tracking-wide text-white shadow-md transition-all hover:bg-indigo-700 hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-indigo-400 disabled:opacity-70 active:scale-[0.98]"
+				>
+					{isSubmitting ? 'Submitting...' : '✓ Add Record'}
+				</button>
+			</div>
+		</div>
 	</form>
 </div>
 
