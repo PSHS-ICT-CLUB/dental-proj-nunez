@@ -58,9 +58,9 @@
 			</button>
 
 			<div class="p-4 {showUpper ? '' : 'hidden'}">
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<!-- Case Type -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="case_type_upper"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -80,7 +80,7 @@
 					</div>
 
 					<!-- Case Number -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="case_number_upper"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -98,7 +98,7 @@
 					</div>
 
 					<!-- Description -->
-					<div class="sm:col-span-2 lg:col-span-1">
+					<div class="sm:col-span-2">
 						<label
 							for="upper_description"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -113,7 +113,7 @@
 					</div>
 
 					<!-- Unit -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="upper_unit"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -133,7 +133,7 @@
 					</div>
 
 					<!-- Cost -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 							for="upper_cost">Cost</label
@@ -185,9 +185,9 @@
 			</button>
 
 			<div class="p-4 {showLower ? '' : 'hidden'}">
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<!-- Case Type -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="case_type_lower"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -207,7 +207,7 @@
 					</div>
 
 					<!-- Case Number -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="case_number_lower"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -225,7 +225,7 @@
 					</div>
 
 					<!-- Description -->
-					<div class="sm:col-span-2 lg:col-span-1">
+					<div class="sm:col-span-2">
 						<label
 							for="lower_description"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -240,7 +240,7 @@
 					</div>
 
 					<!-- Unit -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							for="lower_unit"
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
@@ -260,7 +260,7 @@
 					</div>
 
 					<!-- Cost -->
-					<div>
+					<div class="sm:col-span-1">
 						<label
 							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 							for="lower_cost">Cost</label

@@ -42,7 +42,7 @@
 	} = $props();
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 	<!-- Clinic Selection -->
 	<div class="relative">
 		<label for="clinic_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
@@ -214,34 +214,37 @@
 	</div>
 
 	<!-- Jaw Selection -->
-	<div class="flex items-center justify-center">
-		<div class="inline-flex rounded-md border border-gray-200" role="group">
+	<div>
+		<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+			Jaw Selection
+		</label>
+		<div class="flex rounded-md border border-gray-200 w-full" role="group">
 			<button
 				type="button"
-				class="rounded-l-md px-2 py-3 text-xs font-medium {selected_jaw === 'upper'
-					? 'bg-indigo-600 text-white'
-					: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				class="flex-1 rounded-l-md px-2 py-1.5 text-xs font-medium border-r {selected_jaw === 'upper'
+					? 'bg-indigo-600 text-white border-indigo-600'
+					: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'}"
 				onclick={() => (selected_jaw = 'upper')}
 			>
-				Upper Only
+				Upper
 			</button>
 			<button
 				type="button"
-				class="border-r border-l px-2 text-xs font-medium {selected_jaw === 'U/L'
-					? 'bg-indigo-600 text-white'
-					: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				class="flex-1 px-2 py-1.5 text-xs font-medium border-r {selected_jaw === 'U/L'
+					? 'bg-indigo-600 text-white border-indigo-600'
+					: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'}"
 				onclick={() => (selected_jaw = 'U/L')}
 			>
-				Upper/Lower
+				U / L
 			</button>
 			<button
 				type="button"
-				class="rounded-r-md px-2 text-xs font-medium {selected_jaw === 'lower'
-					? 'bg-indigo-600 text-white'
-					: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				class="flex-1 rounded-r-md px-2 py-1.5 text-xs font-medium {selected_jaw === 'lower'
+					? 'bg-indigo-600 text-white border-indigo-600'
+					: 'bg-white text-gray-700 hover:bg-gray-50 border-transparent'}"
 				onclick={() => (selected_jaw = 'lower')}
 			>
-				Lower Only
+				Lower
 			</button>
 			<input type="text" name="selected_jaw" bind:value={selected_jaw} hidden />
 		</div>
