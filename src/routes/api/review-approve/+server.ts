@@ -85,6 +85,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
           uploadedUrls.push(publicUrlData.publicUrl);
         } else {
           console.error('Supabase upload error:', uploadError);
+          throw error(500, `Failed to upload proof image: ${uploadError.message}`);
         }
       }
     }
@@ -102,11 +103,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       message: `Case #${recordId} approved for delivery`,
       imagesUploaded: uploadedUrls.length
     });
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof Error && 'status' in err) {
       throw err;
     }
     console.error('Error approving case:', err);
-    throw error(500, 'Failed to approve case');
+    let errorMessage = err.message || 'Failed to approve case';
+    if (err.code) errorMessage += ` (DB Error Code: ${err.code})`;
+    if (err.detail) errorMessage += ` - ${err.detail}`;
+    throw error(500, `Failed to approve case: ${errorMessage}`);
   }
 };

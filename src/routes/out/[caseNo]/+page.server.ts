@@ -34,7 +34,9 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
-		const recordId = parseInt(data.get('recordId')?.toString() || '0');
+		const recordIdStr = data.get('recordId')?.toString();
+		if (!recordIdStr) return { success: false, error: 'Record ID is required' };
+		const recordId = parseInt(recordIdStr, 10);
 
 		try {
 			// Update record with actual dropoff information
@@ -71,12 +73,16 @@ export const actions = {
 						} as any);
 					} else {
 						console.error('Supabase upload error:', uploadError);
+						throw new Error(`Failed to upload image ${file.name}: ${uploadError.message}`);
 					}
 				}
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error processing OUT record:', error);
-			return { success: false, error: 'Failed to process OUT record' };
+			let errorMessage = error.message || 'An unknown error occurred';
+			if (error.code) errorMessage += ` (DB Error Code: ${error.code})`;
+			if (error.detail) errorMessage += ` - ${error.detail}`;
+			return { success: false, error: `Failed to process OUT record: ${errorMessage}` };
 		}
 
 		const isFinished = data.get('finished');

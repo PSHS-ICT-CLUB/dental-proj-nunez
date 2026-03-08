@@ -54,11 +54,26 @@ export const actions = {
 		const userId = session?.user?.id ? parseInt(session.user.id) : null;
 		const data = await request.formData();
 		console.log('Form data:', data);
+
+		const doctorIdStr = data.get('doctor_name')?.toString();
+		if (!doctorIdStr) {
+			return { success: false, error: 'Doctor selection is required.' };
+		}
+		const doctorId = parseInt(doctorIdStr, 10);
+
+		const patientName = data.get('patient_name')?.toString();
+		if (!patientName) {
+			return { success: false, error: 'Patient name is required.' };
+		}
+
+		let selectedJaw = data.get('selected_jaw')?.toString();
+		if (!selectedJaw) {
+			return { success: false, error: 'Jaw selection is required.' };
+		}
+
 		let recordId;
 		try {
 			recordId = await db.transaction(async (tx) => {
-				let selectedJaw = data.get('selected_jaw')?.toString();
-
 				// Server-Side Value Calculations to prevent client-side bypassing
 				let upperCost = Number(data.get('upper_cost')) || 0;
 				let upperUnit = Number(data.get('upper_unit')) || 1;
@@ -80,11 +95,11 @@ export const actions = {
 				const orderID = await tx
 					.insert(orders)
 					.values({
-						orderDate: data.get('date'),
+						orderDate: data.get('date') as string,
 						orderTotal: calculatedTotal.toString(),
 						paidAmount: paidAmount.toString(),
 						excessPayment: computedExcessPayment.toString(),
-						paymentMethod: data.get('payment_method'),
+						paymentMethod: data.get('payment_method') as string,
 						createdBy: userId
 					} as typeof orders.$inferInsert)
 					.returning({ id: orders.orderId });
@@ -93,6 +108,9 @@ export const actions = {
 
 				if (selectedJaw === 'upper' || selectedJaw === 'U/L') {
 					let caseTypeId = Number(data.get('case_type_upper')?.toString());
+					if (!caseTypeId || isNaN(caseTypeId)) {
+						throw new Error('Invalid or missing upper case type.');
+					}
 					console.log(caseTypeId);
 
 					// Atomically increment and get the new case number
@@ -106,6 +124,10 @@ export const actions = {
 							newCases: caseTypes.numberOfCases,
 							typeName: caseTypes.caseTypeName
 						});
+
+					if (!updatedCaseType) {
+						throw new Error(`Case type ${caseTypeId} not found.`);
+					}
 
 					const nextCaseNum = updatedCaseType.newCases;
 					const formattedCaseNo = `${updatedCaseType.typeName}-${String(nextCaseNum).padStart(5, '0')}`;
@@ -122,6 +144,9 @@ export const actions = {
 				}
 				if (selectedJaw === 'lower' || selectedJaw === 'U/L') {
 					let caseTypeId = Number(data.get('case_type_lower')?.toString());
+					if (!caseTypeId || isNaN(caseTypeId)) {
+						throw new Error('Invalid or missing lower case type.');
+					}
 					console.log('lower');
 
 					// Atomically increment and get the new case number
@@ -135,6 +160,10 @@ export const actions = {
 							newCases: caseTypes.numberOfCases,
 							typeName: caseTypes.caseTypeName
 						});
+
+					if (!updatedCaseType) {
+						throw new Error(`Case type ${caseTypeId} not found.`);
+					}
 
 					const nextCaseNum = updatedCaseType.newCases;
 					const formattedCaseNo = `${updatedCaseType.typeName}-${String(nextCaseNum).padStart(5, '0')}`;
@@ -157,10 +186,10 @@ export const actions = {
 					.insert(records)
 					.values({
 						orderId: orderID[0].id,
-						datePickup: data.get('date'),
-						timePickup: data.get('time'),
-						doctorId: data.get('doctor_name') as unknown as number,
-						patientName: data.get('patient_name'),
+						datePickup: data.get('date') as string,
+						timePickup: data.get('time') as string,
+						doctorId: doctorId,
+						patientName: patientName,
 						caseStatus: 'pending',
 						deliveryCourier: data.get('delivery_courier')?.toString() || null,
 						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,
@@ -169,13 +198,14 @@ export const actions = {
 						actualDropoff: data.get('actual_dropoff')?.toString() || null,
 						finishBy: data.get('finish_by')?.toString() || null,
 						assignedTechnicians: data.get('assigned_technicians')?.toString() || null,
-						dateIn: data.get('date'),
-						timeIn: data.get('time'),
+						dateIn: data.get('date') as string,
+						timeIn: data.get('time') as string,
 						createdBy: userId
 					} as typeof records.$inferInsert)
 					.returning({ id: records.recordId });
 
 				const inImageFiles = data.getAll('in-img') as File[];
+				let uploadedImagesCount = 0;
 				for (const file of inImageFiles) {
 					if (file && file.size > 0 && file.name !== 'undefined') {
 						const fileExt = file.name.split('.').pop() || 'jpg';
@@ -198,8 +228,10 @@ export const actions = {
 								historyTime: (data.get('time')?.toString() || null) as any,
 								createdBy: userId
 							} as any);
+							uploadedImagesCount++;
 						} else {
 							console.error('Supabase upload error:', uploadError);
+							throw new Error(`Failed to upload image ${file.name}: ${uploadError.message}`);
 						}
 					}
 				}
@@ -227,12 +259,11 @@ export const actions = {
 									itemId: usage.itemId,
 									actionType: 'OUT',
 									quantity: usage.quantity,
-									remarks: `Used for record ID ${record[0].id} (Patient: ${data.get('patient_name')})`,
+									remarks: `Used for record ID ${record[0].id} (Patient: ${patientName})`,
 									createdBy: userId
 								} as typeof inventoryLogs.$inferInsert);
 
 								// Link the usage to the dental case record
-								// Assuming recordInventoryUsages is imported at the top
 								await tx.insert(recordInventoryUsages).values({
 									recordId: record[0].id,
 									itemId: usage.itemId,
@@ -240,16 +271,25 @@ export const actions = {
 								});
 							}
 						}
-					} catch (e) {
+					} catch (e: any) {
 						console.error('Error parsing inventory usage:', e);
+						throw new Error(`Inventory deduction failed: ${e.message}`);
 					}
 				}
 
 				return record[0].id;
 			});
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error inserting record:', error);
-			return { success: false, error: 'Failed to insert record' };
+			// Check if it's a known database error (e.g. Postgres duplicates/constraints)
+			let errorMessage = error.message || 'An unknown error occurred';
+			if (error.code) {
+				errorMessage += ` (DB Error Code: ${error.code})`;
+			}
+			if (error.detail) {
+				errorMessage += ` - ${error.detail}`;
+			}
+			return { success: false, error: `Failed to insert record: ${errorMessage}` };
 		}
 		throw redirect(303, '/?record_id=' + recordId);
 	}
