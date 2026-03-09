@@ -17,7 +17,7 @@ export type CaseStatus = (typeof CASE_STATUSES)[keyof typeof CASE_STATUSES];
  * Role-based permissions for status changes
  */
 export const ROLE_PERMISSIONS: Record<string, CaseStatus[]> = {
-  dentist: [CASE_STATUSES.TO_BE_DELIVER],
+  dentist: [CASE_STATUSES.TO_BE_DELIVER, CASE_STATUSES.PENDING],
   staff: [CASE_STATUSES.PENDING, CASE_STATUSES.IN_PROGRESS, CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST],
   admin: [
     CASE_STATUSES.PENDING,

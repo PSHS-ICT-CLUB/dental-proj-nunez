@@ -366,7 +366,7 @@
 				</div>
 			</div>
 
-			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
 				<div class="relative">
 					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 						>Clinic</label
@@ -990,8 +990,8 @@
 									</span>
 								</span>
 							</td>
-							<td class="px-3 py-2 text-xs whitespace-nowrap print:hidden">
-								<div class="flex gap-1.5">
+							<td class="px-3 py-2 text-xs print:hidden">
+								<div class="flex flex-wrap gap-1.5 min-w-[150px] max-w-[280px]">
 									<a
 										href={`/details/${record.recordId}`}
 										class="inline-flex items-center rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
@@ -1009,18 +1009,6 @@
 										class="inline-flex items-center rounded bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
 									>
 										Timeline
-									</a>
-									<a
-										href={`/in/${record.recordId}`}
-										class="inline-flex items-center rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-700/10 hover:bg-green-100"
-									>
-										In
-									</a>
-									<a
-										href={`/out/${record.recordId}`}
-										class="inline-flex items-center rounded bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-yellow-700/10 hover:bg-yellow-100"
-									>
-										Out
 									</a>
 									<a
 										href={`/edit/${record.recordId}`}

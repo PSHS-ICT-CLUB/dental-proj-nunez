@@ -52,7 +52,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       const workflow = getStatusWorkflow().find(s => s.status === currentState);
 
       const isForward = workflow?.nextStages.includes(newStatus as typeof workflow.nextStages[number]);
-      if (!isForward && currentState !== newStatus) {
+
+      // Exception: Dentists can revert a case from "to be reviewed by dentist" back to "pending" (Backjob)
+      const isDentistBackjob = userRole === 'dentist' && currentState === CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST && newStatus === CASE_STATUSES.PENDING;
+
+      if (!isForward && currentState !== newStatus && !isDentistBackjob) {
         throw error(403, `Role '${userRole}' can only advance cases forward in the workflow. Reversions require admin access.`);
       }
     }
