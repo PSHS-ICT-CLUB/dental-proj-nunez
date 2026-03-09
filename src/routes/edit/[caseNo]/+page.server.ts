@@ -7,73 +7,77 @@ import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ params }) => {
 	try {
-		const recordData = await db
-			.select({
-				recordId: records.recordId,
-				datePickup: records.datePickup,
-				timePickup: records.timePickup,
-				dateDropoff: records.dateDropoff,
-				timeDropoff: records.timeDropoff,
-				doctorId: records.doctorId,
-				patientName: records.patientName,
-				description: records.description,
-				caseStatus: records.caseStatus,
-				caseNotes: records.caseNotes,
-				remarksDeprecated: records.remarksDeprecated,
-				deliveryCourier: records.deliveryCourier,
-				deliveryFee: records.deliveryFee,
-				deliveryNotes: records.deliveryNotes,
-				finishBy: records.finishBy,
-				assignedTechnicians: records.assignedTechnicians,
+		const [
+			recordData,
+			caseTypesData,
+			doctorsData,
+			clinicsData,
+			passwordIsSet
+		] = await Promise.all([
+			db
+				.select({
+					recordId: records.recordId,
+					datePickup: records.datePickup,
+					timePickup: records.timePickup,
+					dateDropoff: records.dateDropoff,
+					timeDropoff: records.timeDropoff,
+					doctorId: records.doctorId,
+					patientName: records.patientName,
+					description: records.description,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
+					remarksDeprecated: records.remarksDeprecated,
+					deliveryCourier: records.deliveryCourier,
+					deliveryFee: records.deliveryFee,
+					deliveryNotes: records.deliveryNotes,
+					finishBy: records.finishBy,
+					assignedTechnicians: records.assignedTechnicians,
+					doctorName: doctors.doctorName,
+					clinicId: doctors.clinicId,
+					clinicName: clinics.clinicName,
+					orderId: records.orderId,
+					orderTotal: orders.orderTotal,
+					paidAmount: orders.paidAmount,
+					paymentMethod: orders.paymentMethod,
+					excessPayment: orders.excessPayment,
+					items: sql<any>`json_agg(json_build_object(
+						'orderItemId', ${orderItems.orderItemId},
+						'upOrDown', ${orderItems.upOrDown},
+						'caseTypeId', ${orderItems.caseTypeId},
+						'caseNo', ${orderItems.caseNo},
+						'itemCost', ${orderItems.itemCost},
+						'itemQuantity', ${orderItems.itemQuantity},
+						'orderDescription', ${orderItems.orderDescription}
+					))`
+				})
+				.from(records)
+				.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+				.leftJoin(orders, eq(records.orderId, orders.orderId))
+				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.groupBy(records.recordId, doctors.doctorId, clinics.clinicId, orders.orderId)
+				.where(sql`${records.recordId} = ${params.caseNo}`)
+				.limit(1),
+			db.select({
+				caseTypeId: caseTypes.caseTypeId,
+				caseTypeName: caseTypes.caseTypeName,
+				numberOfCases: caseTypes.numberOfCases
+			}).from(caseTypes),
+			db.select({
+				doctorId: doctors.doctorId,
 				doctorName: doctors.doctorName,
-				clinicId: doctors.clinicId,
-				clinicName: clinics.clinicName,
-				orderId: records.orderId,
-				orderTotal: orders.orderTotal,
-				paidAmount: orders.paidAmount,
-				paymentMethod: orders.paymentMethod,
-				excessPayment: orders.excessPayment,
-				items: sql<any>`json_agg(json_build_object(
-					'orderItemId', ${orderItems.orderItemId},
-					'upOrDown', ${orderItems.upOrDown},
-					'caseTypeId', ${orderItems.caseTypeId},
-					'caseNo', ${orderItems.caseNo},
-					'itemCost', ${orderItems.itemCost},
-					'itemQuantity', ${orderItems.itemQuantity},
-					'orderDescription', ${orderItems.orderDescription}
-				))`
-			})
-			.from(records)
-			.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
-			.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-			.leftJoin(orders, eq(records.orderId, orders.orderId))
-			.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
-			.groupBy(records.recordId, doctors.doctorId, clinics.clinicId, orders.orderId)
-			.where(sql`${records.recordId} = ${params.caseNo}`)
-			.limit(1);
+				clinicId: doctors.clinicId
+			}).from(doctors),
+			db.select({
+				clinicId: clinics.clinicId,
+				clinicName: clinics.clinicName
+			}).from(clinics).orderBy(desc(clinics.clinicName)),
+			isPasswordSet()
+		]);
 
 		if (!recordData || recordData.length === 0) {
 			throw error(404, 'Record not found');
 		}
-
-		const caseTypesData = await db.select({
-			caseTypeId: caseTypes.caseTypeId,
-			caseTypeName: caseTypes.caseTypeName,
-			numberOfCases: caseTypes.numberOfCases
-		}).from(caseTypes);
-
-		const doctorsData = await db.select({
-			doctorId: doctors.doctorId,
-			doctorName: doctors.doctorName,
-			clinicId: doctors.clinicId
-		}).from(doctors);
-
-		const clinicsData = await db.select({
-			clinicId: clinics.clinicId,
-			clinicName: clinics.clinicName
-		}).from(clinics).orderBy(desc(clinics.clinicName));
-
-		const passwordIsSet = await isPasswordSet();
 
 		return {
 			record: recordData[0],

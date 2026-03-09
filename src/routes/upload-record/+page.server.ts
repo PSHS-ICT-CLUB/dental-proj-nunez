@@ -19,32 +19,46 @@ import { redirect } from '@sveltejs/kit';
 
 
 export const load: PageServerLoad = async ({ params }) => {
-	return {
-		caseTypes: await db.select({
+	const [
+		caseTypesData,
+		doctorsData,
+		clinicsData,
+		inventoryTableItemsData,
+		techniciansData
+	] = await Promise.all([
+		db.select({
 			caseTypeId: caseTypes.caseTypeId,
 			caseTypeName: caseTypes.caseTypeName,
 			numberOfCases: caseTypes.numberOfCases
 		}).from(caseTypes),
-		doctors: await db.select({
+		db.select({
 			doctorId: doctors.doctorId,
 			doctorName: doctors.doctorName,
 			clinicId: doctors.clinicId
 		}).from(doctors).orderBy(desc(doctors.doctorName)),
-		clinics: await db.select({
+		db.select({
 			clinicId: clinics.clinicId,
 			clinicName: clinics.clinicName
 		}).from(clinics).orderBy(desc(clinics.clinicName)),
-		inventoryTableItems: await db.select({
+		db.select({
 			id: inventoryItems.id,
 			name: inventoryItems.name,
 			unit: inventoryItems.unit,
 			cost: inventoryItems.cost,
 			currentStock: inventoryItems.currentStock
 		}).from(inventoryItems).orderBy(inventoryItems.name),
-		technicians: await db.select({
+		db.select({
 			id: technicians.id,
 			name: technicians.name
 		}).from(technicians).orderBy(technicians.name)
+	]);
+
+	return {
+		caseTypes: caseTypesData,
+		doctors: doctorsData,
+		clinics: clinicsData,
+		inventoryTableItems: inventoryTableItemsData,
+		technicians: techniciansData
 	};
 };
 

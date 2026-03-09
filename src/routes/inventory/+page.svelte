@@ -7,6 +7,7 @@
 
 	let isAddItemModalOpen = $state(false);
 	let isAdjustStockModalOpen = $state(false);
+	let isSubmitting = $state(false);
 	
 	let selectedItemId = $state<number | null>(null);
 	let selectedItemName = $state<string>('');
@@ -110,16 +111,23 @@
 									</button>
 									<span class="text-gray-300">|</span>
 									{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
-									<form method="POST" action="?/deleteItem" use:enhance class="inline-flex">
+									<form method="POST" action="?/deleteItem" use:enhance={() => {
+										isSubmitting = true;
+										return async ({ update }) => {
+											await update();
+											isSubmitting = false;
+										};
+									}} class="inline-flex">
 										<input type="hidden" name="item_id" value={item.id} />
 										<button
 											type="submit"
-											class="text-red-500 hover:text-red-700 transition-colors"
+											disabled={isSubmitting}
+											class="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
 											onclick={(e) => {
 												if (!confirm('Are you sure you want to delete this item?')) e.preventDefault();
 											}}
 										>
-											Delete
+											{isSubmitting ? 'Deleting...' : 'Delete'}
 										</button>
 									</form>
 									{/if}
@@ -158,9 +166,11 @@
 			</div>
 			<div class="p-6">
 				<form method="POST" action="?/addItem" class="space-y-4" use:enhance={() => {
+					isSubmitting = true;
 					return async ({ update }) => {
 						isAddItemModalOpen = false;
 						await update();
+						isSubmitting = false;
 					};
 				}}>
 					<div>
@@ -203,8 +213,10 @@
 						</select>
 					</div>
 					<div class="mt-6 flex justify-end gap-3">
-						<button type="button" onclick={() => (isAddItemModalOpen = false)} class="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">Cancel</button>
-						<button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">Save Item</button>
+						<button type="button" disabled={isSubmitting} onclick={() => (isAddItemModalOpen = false)} class="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+						<button type="submit" disabled={isSubmitting} class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50">
+							{isSubmitting ? 'Saving...' : 'Save Item'}
+						</button>
 					</div>
 				</form>
 			</div>
@@ -230,9 +242,11 @@
 					<p class="text-sm text-gray-500">Current Stock: <span class="font-bold text-gray-900 px-2">{selectedItemCurrentStock}</span></p>
 				</div>
 				<form method="POST" action="?/adjustStock" class="space-y-4" use:enhance={() => {
+					isSubmitting = true;
 					return async ({ update }) => {
 						isAdjustStockModalOpen = false;
 						await update();
+						isSubmitting = false;
 					};
 				}}>
 					<input type="hidden" name="item_id" value={selectedItemId} />
@@ -256,8 +270,10 @@
 					</div>
 
 					<div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-						<button type="button" onclick={() => (isAdjustStockModalOpen = false)} class="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">Cancel</button>
-						<button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">Confirm Adjustment</button>
+						<button type="button" disabled={isSubmitting} onclick={() => (isAdjustStockModalOpen = false)} class="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+						<button type="submit" disabled={isSubmitting} class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50">
+							{isSubmitting ? 'Confirming...' : 'Confirm Adjustment'}
+						</button>
 					</div>
 				</form>
 			</div>

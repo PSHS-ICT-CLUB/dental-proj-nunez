@@ -4,6 +4,7 @@
 
 	let { data, form }: PageProps = $props();
 	let { suppliers } = data;
+	let isSubmitting = $state(false);
 </script>
 
 <div class="mx-auto max-w-6xl px-4 py-8">
@@ -29,7 +30,13 @@
 				</div>
 			{/if}
 
-			<form method="POST" action="?/add" class="space-y-4">
+			<form method="POST" action="?/add" class="space-y-4" use:enhance={() => {
+				isSubmitting = true;
+				return async ({ update }) => {
+					await update();
+					isSubmitting = false;
+				};
+			}}>
 				<div>
 					<label for="name" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Supplier Name *</label>
 					<input
@@ -94,9 +101,10 @@
 				<div class="flex justify-end pt-2">
 					<button
 						type="submit"
-						class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500"
+						disabled={isSubmitting}
+						class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
 					>
-						Add Supplier
+						{isSubmitting ? 'Adding...' : 'Add Supplier'}
 					</button>
 				</div>
 			</form>
@@ -139,11 +147,18 @@
 								</td>
 								<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
 									{#if data.session?.user && (data.session.user.role === 'admin' || data.session.user.role === 'dentist')}
-									<form method="POST" action="?/deleteSupplier" class="inline-block" use:enhance>
+									<form method="POST" action="?/deleteSupplier" class="inline-block" use:enhance={() => {
+										isSubmitting = true;
+										return async ({ update }) => {
+											await update();
+											isSubmitting = false;
+										};
+									}}>
 										<input type="hidden" name="id" value={supplier.id} />
 										<button
 											type="submit"
-											class="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
+											disabled={isSubmitting}
+											class="text-red-500 hover:text-red-700 focus:outline-none transition-colors disabled:opacity-50"
 											title="Delete supplier"
 											aria-label="Delete supplier"
 										>

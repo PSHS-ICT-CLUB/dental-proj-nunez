@@ -4,6 +4,7 @@
 
 	let { data, form }: PageProps = $props();
 	let { currentMonth, currentYear, recordData } = data;
+	let isSubmitting = $state(false);
 
 	let today = new Date();
 	let selectedDate = $state(today.toISOString().split('T')[0]);
@@ -46,7 +47,13 @@
 			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
 				Select Period
 			</h2>
-			<form id="month-filter-form" method="POST" action="?/changeMonth" class="space-y-4">
+			<form id="month-filter-form" method="POST" action="?/changeMonth" class="space-y-4" use:enhance={() => {
+				isSubmitting = true;
+				return async ({ update }) => {
+					await update();
+					isSubmitting = false;
+				};
+			}}>
 				<div>
 					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 						>Quick Month Filter</label
@@ -100,7 +107,13 @@
 				</div>
 			{/if}
 
-			<form method="POST" action="?/add" class="space-y-4">
+			<form method="POST" action="?/add" class="space-y-4" use:enhance={() => {
+				isSubmitting = true;
+				return async ({ update }) => {
+					await update();
+					isSubmitting = false;
+				};
+			}}>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<div>
 						<label for="supply_date" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Date</label>
@@ -144,9 +157,10 @@
 				<div class="flex justify-end pt-2">
 					<button
 						type="submit"
-						class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500"
+						disabled={isSubmitting}
+						class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
 					>
-						Add Expense
+						{isSubmitting ? 'Adding...' : 'Add Expense'}
 					</button>
 				</div>
 			</form>
@@ -187,11 +201,18 @@
 							</td>
 							<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
 								{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
-								<form method="POST" action="?/deleteExpenses" class="inline-block" use:enhance>
+								<form method="POST" action="?/deleteExpenses" class="inline-block" use:enhance={() => {
+									isSubmitting = true;
+									return async ({ update }) => {
+										await update();
+										isSubmitting = false;
+									};
+								}}>
 									<input type="hidden" name="supply_id" value={record.supplyId} />
 									<button
 										type="submit"
-										class="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
+										disabled={isSubmitting}
+										class="text-red-500 hover:text-red-700 focus:outline-none transition-colors disabled:opacity-50"
 										title="Delete expense"
 										aria-label="Delete expense"
 									>

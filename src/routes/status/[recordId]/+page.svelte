@@ -248,7 +248,7 @@
                                                     } else if (result.type === 'success' && !result.data?.success) { 
                                                         errorMessage = result.data?.error || 'Unknown error'; 
                                                     }
-                                                    await update(); 
+                                                    await update({ reset: false, invalidateAll: false }); 
                                                 }; 
                                             }}>
 											<input type="hidden" name="recordId" value={record.recordId} />
@@ -335,7 +335,7 @@
                                                     } else if (result.type === 'success' && !result.data?.success) { 
                                                         errorMessage = result.data?.error || 'Unknown error'; 
                                                     }
-                                                    await update(); 
+                                                    await update({ reset: false, invalidateAll: false }); 
                                                 }; 
                                             }}>
                                             <input type="hidden" name="recordId" value={record.recordId} />

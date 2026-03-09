@@ -10,6 +10,7 @@
 	let showResetModal = $state(false);
 	let resetPassword = $state('');
 	let resetError = $state('');
+	let isSubmitting = $state(false);
 	$effect(() => {
 		message = '';
 		error = '';
@@ -37,7 +38,9 @@
 		method="POST"
 		action="?/setPassword"
 		use:enhance={() => {
+			isSubmitting = true;
 			return async ({ result, update }) => {
+				isSubmitting = false;
 				if (result.type === 'failure') {
 					const d = result.data as Record<string, any>;
 					error = d?.error || 'Failed to update password';
@@ -91,8 +94,10 @@
 			required
 		/>
 		<div class="flex gap-2">
-			<a href="/" class="rounded bg-white px-3 py-1 text-sm ring-1 ring-gray-300">Cancel</a>
-			<button type="submit" class="rounded bg-indigo-600 px-3 py-1 text-sm text-white">Save</button>
+			<a href="/" class={`rounded bg-white px-3 py-1 text-sm ring-1 ring-gray-300 ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>Cancel</a>
+			<button type="submit" disabled={isSubmitting} class="rounded bg-indigo-600 px-3 py-1 text-sm text-white disabled:opacity-50">
+				{isSubmitting ? 'Saving...' : 'Save'}
+			</button>
 		</div>
 	</form>
 	{#if data.isSet}
@@ -149,7 +154,9 @@
 				method="POST"
 				action="?/resetPassword"
 				use:enhance={() => {
+					isSubmitting = true;
 					return async ({ result, update }) => {
+						isSubmitting = false;
 						if (result.type === 'failure') {
 							const d = result.data as Record<string, any>;
 							resetError = d?.error || 'Failed to reset password';
@@ -184,21 +191,22 @@
 				<div class="flex gap-2">
 					<button
 						type="button"
+						disabled={isSubmitting}
 						onclick={() => {
 							showResetModal = false;
 							resetPassword = '';
 							resetError = '';
 						}}
-						class="rounded bg-white px-4 py-2 text-sm ring-1 ring-gray-300 hover:bg-gray-50"
+						class="rounded bg-white px-4 py-2 text-sm ring-1 ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						disabled={!resetPassword}
+						disabled={!resetPassword || isSubmitting}
 						class="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
 					>
-						Reset Password
+						{isSubmitting ? 'Resetting...' : 'Reset Password'}
 					</button>
 				</div>
 			</form>

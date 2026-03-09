@@ -6,26 +6,30 @@ import { requireDeletePermission } from '$lib/server/roles';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth();
-  // Fetch all items with their supplier's name
-  const itemsWithSuppliers = await db
-    .select({
-      id: inventoryItems.id,
-      name: inventoryItems.name,
-      category: inventoryItems.category,
-      currentStock: inventoryItems.currentStock,
-      unit: inventoryItems.unit,
-      cost: inventoryItems.cost,
-      minimumStockLevel: inventoryItems.minimumStockLevel,
-      expirationDate: inventoryItems.expirationDate,
-      supplierId: inventoryItems.supplierId,
-      supplierName: inventorySuppliers.name
-    })
-    .from(inventoryItems)
-    .leftJoin(inventorySuppliers, eq(inventoryItems.supplierId, inventorySuppliers.id))
-    .orderBy(inventoryItems.name);
 
-  // Fetch all suppliers for the dropdown
-  const suppliers = await db.select().from(inventorySuppliers).orderBy(inventorySuppliers.name);
+  // Use Promise.all to fetch items and suppliers concurrently
+  const [itemsWithSuppliers, suppliers] = await Promise.all([
+    // Fetch all items with their supplier's name
+    db
+      .select({
+        id: inventoryItems.id,
+        name: inventoryItems.name,
+        category: inventoryItems.category,
+        currentStock: inventoryItems.currentStock,
+        unit: inventoryItems.unit,
+        cost: inventoryItems.cost,
+        minimumStockLevel: inventoryItems.minimumStockLevel,
+        expirationDate: inventoryItems.expirationDate,
+        supplierId: inventoryItems.supplierId,
+        supplierName: inventorySuppliers.name
+      })
+      .from(inventoryItems)
+      .leftJoin(inventorySuppliers, eq(inventoryItems.supplierId, inventorySuppliers.id))
+      .orderBy(inventoryItems.name),
+
+    // Fetch all suppliers for the dropdown
+    db.select().from(inventorySuppliers).orderBy(inventorySuppliers.name)
+  ]);
 
   return {
     items: itemsWithSuppliers,
