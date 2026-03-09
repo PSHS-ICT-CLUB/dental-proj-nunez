@@ -8,7 +8,7 @@ import {
   caseTypes,
   history
 } from '$lib/server/db/schema';
-import { eq, desc, sql, and } from 'drizzle-orm';
+import { eq, desc, sql, and, inArray } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -79,26 +79,35 @@ export const load: PageServerLoad = async (event) => {
       )
       .orderBy(desc(records.createdAt));
 
-    // For each case, fetch associated images from history
-    const casesWithImages = await Promise.all(
-      reviewCases.map(async (caseItem) => {
-        const images = await db
-          .select({
-            historyId: history.historyId,
-            historyType: history.historyType,
-            historyDate: history.historyDate,
-            imageUrl: history.imageUrl
-          })
-          .from(history)
-          .where(eq(history.recordId, caseItem.recordId))
-          .orderBy(desc(history.historyId));
+    // Efficiently fetch all associated images in a single query to avoid N+1 issue
+    const recordIds = reviewCases.map((c) => c.recordId);
 
-        return {
-          ...caseItem,
-          images: images.filter((img) => img.imageUrl)
-        };
-      })
-    );
+    let allImages: any[] = [];
+    if (recordIds.length > 0) {
+      allImages = await db
+        .select({
+          historyId: history.historyId,
+          historyType: history.historyType,
+          historyDate: history.historyDate,
+          imageUrl: history.imageUrl,
+          recordId: history.recordId
+        })
+        .from(history)
+        .where(inArray(history.recordId, recordIds))
+        .orderBy(desc(history.historyId));
+    }
+
+    // Group images by recordId in memory
+    const imagesByRecordId = allImages.reduce((acc, img) => {
+      if (!acc[img.recordId]) acc[img.recordId] = [];
+      if (img.imageUrl) acc[img.recordId].push(img);
+      return acc;
+    }, {} as Record<number, any[]>);
+
+    const casesWithImages = reviewCases.map((caseItem) => ({
+      ...caseItem,
+      images: imagesByRecordId[caseItem.recordId] || []
+    }));
 
     return {
       cases: casesWithImages,

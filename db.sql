@@ -102,6 +102,12 @@ CREATE INDEX idx_records_patient_name ON records (patient_name);
 CREATE INDEX idx_records_date_pickup ON records (date_pickup);
 CREATE INDEX idx_records_doctor_id ON records (doctor_id);
 
+-- Performance Indexes (Foreign Keys)
+CREATE INDEX idx_orderItems_order_id ON order_items USING btree (order_id);
+CREATE INDEX idx_orderItems_case_type_id ON order_items USING btree (case_type_id);
+CREATE INDEX idx_doctors_clinic_id ON doctors USING btree (clinic_id);
+CREATE INDEX idx_history_record_id ON history USING btree (record_id);
+
 -- Sample Data Insertion
 -- INSERT INTO clinics (clinic_name)
 -- VALUES
