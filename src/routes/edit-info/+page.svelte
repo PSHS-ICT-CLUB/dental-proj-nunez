@@ -134,11 +134,9 @@ let newTechnicianNotes = $state('');
 			}
 		};
 	}
-</script>
-
-<div>
-	<div class="flex flex-col items-center justify-center overflow-x-auto">
-		{#if success && message}
+</script>\n\n
+<div class="mx-auto max-w-7xl px-4 py-8">
+	{#if success && message}
 			<div class="mb-4 rounded-md bg-green-100 p-4">
 				<div class="flex">
 					<div class="flex-shrink-0">
@@ -187,8 +185,14 @@ let newTechnicianNotes = $state('');
 			</div>
 		{/if}
 
-		<h2 class="mt-10 text-xl font-semibold text-gray-900">Doctors</h2>
-		<table class="mt-4 w-lg divide-y divide-gray-200 rounded-md shadow-md">
+	<div class="mt-6 flex flex-col xl:flex-row gap-12 items-start justify-center">
+		<!-- LEFT COLUMN: Tables -->
+		<div class="w-full xl:w-[60%] space-y-12">
+			
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 border-b pb-2 mb-4">Doctors</h2>
+				<div class="overflow-x-auto pb-4">
+					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
 			<thead class="bg-gray-50">
 				<tr>
 					<th
@@ -251,9 +255,75 @@ let newTechnicianNotes = $state('');
 				{/each}
 			</tbody>
 		</table>
+				</div>
+			</section>
 
-		<h2 class="mt-10 text-xl font-semibold text-gray-900">Technicians</h2>
-		<table class="mt-4 w-lg divide-y divide-gray-200 rounded-md shadow-md">
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 border-b pb-2 mb-4">Clinics</h2>
+				<div class="overflow-x-auto pb-4">
+					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
+			<thead class="bg-gray-50">
+				<tr>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Clinic Name
+					</th>
+					<th
+						scope="col"
+						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+					>
+						Clinic Contact
+					</th>
+					<th scope="col" class="relative px-6 py-3">
+						<span class="sr-only">Delete</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-200 bg-white">
+				{#each clinics as clinic}
+					<tr>
+						<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+							{clinic.label}
+						</td>
+						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+							<div class="flex flex-col text-xs">
+								{#if clinic.clinicPhone}
+									<span class="text-gray-700">📞 {clinic.clinicPhone}</span>
+								{/if}
+								{#if clinic.clinicEmail}
+									<span class="text-gray-700">✉ {clinic.clinicEmail}</span>
+								{/if}
+								{#if !clinic.clinicPhone && !clinic.clinicEmail}
+									<span class="text-gray-400 italic">No contact details</span>
+								{/if}
+							</div>
+						</td>
+						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
+							<form action="?/deleteClinic" method="post">
+								<input type="hidden" name="clinic_id" value={clinic.clinicId} />
+								<button
+									type="submit"
+									class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+								>
+									Delete Clinic
+								</button>
+							</form>
+							{/if}
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+				</div>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 border-b pb-2 mb-4">Technicians</h2>
+				<div class="overflow-x-auto pb-4">
+					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
 			<thead class="bg-gray-50">
 				<tr>
 					<th
@@ -321,67 +391,105 @@ let newTechnicianNotes = $state('');
 				{/each}
 			</tbody>
 		</table>
+				</div>
+			</section>
 
-		<h2 class="mt-10 text-xl font-semibold text-gray-900">Clinics</h2>
-		<table class="mt-4 w-lg divide-y divide-gray-200 rounded-md shadow-md">
-			<thead class="bg-gray-50">
-				<tr>
-					<th
-						scope="col"
-						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-					>
-						Clinic Name
-					</th>
-					<th
-						scope="col"
-						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-					>
-						Clinic Contact
-					</th>
-					<th scope="col" class="relative px-6 py-3">
-						<span class="sr-only">Delete</span>
-					</th>
-				</tr>
-			</thead>
-			<tbody class="divide-y divide-gray-200 bg-white">
-				{#each clinics as clinic}
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 border-b pb-2 mb-4">Case Types</h2>
+				<div class="overflow-x-auto pb-4">
+					<!-- Case Types Table -->
+			<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
+				<thead class="bg-gray-50">
 					<tr>
-						<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-							{clinic.label}
-						</td>
-						<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
-							<div class="flex flex-col text-xs">
-								{#if clinic.clinicPhone}
-									<span class="text-gray-700">📞 {clinic.clinicPhone}</span>
-								{/if}
-								{#if clinic.clinicEmail}
-									<span class="text-gray-700">✉ {clinic.clinicEmail}</span>
-								{/if}
-								{#if !clinic.clinicPhone && !clinic.clinicEmail}
-									<span class="text-gray-400 italic">No contact details</span>
-								{/if}
-							</div>
-						</td>
-						<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
-							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
-							<form action="?/deleteClinic" method="post">
-								<input type="hidden" name="clinic_id" value={clinic.clinicId} />
-								<button
-									type="submit"
-									class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-								>
-									Delete Clinic
-								</button>
-							</form>
-							{/if}
-						</td>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+						>
+							Case Type
+						</th>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+						>
+							Code
+						</th>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+						>
+							Case Number Count
+						</th>
+						<th scope="col" class="relative px-6 py-3">
+							<span class="sr-only">Actions</span>
+						</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
+				</thead>
+				<tbody class="divide-y divide-gray-200 bg-white">
+					{#each caseTypes as caseType}
+						<tr>
+							<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+								<form action="?/updateCaseTypeCount" method="post" id="update-form-{caseType.caseTypeId}" class="flex items-center gap-2">
+									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
+									<input
+										type="text"
+										name="case_type_name"
+										value={caseType.caseTypeName}
+										class="w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									/>
+								</form>
+							</td>
+							<td class="px-6 py-2 text-sm whitespace-nowrap">
+									<input
+										type="text"
+										name="case_type_abbrv"
+										value={caseType.caseTypeAbbrv}
+										form="update-form-{caseType.caseTypeId}"
+										class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm font-mono"
+									/>
+							</td>
+							<td class="px-6 py-2 text-sm whitespace-nowrap">
+									<input
+										type="number"
+										name="number_of_cases"
+										value={caseType.numberOfCases}
+										min="0"
+										form="update-form-{caseType.caseTypeId}"
+										class="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									/>
+							</td>
+							<td class="px-6 py-2 text-right text-sm font-medium flex items-center justify-end gap-2 whitespace-nowrap">
+									<button
+										type="submit"
+										form="update-form-{caseType.caseTypeId}"
+										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+									>
+										Save
+									</button>
+							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
+								<form action="?/deleteCaseType" method="post" class="inline">
+									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
+									<button
+										type="submit"
+										class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+									>
+										Delete Case Type
+									</button>
+								</form>
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+				</div>
+			</section>
+		</div>
 
-		<!-- New section for adding only a clinic -->
-		<form method="POST" action="?/addClinic" class="mt-8 w-lg space-y-4">
+		<!-- RIGHT COLUMN: Forms -->
+		<div class="w-full xl:w-[40%] space-y-12 xl:sticky xl:top-8">
+			<section class="space-y-4">
+			    <!-- New section for adding only a clinic -->
+		<form method="POST" action="?/addClinic" class="w-full space-y-4">
 			<div>
 				<h3 class="text-lg font-medium text-gray-900">Add New Clinic</h3>
 				<div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -439,12 +547,14 @@ let newTechnicianNotes = $state('');
 				</div>
 			</div>
 		</form>
+			</section>
 
-		<!-- Update the existing combined form title -->
+			<section class="space-y-4">
+			    <!-- Update the existing combined form title -->
 		<form
 			method="POST"
 			action="?/{isNewClinic ? 'addClinicAndDoctor' : 'addDoctor'}"
-			class="mt-8 w-lg space-y-4"
+			class="w-full space-y-4"
 		>
 			<h3 class="text-lg font-medium text-gray-900">
 				{isNewClinic ? 'Add New Clinic with Doctor' : 'Add Doctor to Existing Clinic'}
@@ -544,9 +654,11 @@ let newTechnicianNotes = $state('');
 				</button>
 			</div>
 		</form>
+			</section>
 
-		<!-- Add Technician Form -->
-		<form method="POST" action="?/addTechnician" class="mt-10 w-lg space-y-4">
+			<section class="space-y-4">
+			    <!-- Add Technician Form -->
+		<form method="POST" action="?/addTechnician" class="w-full space-y-4">
 			<h2 class="text-xl font-semibold text-gray-900">Add Technician</h2>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div>
@@ -635,14 +747,15 @@ let newTechnicianNotes = $state('');
 				</button>
 			</div>
 		</form>
+			</section>
 
-		<h2 class="mt-10 text-xl font-semibold text-gray-900">Case Types</h2>
-		<div class="mt-4 flex flex-col gap-4">
-			<!-- Add Case Type Form -->
+			<section class="space-y-4">
+				<h2 class="text-xl font-semibold text-gray-900">Add Case Type</h2>
+				<!-- Add Case Type Form -->
 			<form
 				method="POST"
 				action="?/addCaseType"
-				class="flex items-end gap-4 rounded-md bg-gray-50 p-4 shadow-sm"
+				class="flex flex-col sm:flex-row items-end gap-4 rounded-md bg-gray-50 p-4 shadow-sm w-full"
 			>
 				<div class="flex-1">
 					<label for="case_type" class="block text-sm font-medium text-gray-700">
@@ -683,91 +796,7 @@ let newTechnicianNotes = $state('');
 					Add Case Type
 				</button>
 			</form>
-
-			<!-- Case Types Table -->
-			<table class="w-lg divide-y divide-gray-200 rounded-md shadow-md">
-				<thead class="bg-gray-50">
-					<tr>
-						<th
-							scope="col"
-							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-						>
-							Case Type
-						</th>
-						<th
-							scope="col"
-							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-						>
-							Code
-						</th>
-						<th
-							scope="col"
-							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-						>
-							Case Number Count
-						</th>
-						<th scope="col" class="relative px-6 py-3">
-							<span class="sr-only">Actions</span>
-						</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200 bg-white">
-					{#each caseTypes as caseType}
-						<tr>
-							<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-								<form action="?/updateCaseTypeCount" method="post" id="update-form-{caseType.caseTypeId}" class="flex items-center gap-2">
-									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
-									<input
-										type="text"
-										name="case_type_name"
-										value={caseType.caseTypeName}
-										class="w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-									/>
-								</form>
-							</td>
-							<td class="px-6 py-2 text-sm whitespace-nowrap">
-									<input
-										type="text"
-										name="case_type_abbrv"
-										value={caseType.caseTypeAbbrv}
-										form="update-form-{caseType.caseTypeId}"
-										class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm font-mono"
-									/>
-							</td>
-							<td class="px-6 py-2 text-sm whitespace-nowrap">
-									<input
-										type="number"
-										name="number_of_cases"
-										value={caseType.numberOfCases}
-										min="0"
-										form="update-form-{caseType.caseTypeId}"
-										class="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-									/>
-							</td>
-							<td class="px-6 py-2 text-right text-sm font-medium flex items-center justify-end gap-2 whitespace-nowrap">
-									<button
-										type="submit"
-										form="update-form-{caseType.caseTypeId}"
-										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-									>
-										Save
-									</button>
-							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
-								<form action="?/deleteCaseType" method="post" class="inline">
-									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
-									<button
-										type="submit"
-										class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-									>
-										Delete Case Type
-									</button>
-								</form>
-								{/if}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
+			</section>
 
 			<!-- Conditionally render the new field input -->
 			{#if showFieldInput}
