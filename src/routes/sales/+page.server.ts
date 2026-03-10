@@ -80,30 +80,31 @@ export const load: PageServerLoad = async ({ url }) => {
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
 		// Query for exact date with proper joins
-		const recordData = await db
-			.select({
-				record: {
-					recordId: records.recordId,
-					patientName: records.patientName,
-					dateDropoff: records.dateDropoff,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes
-				},
-				order: {
-					orderTotal: orders.orderTotal,
-					paidAmount: orders.paidAmount,
-					paymentStatus: orders.paymentStatus,
-					paymentMethod: orders.paymentMethod
-				},
-				clinicName: clinics.clinicName,
-				items: sql<
-					Array<{
-						caseNo: string;
-						orderDescription: string | null;
-						itemCost: string;
-						itemQuantity: number;
-					}>
-				>`
+		const [recordData, supplies, allClinics, inventoryUsages] = await Promise.all([
+			db
+				.select({
+					record: {
+						recordId: records.recordId,
+						patientName: records.patientName,
+						dateDropoff: records.dateDropoff,
+						caseStatus: records.caseStatus,
+						caseNotes: records.caseNotes
+					},
+					order: {
+						orderTotal: orders.orderTotal,
+						paidAmount: orders.paidAmount,
+						paymentStatus: orders.paymentStatus,
+						paymentMethod: orders.paymentMethod
+					},
+					clinicName: clinics.clinicName,
+					items: sql<
+						Array<{
+							caseNo: string;
+							orderDescription: string | null;
+							itemCost: string;
+							itemQuantity: number;
+						}>
+					>`
           json_agg(
             json_build_object(
               'caseNo', ${orderItems.caseNo},
@@ -112,49 +113,50 @@ export const load: PageServerLoad = async ({ url }) => {
               'itemQuantity', ${orderItems.itemQuantity}
             )
           )`,
-				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
-			})
-			.from(records)
-			.innerJoin(orders, eq(records.orderId, orders.orderId))
-			.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
-			.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
-			.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-			.where(and(...conditions))
-			.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
+					balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
+				})
+				.from(records)
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+				.where(and(...conditions))
+				.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId),
 
-		const supplies = await db
-			.select({
-				supplyId: supply.supplyId,
-				supplyDate: supply.supplyDate,
-				supplyCost: supply.supplyCost,
-				supplyDescription: supply.supplyDescription
-			})
-			.from(supply)
-			.where(sql`DATE(supply_date) = ${exactDate}`);
+			db
+				.select({
+					supplyId: supply.supplyId,
+					supplyDate: supply.supplyDate,
+					supplyCost: supply.supplyCost,
+					supplyDescription: supply.supplyDescription
+				})
+				.from(supply)
+				.where(sql`DATE(supply_date) = ${exactDate}`),
 
-		// Get all clinics for the filter dropdown
-		const allClinics = await db
-			.select({
-				clinicId: clinics.clinicId,
-				clinicName: clinics.clinicName
-			})
-			.from(clinics)
-			.orderBy(clinics.clinicName);
+			// Get all clinics for the filter dropdown
+			db
+				.select({
+					clinicId: clinics.clinicId,
+					clinicName: clinics.clinicName
+				})
+				.from(clinics)
+				.orderBy(clinics.clinicName),
 
-		const inventoryUsages = await db
-			.select({
-				usageId: recordInventoryUsages.id,
-				recordId: recordInventoryUsages.recordId,
-				quantityUsed: recordInventoryUsages.quantityUsed,
-				itemName: inventoryItems.name,
-				itemUnit: inventoryItems.unit,
-				itemId: inventoryItems.id,
-				cost: inventoryItems.cost
-			})
-			.from(recordInventoryUsages)
-			.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
-			.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
-			.where(and(...conditions));
+			db
+				.select({
+					usageId: recordInventoryUsages.id,
+					recordId: recordInventoryUsages.recordId,
+					quantityUsed: recordInventoryUsages.quantityUsed,
+					itemName: inventoryItems.name,
+					itemUnit: inventoryItems.unit,
+					itemId: inventoryItems.id,
+					cost: inventoryItems.cost
+				})
+				.from(recordInventoryUsages)
+				.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
+				.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+				.where(and(...conditions))
+		]);
 
 		return {
 			currentDate: exactDate,
@@ -191,30 +193,31 @@ export const load: PageServerLoad = async ({ url }) => {
 			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
-		const recordData = await db
-			.select({
-				record: {
-					recordId: records.recordId,
-					patientName: records.patientName,
-					dateDropoff: records.dateDropoff,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes
-				},
-				order: {
-					orderTotal: orders.orderTotal,
-					paidAmount: orders.paidAmount,
-					paymentStatus: orders.paymentStatus,
-					paymentMethod: orders.paymentMethod
-				},
-				clinicName: clinics.clinicName,
-				items: sql<
-					Array<{
-						caseNo: string;
-						orderDescription: string | null;
-						itemCost: string;
-						itemQuantity: number;
-					}>
-				>`
+		const [recordData, supplies, allClinics, inventoryUsages] = await Promise.all([
+			db
+				.select({
+					record: {
+						recordId: records.recordId,
+						patientName: records.patientName,
+						dateDropoff: records.dateDropoff,
+						caseStatus: records.caseStatus,
+						caseNotes: records.caseNotes
+					},
+					order: {
+						orderTotal: orders.orderTotal,
+						paidAmount: orders.paidAmount,
+						paymentStatus: orders.paymentStatus,
+						paymentMethod: orders.paymentMethod
+					},
+					clinicName: clinics.clinicName,
+					items: sql<
+						Array<{
+							caseNo: string;
+							orderDescription: string | null;
+							itemCost: string;
+							itemQuantity: number;
+						}>
+					>`
           json_agg(
             json_build_object(
               'caseNo', ${orderItems.caseNo},
@@ -223,52 +226,50 @@ export const load: PageServerLoad = async ({ url }) => {
               'itemQuantity', ${orderItems.itemQuantity}
             )
           )`,
-				balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
-			})
-			.from(records)
-			.innerJoin(orders, eq(records.orderId, orders.orderId))
-			.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
-			.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
-			.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-			.where(and(...conditions))
-			.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
-		// .where(sql`records.date_dropoff IS NOT NULL AND records.date_dropoff BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`)
-		// .where(status ? sql`(${orders.paymentStatus} = ${status})` : sql`TRUE`)
-		// .groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId);
+					balance: sql<number>`(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0))`
+				})
+				.from(records)
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
+				.where(and(...conditions))
+				.groupBy(records.recordId, orders.orderId, doctors.doctorId, clinics.clinicId),
 
-		const supplies = await db
-			.select({
-				supplyId: supply.supplyId,
-				supplyDate: supply.supplyDate,
-				supplyCost: supply.supplyCost,
-				supplyDescription: supply.supplyDescription
-			})
-			.from(supply)
-			.where(sql`supply_date BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`);
+			db
+				.select({
+					supplyId: supply.supplyId,
+					supplyDate: supply.supplyDate,
+					supplyCost: supply.supplyCost,
+					supplyDescription: supply.supplyDescription
+				})
+				.from(supply)
+				.where(sql`supply_date BETWEEN ${formatDate(startDate)} AND ${formatDate(endDate)}`),
 
-		// Get all clinics for the filter dropdown
-		const allClinics = await db
-			.select({
-				clinicId: clinics.clinicId,
-				clinicName: clinics.clinicName
-			})
-			.from(clinics)
-			.orderBy(clinics.clinicName);
+			// Get all clinics for the filter dropdown
+			db
+				.select({
+					clinicId: clinics.clinicId,
+					clinicName: clinics.clinicName
+				})
+				.from(clinics)
+				.orderBy(clinics.clinicName),
 
-		const inventoryUsages = await db
-			.select({
-				usageId: recordInventoryUsages.id,
-				recordId: recordInventoryUsages.recordId,
-				quantityUsed: recordInventoryUsages.quantityUsed,
-				itemName: inventoryItems.name,
-				itemUnit: inventoryItems.unit,
-				itemId: inventoryItems.id,
-				cost: inventoryItems.cost
-			})
-			.from(recordInventoryUsages)
-			.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
-			.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
-			.where(and(...conditions));
+			db
+				.select({
+					usageId: recordInventoryUsages.id,
+					recordId: recordInventoryUsages.recordId,
+					quantityUsed: recordInventoryUsages.quantityUsed,
+					itemName: inventoryItems.name,
+					itemUnit: inventoryItems.unit,
+					itemId: inventoryItems.id,
+					cost: inventoryItems.cost
+				})
+				.from(recordInventoryUsages)
+				.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
+				.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+				.where(and(...conditions))
+		]);
 
 		return {
 			currentMonth: selectedMonth,
