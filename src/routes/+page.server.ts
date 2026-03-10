@@ -72,6 +72,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		const orderItemsAgg = sql<
 			Array<{
 				caseTypeName: string;
+				caseTypeAbbrv: string;
 				caseNo: number;
 				orderDescription: string | null;
 				upOrDown: string;
@@ -79,6 +80,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		>`array_agg(
 			json_build_object(
 				'caseTypeName', ${caseTypes.caseTypeName},
+				'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
 				'caseNo', ${orderItems.caseNo},
 				'orderDescription', ${orderItems.orderDescription},
 				'upOrDown', ${orderItems.upOrDown}
@@ -174,6 +176,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					orderItems: sql<
 						Array<{
 							caseTypeName: string;
+							caseTypeAbbrv: string;
 							caseNo: string;
 							orderDescription: string | null;
 							upOrDown: string;
@@ -181,6 +184,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					>`array_agg(
 						json_build_object(
 							'caseTypeName', ${caseTypes.caseTypeName},
+							'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
 							'caseNo', ${orderItems.caseNo},
 							'orderDescription', ${orderItems.orderDescription},
 							'upOrDown', ${orderItems.upOrDown}
@@ -215,6 +219,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					orderItems: sql<
 						Array<{
 							caseTypeName: string;
+							caseTypeAbbrv: string;
 							caseNo: string;
 							orderDescription: string | null;
 							upOrDown: string;
@@ -222,6 +227,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					>`array_agg(
 						json_build_object(
 							'caseTypeName', ${caseTypes.caseTypeName},
+							'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
 							'caseNo', ${orderItems.caseNo},
 							'orderDescription', ${orderItems.orderDescription},
 							'upOrDown', ${orderItems.upOrDown}

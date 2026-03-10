@@ -346,6 +346,24 @@
 	let pendingCases = $derived(data.records?.filter(r => r.caseStatus === 'pending') || []);
 	let deliverCases = $derived(data.records?.filter(r => r.caseStatus === 'to be deliver') || []);
 	let finishedCases = $derived(data.records?.filter(r => r.caseStatus === 'finished') || []);
+
+	function formatDateTime(dateStr: string | null | undefined) {
+		if (!dateStr) return '-';
+		try {
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) return dateStr;
+			return date.toLocaleString('en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric',
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			});
+		} catch (e) {
+			return dateStr;
+		}
+	}
 </script>
 
 <!-- Compact Calendar Widget -->
@@ -1028,33 +1046,41 @@
 						`}
 						>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.datePickup}
+								{formatDateTime(record.datePickup)}
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.dateDropoff ? record.dateDropoff : '-'}
+								{formatDateTime(record.dateDropoff)}
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-red-600 font-medium tracking-tight">
-								{record.finishBy ? record.finishBy.split('T')[0] : 'None'}
+								{record.finishBy ? formatDateTime(record.finishBy) : 'None'}
 							</td>
 							{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 								<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-									{record.clinicName}
+									<span class="font-medium">{record.clinicName}</span>
 								</td>
 							{/if}
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.patientName}
+								<span class="font-medium">{record.patientName}</span>
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								<div class="flex flex-col gap-1">
+								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
-										<span>{item.caseTypeName} - {item.caseNo}</span>
+										<div class="leading-none">
+											<span class="font-bold text-gray-900">{item.caseTypeName}</span>
+											{#if item.caseTypeAbbrv}
+												<span class="text-[10px] text-gray-500 font-medium ml-0.5">({item.caseTypeAbbrv})</span>
+											{/if}
+											<div class="text-[10px] text-gray-700 mt-1 font-medium">{item.caseNo}</div>
+										</div>
 									{/each}
 								</div>
 							</td>
-							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								<div class="flex flex-col gap-1">
+							<td class="px-3 py-2 text-xs text-black min-w-[150px]">
+								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
-										<span>{item.orderDescription || '-'}</span>
+										<div class="text-gray-700 text-[11px] leading-tight break-words whitespace-normal border-l-[3px] border-indigo-200 pl-2 py-0.5 bg-gray-50/50 rounded-r-sm">
+											{item.orderDescription || '-'}
+										</div>
 									{/each}
 								</div>
 							</td>
