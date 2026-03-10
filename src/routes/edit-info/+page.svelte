@@ -3,9 +3,9 @@
 
 	let { data, form }: PageProps = $props();
 
-let doctors = data.doctors;
-let clinics = data.clinics;
-let technicians = data.technicians;
+let doctors = $derived(data.doctors);
+let clinics = $derived(data.clinics);
+let technicians = $derived(data.technicians);
 
 let doctorsWithClinic = $derived(
 	doctors.map((doctor) => ({
@@ -18,7 +18,7 @@ let doctorsWithClinic = $derived(
 	}))
 );
 
-	let caseTypes = $state(
+	let caseTypes = $derived(
 		data.caseTypes.map((ct) => ({
 			caseTypeId: ct.caseTypeId,
 			caseTypeName: ct.caseTypeName,
@@ -47,10 +47,6 @@ let newTechnicianNotes = $state('');
 
 	let newCaseType = $state('');
 	let newCaseTypeAbbrv = $state('');
-	// Add these new state variables
-	let newField = $state('');
-	let selectedCaseType = $state(null);
-	let showFieldInput = $state(false);
 
 	$effect(() => {
 		if (isClinicInputFocused && !newClinicSearch) {
@@ -64,21 +60,7 @@ let newTechnicianNotes = $state('');
 		}
 	});
 
-	function handleAddDoctor() {
-		if (newDoctorName && (newClinicId || (isNewClinic && newClinicSearch))) {
-			console.log(
-				'Adding doctor:',
-				newDoctorName,
-				'to clinic ID:',
-				newClinicId,
-				'new clinic:',
-				newClinicSearch
-			);
-			// Form submission will handle the actual add logic
-		} else {
-			alert('Please enter a doctor name and select or enter a clinic.');
-		}
-	}
+
 
 	function selectClinic(clinic: (typeof clinics)[0]) {
 		newClinicId = clinic.clinicId;
@@ -110,31 +92,8 @@ let newTechnicianNotes = $state('');
 		isNewClinic = true;
 	}
 
-	function toggleFieldInput(caseType: (typeof caseTypes)[0]) {
-		selectedCaseType = selectedCaseType?.caseTypeId === caseType.caseTypeId ? null : caseType;
-		showFieldInput = selectedCaseType !== null;
-		newField = '';
-	}
 
-	// Update delete doctor handler to use doctorId instead of clinicId
-	function handleDeleteDoctor(doctorId: string) {
-		return {
-			action: '?/deleteDoctor',
-			data: {
-				doctor_id: doctorId
-			}
-		};
-	}
-
-	function handleDeleteTechnician(id: number) {
-		return {
-			action: '?/deleteTechnician',
-			data: {
-				technician_id: id.toString()
-			}
-		};
-	}
-</script>\n\n
+</script>
 <div class="mx-auto max-w-7xl px-4 py-8">
 	{#if success && message}
 			<div class="mb-4 rounded-md bg-green-100 p-4">
@@ -798,37 +757,6 @@ let newTechnicianNotes = $state('');
 			</form>
 			</section>
 
-			<!-- Conditionally render the new field input -->
-			{#if showFieldInput}
-				<form
-					method="POST"
-					action="?/addField"
-					class="mt-4 flex items-center gap-4 rounded-md bg-gray-50 p-4 shadow-sm"
-				>
-					<div class="flex-1">
-						<label for="new_field" class="block text-sm font-medium text-gray-700">
-							New Field for {selectedCaseType?.caseType}
-						</label>
-						<div class="mt-1">
-							<input
-								type="text"
-								name="new_field"
-								id="new_field"
-								bind:value={newField}
-								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-								placeholder="Enter new field value"
-								required
-							/>
-						</div>
-					</div>
-					<button
-						type="submit"
-						class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-					>
-						Add Field
-					</button>
-				</form>
-			{/if}
 		</div>
 	</div>
 </div>
