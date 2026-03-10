@@ -9,6 +9,7 @@
 	let isMenuOpen = $state(false);
 
 	const navLinks = [
+		{ label: 'HOME', href: '/' },
 		{ label: 'DATA', href: '/data' },
 		{ label: 'SALES', href: '/sales' },
 		{ label: 'CALENDAR', href: '/calendar' },
@@ -66,7 +67,7 @@
 
 <NotificationBanner />
 
-<nav class="top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
+<nav class="sticky top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
 	<div class="mx-auto flex items-center justify-between px-4 py-3">
 		<div class="flex items-center gap-8">
 			{#if page.url.pathname !== '/'}
@@ -86,7 +87,7 @@
 			{/if}
 
 			<!-- Desktop Main Links -->
-			<div class="hidden items-center gap-6 md:flex">
+			<div class="hidden items-center gap-2 xl:gap-4 lg:flex">
 				{#each navLinks as link}
 					<a
 						href={link.href}
@@ -139,7 +140,7 @@
 				>
 			</div>
 
-			<!-- Hamburger menu button for mobile/tablet -->
+			<!-- Hamburger menu button for mobile/tablet/smaller desktop -->
 			<button
 				class="block rounded border border-[#A1AEB3]/30 bg-[#1F3A4D] p-2 text-white shadow-sm hover:bg-[#233B48] lg:hidden"
 				aria-label="Toggle menu"
