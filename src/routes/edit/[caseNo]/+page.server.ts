@@ -61,6 +61,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			db.select({
 				caseTypeId: caseTypes.caseTypeId,
 				caseTypeName: caseTypes.caseTypeName,
+				caseTypeAbbrv: caseTypes.caseTypeAbbrv,
 				numberOfCases: caseTypes.numberOfCases
 			}).from(caseTypes),
 			db.select({

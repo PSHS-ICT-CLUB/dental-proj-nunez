@@ -18,11 +18,11 @@ let doctorsWithClinic = $derived(
 	}))
 );
 
-	// Update case types state
 	let caseTypes = $state(
 		data.caseTypes.map((ct) => ({
 			caseTypeId: ct.caseTypeId,
 			caseTypeName: ct.caseTypeName,
+			caseTypeAbbrv: ct.caseTypeAbbrv,
 			numberOfCases: ct.numberOfCases
 		}))
 	);
@@ -46,6 +46,7 @@ let newTechnicianNotes = $state('');
 	let message = form?.message ?? '';
 
 	let newCaseType = $state('');
+	let newCaseTypeAbbrv = $state('');
 	// Add these new state variables
 	let newField = $state('');
 	let selectedCaseType = $state(null);
@@ -645,7 +646,7 @@ let newTechnicianNotes = $state('');
 			>
 				<div class="flex-1">
 					<label for="case_type" class="block text-sm font-medium text-gray-700">
-						New Case Type
+						Full Name
 					</label>
 					<div class="mt-1">
 						<input
@@ -654,14 +655,30 @@ let newTechnicianNotes = $state('');
 							id="case_type"
 							bind:value={newCaseType}
 							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-							placeholder="Enter case type"
+							placeholder="e.g. Crown"
+							required
+						/>
+					</div>
+				</div>
+				<div class="flex-1">
+					<label for="case_type_abbrv" class="block text-sm font-medium text-gray-700">
+						Abbreviation/Code
+					</label>
+					<div class="mt-1">
+						<input
+							type="text"
+							name="case_type_abbrv"
+							id="case_type_abbrv"
+							bind:value={newCaseTypeAbbrv}
+							class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+							placeholder="e.g. CRN"
 							required
 						/>
 					</div>
 				</div>
 				<button
 					type="submit"
-					class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+					class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none h-[38px]"
 				>
 					Add Case Type
 				</button>
@@ -681,7 +698,13 @@ let newTechnicianNotes = $state('');
 							scope="col"
 							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
 						>
-							Number of Cases
+							Code
+						</th>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+						>
+							Case Number Count
 						</th>
 						<th scope="col" class="relative px-6 py-3">
 							<span class="sr-only">Actions</span>
@@ -692,27 +715,43 @@ let newTechnicianNotes = $state('');
 					{#each caseTypes as caseType}
 						<tr>
 							<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-								{caseType.caseTypeName}
+								<form action="?/updateCaseTypeCount" method="post" id="update-form-{caseType.caseTypeId}" class="flex items-center gap-2">
+									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
+									<input
+										type="text"
+										name="case_type_name"
+										value={caseType.caseTypeName}
+										class="w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									/>
+								</form>
 							</td>
 							<td class="px-6 py-2 text-sm whitespace-nowrap">
-								<form action="?/updateCaseTypeCount" method="post" class="flex items-center gap-2">
-									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />
+									<input
+										type="text"
+										name="case_type_abbrv"
+										value={caseType.caseTypeAbbrv}
+										form="update-form-{caseType.caseTypeId}"
+										class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm font-mono"
+									/>
+							</td>
+							<td class="px-6 py-2 text-sm whitespace-nowrap">
 									<input
 										type="number"
 										name="number_of_cases"
 										value={caseType.numberOfCases}
 										min="0"
+										form="update-form-{caseType.caseTypeId}"
 										class="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 									/>
+							</td>
+							<td class="px-6 py-2 text-right text-sm font-medium flex items-center justify-end gap-2 whitespace-nowrap">
 									<button
 										type="submit"
-										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+										form="update-form-{caseType.caseTypeId}"
+										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 									>
-										Update
+										Save
 									</button>
-								</form>
-							</td>
-							<td class="px-6 py-2 text-right text-sm font-medium whitespace-nowrap">
 							{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 								<form action="?/deleteCaseType" method="post" class="inline">
 									<input type="hidden" name="case_type_id" value={caseType.caseTypeId} />

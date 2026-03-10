@@ -285,7 +285,7 @@
 
 	function formatCaseNumber(num: number, caseTypeId: number) {
 		const caseType = data?.caseTypes.find((ct) => ct.caseTypeId === caseTypeId);
-		const prefix = caseType ? caseType.caseTypeName : '';
+		const prefix = caseType ? caseType.caseTypeAbbrv : '';
 		return prefix ? `${prefix}-${String(num).padStart(5, '0')}` : String(num).padStart(5, '0');
 	}
 

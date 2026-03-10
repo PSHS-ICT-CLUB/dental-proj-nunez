@@ -29,6 +29,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		db.select({
 			caseTypeId: caseTypes.caseTypeId,
 			caseTypeName: caseTypes.caseTypeName,
+			caseTypeAbbrv: caseTypes.caseTypeAbbrv,
 			numberOfCases: caseTypes.numberOfCases
 		}).from(caseTypes),
 		db.select({
@@ -136,7 +137,8 @@ export const actions = {
 						.where(eq(caseTypes.caseTypeId, caseTypeId))
 						.returning({
 							newCases: caseTypes.numberOfCases,
-							typeName: caseTypes.caseTypeName
+							typeName: caseTypes.caseTypeName,
+							typeAbbrv: caseTypes.caseTypeAbbrv
 						});
 
 					if (!updatedCaseType) {
@@ -144,7 +146,7 @@ export const actions = {
 					}
 
 					const nextCaseNum = updatedCaseType.newCases;
-					const formattedCaseNo = `${updatedCaseType.typeName}-${String(nextCaseNum).padStart(5, '0')}`;
+					const formattedCaseNo = `${updatedCaseType.typeAbbrv}-${String(nextCaseNum).padStart(5, '0')}`;
 
 					await tx.insert(orderItems).values({
 						orderId: orderID[0].id,
@@ -172,7 +174,8 @@ export const actions = {
 						.where(eq(caseTypes.caseTypeId, caseTypeId))
 						.returning({
 							newCases: caseTypes.numberOfCases,
-							typeName: caseTypes.caseTypeName
+							typeName: caseTypes.caseTypeName,
+							typeAbbrv: caseTypes.caseTypeAbbrv
 						});
 
 					if (!updatedCaseType) {
@@ -180,7 +183,7 @@ export const actions = {
 					}
 
 					const nextCaseNum = updatedCaseType.newCases;
-					const formattedCaseNo = `${updatedCaseType.typeName}-${String(nextCaseNum).padStart(5, '0')}`;
+					const formattedCaseNo = `${updatedCaseType.typeAbbrv}-${String(nextCaseNum).padStart(5, '0')}`;
 
 					await tx.insert(orderItems).values({
 						orderId: orderID[0].id,

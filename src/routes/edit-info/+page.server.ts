@@ -36,6 +36,7 @@ export const load = (async (event) => {
 			.select({
 				caseTypeId: caseTypes.caseTypeId,
 				caseTypeName: caseTypes.caseTypeName,
+				caseTypeAbbrv: caseTypes.caseTypeAbbrv,
 				numberOfCases: caseTypes.numberOfCases
 			})
 			.from(caseTypes)
@@ -242,14 +243,16 @@ export const actions = {
 	addCaseType: async ({ request }) => {
 		const data = await request.formData();
 		const caseType = data.get('case_type')?.toString();
+		const caseTypeAbbrv = data.get('case_type_abbrv')?.toString();
 
-		if (!caseType) {
-			return { success: false, error: 'Case type is required' };
+		if (!caseType || !caseTypeAbbrv) {
+			return { success: false, error: 'Case type name and abbreviation are required' };
 		}
 
 		try {
 			await db.insert(caseTypes).values({
-				caseType: caseType,
+				caseTypeName: caseType,
+				caseTypeAbbrv: caseTypeAbbrv,
 				numberOfCases: 0
 			} as unknown as typeof caseTypes.$inferInsert);
 
@@ -257,8 +260,12 @@ export const actions = {
 				success: true,
 				message: 'Case type added successfully'
 			};
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error adding case type:', error);
+			if (error.code === '23505') {
+				// PostgreSQL unique violation error code
+				return { success: false, error: 'A Case Type with this name already exists' };
+			}
 			return { success: false, error: 'Failed to add case type' };
 		}
 	},
@@ -289,20 +296,26 @@ export const actions = {
 		const data = await request.formData();
 		const caseTypeId = data.get('case_type_id')?.toString();
 		const numberOfCases = data.get('number_of_cases')?.toString();
+		const caseTypeName = data.get('case_type_name')?.toString();
+		const caseTypeAbbrv = data.get('case_type_abbrv')?.toString();
 
 		if (!caseTypeId || !numberOfCases) {
 			return { success: false, error: 'Case type ID and number of cases are required' };
 		}
 
 		try {
+			const updateData: any = { numberOfCases: parseInt(numberOfCases) };
+			if (caseTypeName) updateData.caseTypeName = caseTypeName;
+			if (caseTypeAbbrv) updateData.caseTypeAbbrv = caseTypeAbbrv;
+
 			await db
 				.update(caseTypes)
-				.set({ numberOfCases: parseInt(numberOfCases) })
+				.set(updateData)
 				.where(eq(caseTypes.caseTypeId, parseInt(caseTypeId)));
 
 			return {
 				success: true,
-				message: 'Case count updated successfully'
+				message: 'Case updated successfully'
 			};
 		} catch (error) {
 			console.error('Error updating case count:', error);

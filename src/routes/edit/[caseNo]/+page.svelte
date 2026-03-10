@@ -262,12 +262,14 @@
 			const original = originalItems[index];
 			if (original) {
 				if (item.caseTypeId !== original.caseTypeId) {
-					const oldCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === original.caseTypeId)?.caseTypeName || '';
-					const newCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === item.caseTypeId)?.caseTypeName || '';
+					const oldCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === original.caseTypeId);
+					const oldCaseTypeText = oldCaseType ? `${oldCaseType.caseTypeName} (${oldCaseType.caseTypeAbbrv})` : '';
+					const newCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === item.caseTypeId);
+					const newCaseTypeText = newCaseType ? `${newCaseType.caseTypeName} (${newCaseType.caseTypeAbbrv})` : '';
 					changesList.push({
 						field: `Item ${index + 1} Case Type`,
-						oldValue: oldCaseType,
-						newValue: newCaseType
+						oldValue: oldCaseTypeText,
+						newValue: newCaseTypeText
 					});
 				}
 				if (item.orderDescription !== original.orderDescription) {
@@ -549,7 +551,7 @@
 										onchange={(e) => updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
 									>
 										{#each data.caseTypes as caseType}
-											<option value={caseType.caseTypeId}>{caseType.caseTypeName}</option>
+											<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>
 										{/each}
 									</select>
 								</div>

@@ -143,6 +143,7 @@ export const caseTypes = pgTable(
 	{
 		caseTypeId: serial('case_type_id').primaryKey().notNull(),
 		caseTypeName: varchar('case_type_name', { length: 255 }).notNull(),
+		caseTypeAbbrv: varchar('case_type_abbrv', { length: 50 }).notNull().default(''), // Added for abbreviations
 		numberOfCases: integer('number_of_cases').notNull(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 			sql`CURRENT_TIMESTAMP`
