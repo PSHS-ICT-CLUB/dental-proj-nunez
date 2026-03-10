@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { signIn } from '@auth/sveltekit/client';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	let email = $state('');
 	let password = $state('');
@@ -20,6 +21,9 @@
 		if (result?.error) {
 			errorMsg = 'Invalid email or password';
 			isLoading = false;
+		} else {
+			await invalidateAll();
+			await goto('/');
 		}
 	}
 </script>
