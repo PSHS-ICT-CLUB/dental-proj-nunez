@@ -341,6 +341,11 @@
 		selectedCalendarDate ? finishByDate[selectedCalendarDate] || [] : []
 	);
 	let selectedDateTotal = $derived(selectedDateDeliveries.length + selectedDateFinishBys.length);
+
+	// Case Status Lists
+	let pendingCases = $derived(data.records?.filter(r => r.caseStatus === 'pending') || []);
+	let deliverCases = $derived(data.records?.filter(r => r.caseStatus === 'to be deliver') || []);
+	let finishedCases = $derived(data.records?.filter(r => r.caseStatus === 'finished') || []);
 </script>
 
 <!-- Filter Form -->
@@ -741,6 +746,96 @@
 								<span>Click a date to preview cases</span>
 							</div>
 						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Case Status Overview -->
+{#if data.records && data.records.length > 0 && Object.keys(data.filters).length === 0}
+	<div class="w-full border-b border-gray-200 bg-gray-50 p-2 print:hidden">
+		<div class="mx-auto max-w-7xl">
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-semibold text-gray-700 ml-1">Case Status Overview</h3>
+			</div>
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<!-- Pending -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-3 py-2">
+						<span class="text-xs font-semibold tracking-wider text-gray-700 uppercase">Pending</span>
+						<span class="rounded-full bg-gray-200 px-1.5 py-0.5 text-[10px] font-bold text-gray-700">{pendingCases.length}</span>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each pendingCases as record}
+							<div class="block rounded border border-gray-100 bg-white p-2 transition-colors hover:bg-gray-50">
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900">{record.patientName}</span>
+									<span class="whitespace-nowrap text-[10px] font-medium text-red-600">{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a href="/status/{record.recordId}" class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100">Timeline</a>
+									<a href="/amount/{record.recordId}" class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100">Amount</a>
+									<a href="/details/{record.recordId}" class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100">Details</a>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">No pending cases</div>
+						{/each}
+					</div>
+				</div>
+
+				<!-- To Be Delivered -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div class="flex items-center justify-between border-b border-gray-100 bg-blue-50/50 px-3 py-2">
+						<span class="text-xs font-semibold tracking-wider text-blue-800 uppercase">To Deliver</span>
+						<span class="rounded-full bg-blue-200 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">{deliverCases.length}</span>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each deliverCases as record}
+							<div class="block rounded border border-blue-100/50 bg-white p-2 transition-colors hover:bg-blue-50">
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900">{record.patientName}</span>
+									<span class="whitespace-nowrap text-[10px] font-medium text-red-600">{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a href="/status/{record.recordId}" class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100">Timeline</a>
+									<a href="/amount/{record.recordId}" class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100">Amount</a>
+									<a href="/details/{record.recordId}" class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100">Details</a>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">No cases to deliver</div>
+						{/each}
+					</div>
+				</div>
+
+				<!-- Finished -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div class="flex items-center justify-between border-b border-gray-100 bg-green-50/50 px-3 py-2">
+						<span class="text-xs font-semibold tracking-wider text-green-800 uppercase">Finished</span>
+						<span class="rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-bold text-green-800">{finishedCases.length}</span>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each finishedCases as record}
+							<div class="block rounded border border-green-100/50 bg-white p-2 transition-colors hover:bg-green-50">
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900">{record.patientName}</span>
+									<span class="whitespace-nowrap text-[10px] font-medium text-red-600">{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a href="/status/{record.recordId}" class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100">Timeline</a>
+									<a href="/amount/{record.recordId}" class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100">Amount</a>
+									<a href="/details/{record.recordId}" class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100">Details</a>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">No finished cases</div>
+						{/each}
 					</div>
 				</div>
 			</div>
