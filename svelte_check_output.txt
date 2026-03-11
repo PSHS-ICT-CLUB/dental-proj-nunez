@@ -1,0 +1,543 @@
+
+> dental-proj@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+
+====================================
+Loading svelte-check in workspace: /app
+Getting Svelte diagnostics...
+
+/app/src/auth.ts:7:10
+Error: Module '"$env/static/private"' has no exported member 'AUTH_SECRET'.
+import { pbkdf2Sync, timingSafeEqual } from 'node:crypto';
+import { AUTH_SECRET } from '$env/static/private';
+
+
+
+/app/src/lib/components/CaseStatusManager.svelte:107:5
+Warn: Using `on:click` to listen to the click event is deprecated. Use the event attribute `onclick` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+			<button
+				on:click={toggleStatusMenu}
+				disabled={isLoading || isChangingStatus}
+
+
+/app/src/lib/components/CaseStatusManager.svelte:120:8
+Warn: Using `on:click` to listen to the click event is deprecated. Use the event attribute `onclick` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+						<button
+							on:click={() => changeStatus(status)}
+							disabled={isChangingStatus}
+
+
+/app/src/lib/components/upload-record/ClientInfo.svelte:218:3
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+	<div>
+		<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+			Jaw Selection
+		</label>
+		<div class="flex rounded-md border border-gray-200 w-full" role="group">
+
+
+/app/src/lib/components/upload-record/DeliveryWorkDetails.svelte:200:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Assigned Technicians</label
+					>
+
+
+
+/app/src/lib/components/upload-record/DeliveryWorkDetails.svelte:211:10
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+									{tech}
+									<button
+										type="button"
+										onclick={() => removeTechnician(tech)}
+										class="hover:text-indigo-900"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											class="h-3 w-3"
+											viewBox="0 0 20 20"
+											fill="currentColor"
+										>
+											<path
+												fill-rule="evenodd"
+												d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</button>
+								</span>
+
+
+/app/src/lib/components/upload-record/InventoryUsage.svelte:34:4
+Warn: `<span>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+			<span
+				onclick={(e) => {
+					e.stopPropagation();
+					addInventoryRow();
+					showInventory = true;
+				}}
+				class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 flex items-center gap-1 cursor-pointer"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+				</svg>
+				Material
+			</span>
+
+
+
+/app/src/lib/components/upload-record/InventoryUsage.svelte:101:7
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+						</div>
+						<button
+							type="button"
+							onclick={() => removeInventoryRow(i)}
+							class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white transition-colors"
+							title="Remove Item"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+							</svg>
+						</button>
+					</div>
+
+
+/app/src/routes/+page.svelte:638:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div class="relative">
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Clinic</label
+					>
+					<input
+
+
+/app/src/routes/+page.svelte:679:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case Type</label
+					>
+					<select
+
+
+/app/src/routes/+page.svelte:695:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case No</label
+					>
+					<input
+
+
+/app/src/routes/+page.svelte:708:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Patient</label
+					>
+					<input
+
+
+/app/src/routes/+page.svelte:721:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Payment</label
+					>
+					<select
+
+
+/app/src/routes/+page.svelte:736:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Status</label
+					>
+					<select
+
+
+/app/src/routes/+page.svelte:754:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case Notes</label
+					>
+					<input
+
+
+/app/src/routes/+page.svelte:772:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Start Date</label
+						>
+						<input
+
+
+/app/src/routes/+page.svelte:783:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>End Date</label
+						>
+						<input
+
+
+/app/src/routes/+page.svelte:797:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Filter by Month</label
+						>
+						<select
+
+
+/app/src/routes/+page.svelte:814:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-full sm:w-24">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Year</label
+						>
+						<select
+
+
+/app/src/routes/+page.svelte:831:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Record ID</label
+						>
+						<input
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:83:7
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+						</div>
+						<button type="button" class="ml-auto inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {bannerType === 'success' ? 'text-green-500 hover:bg-green-100 focus:ring-green-600' : 'text-red-500 hover:bg-red-100 focus:ring-red-600'}" onclick={closeBanner}>
+							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+							</svg>
+						</button>
+					</div>
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:116:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+											<div class="flex-1">
+												<label class="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
+												<select
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:128:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+											<div class="w-16 shrink-0">
+												<label class="block text-xs font-semibold text-gray-600 mb-1">No.</label>
+												<input
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:141:12
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+										<div class="sm:col-span-1 lg:col-span-4">
+											<label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+											<input
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:154:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+											<div class="w-20 shrink-0">
+												<label class="block text-xs font-semibold text-gray-600 mb-1">Units</label>
+												<input
+
+
+/app/src/routes/amount/[caseNo]/+page.svelte:164:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+											<div class="flex-1">
+												<label class="block text-xs font-semibold text-gray-600 mb-1">Cost per Unit</label>
+												<div class="relative">
+
+
+/app/src/routes/balance/+page.svelte:167:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Start Date</label>
+					<input
+
+
+/app/src/routes/balance/+page.svelte:176:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">End Date</label>
+					<input
+
+
+/app/src/routes/balance/+page.svelte:185:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Case Type</label>
+					<select
+
+
+/app/src/routes/balance/+page.svelte:202:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="flex-1">
+						<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Quick Month Filter</label>
+						<select
+
+
+/app/src/routes/balance/+page.svelte:217:7
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+					<div class="w-24">
+						<label class="mb-1 block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Year</label>
+						<select
+
+
+/app/src/routes/data/+page.svelte:310:6
+Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+					value={data.selectedPeriod}
+					on:change={handlePeriodChange}
+				>
+
+
+/app/src/routes/data/+page.svelte:328:6
+Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+					value={formatDateForInput(data.dateRange.start || getMonthStart(new Date()))}
+					on:change={(e) => handleDateChange(e, 'startDate')}
+				/>
+
+
+/app/src/routes/data/+page.svelte:341:6
+Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+					value={formatDateForInput(data.dateRange.end || getMonthEnd(new Date()))}
+					on:change={(e) => handleDateChange(e, 'endDate')}
+				/>
+
+
+/app/src/routes/data/+page.svelte:352:6
+Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+					value={data.selectedClinic}
+					on:change={filterByClinic}
+				>
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:547:10
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+								<div class="flex-1">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
+									<select
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:559:10
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+								<div class="w-16 shrink-0">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">No.</label>
+									<input
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:572:9
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+							<div class="sm:col-span-1 lg:col-span-4">
+								<label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+								<input
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:585:10
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+								<div class="w-20 shrink-0">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Units</label>
+									<input
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:595:10
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+								<div class="flex-1">
+									<label class="block text-xs font-semibold text-gray-600 mb-1">Cost per Unit</label>
+									<div class="relative">
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:627:5
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+			<div class="md:col-span-2">
+				<label class="mb-3 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label>
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+
+/app/src/routes/edit/[caseNo]/+page.svelte:692:5
+Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<textarea ...></textarea>` rather than `<textarea ... />`
+https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
+				</label>
+				<textarea
+					id="assigned_technicians"
+					name="assignedTechnicians"
+					rows="2"
+					bind:value={assignedTechnicians}
+					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					placeholder="Enter one or more technician names (e.g. Juan, Maria, Pedro)"
+				/>
+				<p class="mt-1 text-xs text-gray-500">
+
+
+/app/src/routes/expenses/+page.svelte:58:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Quick Month Filter</label
+					>
+					<select
+
+
+/app/src/routes/expenses/+page.svelte:75:6
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Year</label
+					>
+					<select
+
+
+/app/src/routes/inventory/+page.svelte:161:5
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+				<h3 class="text-lg font-semibold text-gray-900">Add New Inventory Item</h3>
+				<button onclick={() => (isAddItemModalOpen = false)} class="text-gray-400 hover:text-gray-500">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+
+/app/src/routes/inventory/+page.svelte:233:5
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+				<h3 class="text-lg font-bold text-gray-900">Adjust Stock</h3>
+				<button onclick={() => (isAdjustStockModalOpen = false)} class="text-gray-400 hover:text-gray-500">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+
+/app/src/routes/review-cases/+page.svelte:197:4
+Warn: Buttons and links should either contain text or have an `aria-label` or `aria-labelledby` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+			<p class="text-sm font-medium">{toastMessage}</p>
+			<button onclick={() => (showToast = false)} class="ml-auto text-gray-400 hover:text-gray-600">
+				<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+		</div>
+
+
+/app/src/routes/sales/+page.svelte:1079:11
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+									<div class="flex-1 w-full">
+										<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Staff Name</label>
+										<input
+
+
+/app/src/routes/sales/+page.svelte:1098:11
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+									<div class="flex-1 w-full">
+										<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Amount (PHP)</label>
+										<div class="relative">
+
+
+/app/src/routes/status/[recordId]/+page.svelte:259:14
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+												<div>
+													<label class="block text-xs font-semibold text-gray-700 mb-1">IN Date</label>
+													<input type="date" name="date" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+
+
+/app/src/routes/status/[recordId]/+page.svelte:263:14
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+												<div>
+													<label class="block text-xs font-semibold text-gray-700 mb-1">IN Time</label>
+													<input type="time" name="time" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+
+
+/app/src/routes/status/[recordId]/+page.svelte:269:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+											<div class="mb-4">
+												<label class="block text-xs font-semibold text-gray-700 mb-1">IN Image</label>
+												<div class="flex items-center gap-2 mb-2">
+
+
+/app/src/routes/status/[recordId]/+page.svelte:346:53
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Date</label>
+                                                    <input type="date" name="date" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+
+
+/app/src/routes/status/[recordId]/+page.svelte:350:53
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Time</label>
+                                                    <input type="time" name="time" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+
+
+/app/src/routes/status/[recordId]/+page.svelte:356:49
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+                                            <div class="mb-4">
+                                                <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Image</label>
+                                                <div class="flex items-center gap-2 mb-2">
+
+
+====================================
+svelte-check found 1 error and 54 warnings in 15 files
