@@ -205,11 +205,8 @@ export const actions = {
 					success: true,
 					message: `Doctor with ID ${doctorIdToDelete} deleted successfully`
 				};
-			} catch (error: any) {
+			} catch (error) {
 				console.error('Error deleting doctor:', error);
-				if (error.code === '23503') {
-					return { success: false, error: 'Cannot delete doctor because they are currently assigned to existing records.' };
-				}
 				return { success: false, error: 'Failed to delete doctor' };
 			}
 		} else {
@@ -235,11 +232,8 @@ export const actions = {
 					success: true,
 					message: `Clinic with ID ${clinicIdToDelete} and associated doctors deleted successfully`
 				};
-			} catch (error: any) {
+			} catch (error) {
 				console.error('Error deleting clinic and associated doctors:', error);
-				if (error.code === '23503') {
-					return { success: false, error: 'Cannot delete clinic because it (or its doctors) is currently associated with existing records.' };
-				}
 				return { success: false, error: 'Failed to delete clinic and associated doctors' };
 			}
 		} else {
@@ -293,11 +287,8 @@ export const actions = {
 				success: true,
 				message: 'Case type deleted successfully'
 			};
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error deleting case type:', error);
-			if (error.code === '23503') {
-				return { success: false, error: 'Cannot delete case type because it is currently used in existing records or order items.' };
-			}
 			return { success: false, error: 'Failed to delete case type' };
 		}
 	},
@@ -372,11 +363,8 @@ export const actions = {
 		try {
 			await db.delete(technicians).where(eq(technicians.id, parseInt(techId)));
 			return { success: true, message: 'Technician deleted successfully' };
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error deleting technician:', error);
-			if (error.code === '23503') {
-				return { success: false, error: 'Cannot delete technician because they are currently assigned to existing records.' };
-			}
 			return { success: false, error: 'Failed to delete technician' };
 		}
 	}
