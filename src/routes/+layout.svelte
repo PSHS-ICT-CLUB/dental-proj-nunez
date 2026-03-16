@@ -133,47 +133,14 @@
 						</a>
 					{/each}
 
-					<!-- Settings Dropdown -->
-					<div class="relative">
-						<button
-							onclick={() => (isUserMenuOpen = !isUserMenuOpen)}
-							class={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
-								isSettingsActive() || isUserMenuOpen
-									? 'bg-white/10 text-white'
-									: 'text-[#A1AEB3] hover:bg-white/5 hover:text-white'
-							}`}
+					{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
+						<a
+							href="/review-cases"
+							class="rounded-md px-3 py-2 text-sm font-medium text-purple-300 transition-all duration-200 hover:bg-white/5 hover:text-purple-200"
 						>
-							Settings
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M19 9l-7 7-7-7"
-								/>
-							</svg>
-						</button>
-
-						{#if isUserMenuOpen}
-							<div
-								class="absolute top-full right-0 mt-1 w-48 rounded-lg border border-white/10 bg-[#1F3A4D] py-1 shadow-xl"
-							>
-								{#each settingsLinks as link}
-									<a
-										href={link.href}
-										class={`block px-4 py-2 text-sm transition-colors ${
-											isActive(link.href)
-												? 'bg-white/10 text-white'
-												: 'text-[#A1AEB3] hover:bg-white/5 hover:text-white'
-										}`}
-										onclick={() => (isUserMenuOpen = false)}
-									>
-										{link.label}
-									</a>
-								{/each}
-							</div>
-						{/if}
-					</div>
+							Review Cases
+						</a>
+					{/if}
 				</div>
 			</div>
 
@@ -257,23 +224,15 @@
 									{/if}
 								</div>
 
-								{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
+								{#each settingsLinks as link}
 									<a
-										href="/review-cases"
-										class="flex items-center gap-2 px-4 py-2 text-sm text-purple-300 transition-colors hover:bg-white/5 hover:text-purple-200"
+										href={link.href}
+										class="flex items-center gap-2 px-4 py-2 text-sm text-[#A1AEB3] transition-colors hover:bg-white/5 hover:text-white"
 										onclick={() => (isUserMenuOpen = false)}
 									>
-										<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-											/>
-										</svg>
-										Review Cases
+										{link.label}
 									</a>
-								{/if}
+								{/each}
 
 								{#if data?.session?.user?.role === 'admin'}
 									<a
@@ -380,6 +339,39 @@
 						</a>
 					{/each}
 
+					{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
+						<a
+							class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-purple-300 transition-all hover:bg-white/5"
+							href="/review-cases"
+							onclick={() => (isMenuOpen = false)}
+						>
+							Review Cases
+						</a>
+					{/if}
+
+					<!-- Admin Section -->
+					{#if data?.session?.user?.role === 'admin'}
+						<div class="mt-2 border-t border-white/10 pt-2">
+							<p class="px-3 py-1 text-xs font-medium tracking-wider text-[#A1AEB3]/70 uppercase">
+								Admin
+							</p>
+							<a
+								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-amber-300 transition-all hover:bg-white/5"
+								href="/admin"
+								onclick={() => (isMenuOpen = false)}
+							>
+								Admin Panel
+							</a>
+							<a
+								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-300 transition-all hover:bg-white/5"
+								href="/admin/history"
+								onclick={() => (isMenuOpen = false)}
+							>
+								Change Log
+							</a>
+						</div>
+					{/if}
+
 					<!-- Settings Section -->
 					<div class="mt-2 border-t border-white/10 pt-2">
 						<p class="px-3 py-1 text-xs font-medium tracking-wider text-[#A1AEB3]/70 uppercase">
@@ -387,11 +379,7 @@
 						</p>
 						{#each settingsLinks as link}
 							<a
-								class={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-									isActive(link.href)
-										? 'bg-white/10 text-white'
-										: 'text-[#A1AEB3] hover:bg-white/5 hover:text-white'
-								}`}
+								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#A1AEB3] transition-all hover:bg-white/5 hover:text-white"
 								href={link.href}
 								onclick={() => (isMenuOpen = false)}
 							>
@@ -399,40 +387,6 @@
 							</a>
 						{/each}
 					</div>
-
-					<!-- Admin Section -->
-					{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
-						<div class="mt-2 border-t border-white/10 pt-2">
-							<p class="px-3 py-1 text-xs font-medium tracking-wider text-[#A1AEB3]/70 uppercase">
-								Admin
-							</p>
-							{#if data?.session?.user?.role === 'admin' || data?.session?.user?.role === 'dentist'}
-								<a
-									class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-purple-300 transition-all hover:bg-white/5"
-									href="/review-cases"
-									onclick={() => (isMenuOpen = false)}
-								>
-									Review Cases
-								</a>
-							{/if}
-							{#if data?.session?.user?.role === 'admin'}
-								<a
-									class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-amber-300 transition-all hover:bg-white/5"
-									href="/admin"
-									onclick={() => (isMenuOpen = false)}
-								>
-									Admin Panel
-								</a>
-								<a
-									class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-300 transition-all hover:bg-white/5"
-									href="/admin/history"
-									onclick={() => (isMenuOpen = false)}
-								>
-									Change Log
-								</a>
-							{/if}
-						</div>
-					{/if}
 
 					<!-- Actions Section -->
 					<div class="mt-2 border-t border-white/10 pt-2">
