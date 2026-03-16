@@ -289,23 +289,23 @@
 <div class="mx-auto max-w-6xl px-4 py-8">
 	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Data Summary</h1>
-		<div class="text-sm text-gray-500">
-			Showing data for: <span class="font-semibold text-gray-700">{data.selectedPeriod === 'month' ? 'Monthly View' : 'Daily View'}</span>
+		<div class="text-sm text-text-muted">
+			Showing data for: <span class="font-semibold text-text-secondary">{data.selectedPeriod === 'month' ? 'Monthly View' : 'Daily View'}</span>
 		</div>
 	</div>
 
 	<!-- Filters Card -->
-	<div class="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-6 shadow-sm">
-		<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
+	<div class="mb-8 rounded-lg border border-border bg-surface p-6 shadow-sm">
+		<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">
 			Filter & Navigate
 		</h2>
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-end">
 			<!-- Period selector -->
 			<div class="flex flex-col">
-				<label for="period" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">View by</label>
+				<label for="period" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">View by</label>
 				<select
 					id="period"
-					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					value={data.selectedPeriod}
 					on:change={handlePeriodChange}
 				>
@@ -317,26 +317,26 @@
 
 			<!-- Date filters -->
 			<div class="flex flex-col">
-				<label for="startDate" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Start Date</label>
+				<label for="startDate" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Start Date</label>
 				<input
 					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
 					id="startDate"
 					min={data.selectedPeriod === 'year' ? '2000' : undefined}
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					value={formatDateForInput(data.dateRange.start || getMonthStart(new Date()))}
 					on:change={(e) => handleDateChange(e, 'startDate')}
 				/>
 			</div>
 			
 			<div class="flex flex-col">
-				<label for="endDate" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">End Date</label>
+				<label for="endDate" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">End Date</label>
 				<input
 					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
 					id="endDate"
 					min={data.selectedPeriod === 'year' ? '2000' : undefined}
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					value={formatDateForInput(data.dateRange.end || getMonthEnd(new Date()))}
 					on:change={(e) => handleDateChange(e, 'endDate')}
 				/>
@@ -344,10 +344,10 @@
 
 			<!-- Clinic filter -->
 			<div class="flex flex-col">
-				<label for="clinic" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Filter by Clinic</label>
+				<label for="clinic" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Filter by Clinic</label>
 				<select
 					id="clinic"
-					class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					value={data.selectedClinic}
 					on:change={filterByClinic}
 				>
@@ -362,29 +362,29 @@
 
 	<!-- Summary cards -->
 	<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Cases</p>
-			<p class="text-2xl font-bold text-gray-900">{data.summary.totalCases}</p>
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Total Cases</p>
+			<p class="text-2xl font-bold text-text-primary">{data.summary.totalCases}</p>
 		</div>
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total Amount</p>
-			<p class="text-2xl font-bold text-gray-900">{formatCurrency(data.summary.totalAmount)}</p>
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Total Amount</p>
+			<p class="text-2xl font-bold text-text-primary">{formatCurrency(data.summary.totalAmount)}</p>
 		</div>
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm relative overflow-hidden">
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm relative overflow-hidden">
 			<div class="absolute top-0 right-0 w-2 h-full bg-green-500"></div>
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Paid Amount</p>
+			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Paid Amount</p>
 			<p class="text-2xl font-bold text-green-600">{formatCurrency(data.summary.paidAmount)}</p>
 		</div>
 	</div>
 
 	<!-- Case Types Summary -->
-	<div class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-		<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">Case Types Distribution Overview</h2>
+	<div class="mb-8 rounded-lg border border-border bg-white p-6 shadow-sm">
+		<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Case Types Distribution Overview</h2>
 		<div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
 			{#each Object.entries(data.summary.caseTypeTotals) as [type, count]}
-				<div class="rounded bg-gray-50 p-4 border border-gray-100">
-					<h3 class="mb-1 text-[10px] font-medium tracking-wider text-gray-500 uppercase">{type}</h3>
-					<p class="text-lg font-semibold text-gray-900">{count} units</p>
+				<div class="rounded bg-surface p-4 border border-surface-alt">
+					<h3 class="mb-1 text-[10px] font-medium tracking-wider text-text-muted uppercase">{type}</h3>
+					<p class="text-lg font-semibold text-text-primary">{count} units</p>
 				</div>
 			{/each}
 		</div>
@@ -392,25 +392,25 @@
 
 	<!-- Charts -->
 	<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm lg:col-span-2">
+			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">
 				{data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue Flow
 			</h2>
 			<canvas bind:this={dailyChartCanvas}></canvas>
 		</div>
 
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">Payment Status Spread</h2>
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
+			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Payment Status Spread</h2>
 			<canvas bind:this={paymentChartCanvas}></canvas>
 		</div>
 
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">Revenue per Clinic</h2>
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
+			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Revenue per Clinic</h2>
 			<canvas bind:this={clinicChartCanvas}></canvas>
 		</div>
 
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">Case Type Volume Distribution</h2>
+		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
+			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Case Type Volume Distribution</h2>
 			<canvas bind:this={caseTypeChartCanvas}></canvas>
 		</div>
 	</div>

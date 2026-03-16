@@ -63,7 +63,7 @@
 
 <div class="bg-white-100 flex flex-col items-center justify-center rounded-md p-8">
 	<h1 class="mb-4 text-2xl font-semibold">Record Details</h1>
-	<div class="mb-4 text-gray-600">
+	<div class="mb-4 text-text-secondary">
 		<p>Patient: {record.patientName}</p>
 		<p>Doctor: {record.doctorName}</p>
 		<p>Clinic: {record.clinicName}</p>
@@ -72,7 +72,7 @@
 	<form
 		method="POST"
 		enctype="multipart/form-data"
-		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-gray-200 bg-red-50 px-4 py-6 sm:px-8 shadow-sm"
+		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-border bg-error-light px-4 py-6 sm:px-8 shadow-sm"
 		use:enhance={() => {
 			isSubmitting = true;
 			return async ({ update }) => {
@@ -85,10 +85,10 @@
 
 		<div class="flex flex-col gap-4">
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<label for="date" class="block text-sm font-medium text-gray-700">
+				<label for="date" class="block text-sm font-medium text-text-secondary">
 					OUT Date
 					<input
-						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						type="date"
 						name="date"
 						placeholder="Date"
@@ -96,10 +96,10 @@
 						bind:value={date}
 					/>
 				</label>
-				<label for="time" class="block text-sm font-medium text-gray-700">
+				<label for="time" class="block text-sm font-medium text-text-secondary">
 					OUT Time
 					<input
-						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						type="time"
 						name="time"
 						placeholder="Time"
@@ -110,18 +110,18 @@
 			</div>
 
 			<div>
-				<span class="block text-sm font-medium text-gray-700 mb-2">OUT Image</span>
+				<span class="block text-sm font-medium text-text-secondary mb-2">OUT Image</span>
 				<div class="mb-4 flex flex-wrap gap-3">
 					<button
 						type="button"
-						class="flex items-center justify-center rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+						class="flex items-center justify-center rounded-md bg-white border border-border px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 						onclick={() => {
 							showCameraModal = true;
 						}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="mr-2 h-5 w-5 text-gray-400"
+							class="mr-2 h-5 w-5 text-text-muted"
 							viewBox="0 0 20 20"
 							fill="currentColor"
 						>
@@ -134,7 +134,7 @@
 						Use Camera
 					</button>
 					<label
-						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-6 py-4 hover:border-indigo-500 hover:bg-indigo-50 text-sm text-gray-600 font-medium"
+						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-border px-6 py-4 hover:border-indigo-500 hover:bg-indigo-50 text-sm text-text-secondary font-medium"
 					>
 						<span>Or click to upload files</span>
 						<input
@@ -153,10 +153,10 @@
 				<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
 					{#each in_img_urls as url, i}
 						<div class="relative group">
-							<img class="h-24 w-full rounded-md object-cover shadow-sm border border-gray-100" src={url} alt="OUT Preview" />
+							<img class="h-24 w-full rounded-md object-cover shadow-sm border border-surface-alt" src={url} alt="OUT Preview" />
 							<button
 								type="button"
-								class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 focus:outline-none transition-colors"
+								class="absolute -top-2 -right-2 bg-error-light0 text-white rounded-full p-1 shadow-lg hover:bg-red-600 focus:outline-none transition-colors"
 								onclick={() => removeInImage(i)}
 								title="Remove image"
 								aria-label="Remove image"
@@ -175,14 +175,14 @@
 				<input
 					type="checkbox"
 					name="finished"
-					class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+					class="h-4 w-4 rounded border-border text-primary focus:ring-primary"
 				/>
-				<label for="finished" class="text-sm font-medium text-gray-700"> Mark as Finished </label>
+				<label for="finished" class="text-sm font-medium text-text-secondary"> Mark as Finished </label>
 			</div>
 
-			<div class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-gray-200 pt-6">
+			<div class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-border pt-6">
 				<button
-					class="w-full sm:w-auto rounded-md bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+					class="w-full sm:w-auto rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
 					type="submit"
 					disabled={isSubmitting}
 				>

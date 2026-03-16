@@ -18,15 +18,15 @@
 	} = $props();
 </script>
 
-<div class="rounded-md border border-gray-200 overflow-hidden h-full flex flex-col">
+<div class="rounded-md border border-border overflow-hidden h-full flex flex-col">
 	<button
 		type="button"
 		onclick={() => (showInventory = !showInventory)}
-		class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+		class="w-full flex items-center justify-between p-3 bg-surface hover:bg-surface-alt transition-colors"
 	>
-		<h3 class="text-[10px] items-center flex font-bold tracking-wider text-gray-600 uppercase">
+		<h3 class="text-[10px] items-center flex font-bold tracking-wider text-text-secondary uppercase">
 			Inventory Usage
-			<span class="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[9px] font-semibold text-gray-500">Optional</span>
+			<span class="ml-2 rounded-full bg-surface-alt px-2 py-0.5 text-[9px] font-semibold text-text-muted">Optional</span>
 		</h3>
 
 		<div class="flex items-center gap-3">
@@ -37,7 +37,7 @@
 					addInventoryRow();
 					showInventory = true;
 				}}
-				class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 flex items-center gap-1 cursor-pointer"
+				class="text-xs font-semibold text-primary hover:text-primary-light flex items-center gap-1 cursor-pointer"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 					<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
@@ -47,7 +47,7 @@
 
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-4 w-4 text-gray-500 transition-transform {showInventory ? 'rotate-180' : ''}"
+				class="h-4 w-4 text-text-muted transition-transform {showInventory ? 'rotate-180' : ''}"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -61,16 +61,16 @@
 		<div class="p-4 pt-3 flex-1 flex flex-col">
 			<div class="flex-1 overflow-y-auto pr-1">
 		{#if inventoryUsages.length === 0}
-			<div class="h-full flex items-center justify-center min-h-[100px] border-2 border-dashed border-gray-100 rounded">
-				<p class="text-sm text-gray-400 italic text-center px-4">Click "Material" to track supplies used.</p>
+			<div class="h-full flex items-center justify-center min-h-[100px] border-2 border-dashed border-surface-alt rounded">
+				<p class="text-sm text-text-muted italic text-center px-4">Click "Material" to track supplies used.</p>
 			</div>
 		{:else}
 			<div class="flex flex-col gap-3">
 				{#each inventoryUsages as usage, i}
-					<div class="flex flex-col gap-2 w-full bg-gray-50 p-3 rounded border border-gray-100 relative group">
+					<div class="flex flex-col gap-2 w-full bg-surface p-3 rounded border border-surface-alt relative group">
 						<div class="w-full pr-6">
 							<select
-								class="block w-full appearance-none rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="block w-full appearance-none rounded border border-border px-3 py-1.5 text-sm text-text-primary shadow-sm focus:border-primary focus:ring-primary"
 								onchange={(e) => handleInventorySelect(i, e.currentTarget.value)}
 								required
 							>
@@ -85,23 +85,23 @@
 							</select>
 						</div>
 						<div class="w-full flex items-center gap-2">
-							<div class="flex items-center border border-gray-300 rounded shadow-sm overflow-hidden bg-white w-24">
+							<div class="flex items-center border border-border rounded shadow-sm overflow-hidden bg-white w-24">
 								<input
 									type="number"
 									min="1"
 									max={usage.maxStock > 0 ? usage.maxStock : undefined}
 									bind:value={usage.quantity}
 									disabled={usage.itemId === 0}
-									class="block w-full py-1.5 px-2 text-sm text-center focus:outline-none disabled:bg-gray-100 disabled:text-gray-400"
+									class="block w-full py-1.5 px-2 text-sm text-center focus:outline-none disabled:bg-surface-alt disabled:text-text-muted"
 									required
 								/>
 							</div>
-							<span class="text-xs text-gray-500 font-medium">used</span>
+							<span class="text-xs text-text-muted font-medium">used</span>
 						</div>
 						<button
 							type="button"
 							onclick={() => removeInventoryRow(i)}
-							class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white transition-colors"
+							class="absolute top-2 right-2 text-text-muted hover:text-red-500 p-1 rounded-full hover:bg-white transition-colors"
 							title="Remove Item"
 						>
 							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

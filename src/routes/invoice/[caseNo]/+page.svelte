@@ -88,7 +88,7 @@
 					value={invoice.payment_status}
 					class={invoice.payment_status === 'paid'
 						? 'font-bold text-green-600 uppercase'
-						: 'font-bold text-red-600 uppercase'}
+						: 'font-bold text-error-dark uppercase'}
 					readonly
 				/>
 			</div>

@@ -366,9 +366,9 @@
 
 <!-- Compact Calendar Widget -->
 {#if data.calendarData}
-	<div class="w-full border-b border-gray-200 bg-gray-50 p-2 print:hidden">
+	<div class="border-border bg-surface w-full border-b p-2 print:hidden">
 		<div class="mx-auto max-w-7xl">
-			<div class="rounded border border-gray-200 bg-white p-3 shadow-sm">
+			<div class="card p-3">
 				<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 					<!-- Mini Calendar -->
 					<div class="lg:col-span-1">
@@ -376,7 +376,7 @@
 							<div class="flex items-center gap-1.5">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-4 w-4 text-gray-500"
+									class="text-text-muted h-4 w-4"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -388,29 +388,29 @@
 										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
 									/>
 								</svg>
-								<span class="text-sm font-medium text-gray-700"
+								<span class="text-text-primary text-sm font-medium"
 									>{monthNames[calendarMonth - 1]} {calendarYear}</span
 								>
 							</div>
 							<div class="flex items-center gap-2">
 								<div class="flex items-center gap-1 text-[10px]">
-									<div class="h-2 w-2 rounded-full bg-amber-500"></div>
-									<span class="text-gray-500">{data.calendarData.deliveryRecords.length}</span>
+									<div class="bg-warning h-2 w-2 rounded-full"></div>
+									<span class="text-text-muted">{data.calendarData.deliveryRecords.length}</span>
 								</div>
 								<div class="flex items-center gap-1 text-[10px]">
-									<div class="h-2 w-2 rounded-full bg-blue-500"></div>
-									<span class="text-gray-500">{data.calendarData.finishByRecords.length}</span>
+									<div class="bg-info-light0 h-2 w-2 rounded-full"></div>
+									<span class="text-text-muted">{data.calendarData.finishByRecords.length}</span>
 								</div>
 								<a
 									href="/calendar"
-									class="text-[10px] font-medium text-indigo-600 hover:text-indigo-500">Full →</a
+									class="text-primary hover:text-primary-light text-[10px] font-medium">Full →</a
 								>
 							</div>
 						</div>
 
-						<div class="grid grid-cols-7 gap-px overflow-hidden rounded bg-gray-200">
+						<div class="bg-surface-alt grid grid-cols-7 gap-px overflow-hidden rounded">
 							{#each daysOfWeek as day}
-								<div class="bg-gray-50 py-1 text-center text-[9px] font-medium text-gray-500">
+								<div class="text-text-muted bg-surface py-1 text-center text-[9px] font-medium">
 									{day[0]}
 								</div>
 							{/each}
@@ -424,29 +424,29 @@
 									{@const isSelected = selectedCalendarDate === fullDate}
 									<button
 										class="relative h-7 bg-white text-[10px] transition-all {isToday
-											? 'bg-indigo-50'
+											? 'bg-primary/10'
 											: ''} {isSelected ? 'ring-2 ring-indigo-500 ring-inset' : ''} {hasRecords
-											? 'cursor-pointer hover:bg-gray-50'
+											? 'hover:bg-surface cursor-pointer'
 											: 'cursor-default'}"
 										onclick={() => hasRecords && (selectedCalendarDate = fullDate)}
 										disabled={!hasRecords}
 									>
-										<span class={isToday ? 'font-bold text-indigo-600' : 'text-gray-700'}
+										<span class={isToday ? 'text-primary font-bold' : 'text-text-secondary'}
 											>{date}</span
 										>
 										{#if totalRecords > 0}
 											<div class="absolute right-0 bottom-0.5 left-0 flex justify-center gap-px">
 												{#if deliveries.length > 0}
-													<div class="h-1 w-1 rounded-full bg-amber-500"></div>
+													<div class="bg-warning h-1 w-1 rounded-full"></div>
 												{/if}
 												{#if finishBys.length > 0}
-													<div class="h-1 w-1 rounded-full bg-blue-500"></div>
+													<div class="bg-info-light0 h-1 w-1 rounded-full"></div>
 												{/if}
 											</div>
 										{/if}
 									</button>
 								{:else}
-									<div class="h-7 bg-gray-50"></div>
+									<div class="bg-surface h-7"></div>
 								{/if}
 							{/each}
 						</div>
@@ -457,7 +457,7 @@
 						{#if selectedCalendarDate}
 							<div class="h-full">
 								<div class="mb-2">
-									<h3 class="text-sm font-semibold text-gray-900">
+									<h3 class="text-text-primary text-sm font-semibold">
 										{new Date(selectedCalendarDate).toLocaleDateString('en-US', {
 											weekday: 'short',
 											month: 'short',
@@ -472,8 +472,8 @@
 										}}
 										class="rounded px-3 py-1 text-xs font-medium transition-colors {selectedDeliveryTab ===
 										'delivery'
-											? 'bg-amber-100 text-amber-800'
-											: 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+											? 'bg-warning-light text-warning-dark'
+											: 'bg-surface-alt text-text-secondary hover:bg-surface-alt'}"
 									>
 										Delivery ({selectedDateDeliveries.length})
 									</button>
@@ -483,8 +483,8 @@
 										}}
 										class="rounded px-3 py-1 text-xs font-medium transition-colors {selectedDeliveryTab ===
 										'finish'
-											? 'bg-blue-100 text-blue-800'
-											: 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+											? 'text-info-dark bg-info-light'
+											: 'bg-surface-alt text-text-secondary hover:bg-surface-alt'}"
 									>
 										Finish ({selectedDateFinishBys.length})
 									</button>
@@ -493,21 +493,23 @@
 									{#each selectedDeliveryTab === 'delivery' ? selectedDateDeliveries : selectedDateFinishBys as record}
 										<a
 											href="/details/{record.recordId}"
-											class="flex items-center gap-2 rounded bg-gray-50 p-1.5 transition-colors hover:bg-gray-100"
+											class="bg-surface hover:bg-surface-alt flex items-center gap-2 rounded p-1.5 transition-colors"
 										>
 											<span
 												class="h-2 w-2 rounded-full {selectedDeliveryTab === 'delivery'
-													? 'bg-amber-500'
-													: 'bg-blue-500'}"
+													? 'bg-warning'
+													: 'bg-info-light0'}"
 											></span>
-											<span class="text-xs font-medium text-gray-700">{record.patientName}</span>
-											<span class="text-xs text-gray-500">{record.clinicName}</span>
+											<span class="text-text-secondary text-xs font-medium"
+												>{record.patientName}</span
+											>
+											<span class="text-text-muted text-xs">{record.clinicName}</span>
 										</a>
 									{/each}
 								</div>
 							</div>
 						{:else}
-							<div class="flex h-full items-center justify-center text-sm text-gray-400">
+							<div class="text-text-muted flex h-full items-center justify-center text-sm">
 								<span>Click a date to preview cases</span>
 							</div>
 						{/if}
@@ -520,37 +522,39 @@
 
 <!-- Case Status Overview -->
 {#if data.records && data.records.length > 0 && Object.keys(data.filters).length === 0}
-	<div class="w-full border-b border-gray-200 bg-gray-50 p-2 print:hidden">
+	<div class="bg-surface border-border w-full border-b p-2 print:hidden">
 		<div class="mx-auto max-w-7xl">
 			<div class="mb-2 flex items-center justify-between">
-				<h3 class="ml-1 text-sm font-semibold text-gray-700">Case Status Overview</h3>
+				<h3 class="text-text-secondary ml-1 text-sm font-semibold">Case Status Overview</h3>
 			</div>
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				<!-- Pending -->
-				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+				<div class="border-border flex h-64 flex-col rounded border bg-white shadow-sm">
 					<div
-						class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-3 py-2"
+						class="bg-surface/50 border-border flex items-center justify-between border-b px-3 py-2"
 					>
-						<span class="text-xs font-semibold tracking-wider text-gray-700 uppercase">Pending</span
+						<span class="text-text-secondary text-xs font-semibold tracking-wider uppercase"
+							>Pending</span
 						>
-						<span class="rounded-full bg-gray-200 px-1.5 py-0.5 text-[10px] font-bold text-gray-700"
+						<span
+							class="text-text-secondary bg-surface-alt rounded-full px-1.5 py-0.5 text-[10px] font-bold"
 							>{pendingCases.length}</span
 						>
 					</div>
 					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
 						{#each pendingCases as record}
 							<div
-								class="block rounded border border-gray-100 bg-white p-2 transition-colors hover:bg-gray-50"
+								class="hover:bg-surface border-border block rounded border bg-white p-2 transition-colors"
 							>
 								<div class="mb-1 flex items-start justify-between">
-									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+									<span class="text-text-primary truncate pr-2 text-xs font-medium"
 										>{record.patientName}</span
 									>
-									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
 										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
 									>
 								</div>
-								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>
 								<div class="flex gap-1.5">
 									<a
 										href="/status/{record.recordId}"
@@ -559,18 +563,18 @@
 									>
 									<a
 										href="/amount/{record.recordId}"
-										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										class="text-primary-dark bg-primary/10 hover:bg-primary/20 rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-indigo-700/10"
 										>Amount</a
 									>
 									<a
 										href="/details/{record.recordId}"
-										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										class="text-info-dark bg-info-light hover:bg-info-light rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-blue-700/10"
 										>Details</a
 									>
 								</div>
 							</div>
 						{:else}
-							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+							<div class="flex h-full items-center justify-center text-[10px] text-text-muted">
 								No pending cases
 							</div>
 						{/each}
@@ -578,31 +582,32 @@
 				</div>
 
 				<!-- To Be Delivered -->
-				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+				<div class="border-border flex h-64 flex-col rounded border bg-white shadow-sm">
 					<div
-						class="flex items-center justify-between border-b border-gray-100 bg-blue-50/50 px-3 py-2"
+						class="bg-info-light/50 border-border flex items-center justify-between border-b px-3 py-2"
 					>
-						<span class="text-xs font-semibold tracking-wider text-blue-800 uppercase"
+						<span class="text-info-dark text-xs font-semibold tracking-wider uppercase"
 							>To Deliver</span
 						>
-						<span class="rounded-full bg-blue-200 px-1.5 py-0.5 text-[10px] font-bold text-blue-800"
+						<span
+							class="text-info-dark bg-info-light rounded-full px-1.5 py-0.5 text-[10px] font-bold"
 							>{deliverCases.length}</span
 						>
 					</div>
 					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
 						{#each deliverCases as record}
 							<div
-								class="block rounded border border-blue-100/50 bg-white p-2 transition-colors hover:bg-blue-50"
+								class="hover:bg-info-light block rounded border border-blue-100/50 bg-white p-2 transition-colors"
 							>
 								<div class="mb-1 flex items-start justify-between">
-									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+									<span class="text-text-primary truncate pr-2 text-xs font-medium"
 										>{record.patientName}</span
 									>
-									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
 										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
 									>
 								</div>
-								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>
 								<div class="flex gap-1.5">
 									<a
 										href="/status/{record.recordId}"
@@ -611,18 +616,18 @@
 									>
 									<a
 										href="/amount/{record.recordId}"
-										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										class="text-primary-dark bg-primary/10 hover:bg-primary/20 rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-indigo-700/10"
 										>Amount</a
 									>
 									<a
 										href="/details/{record.recordId}"
-										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										class="text-info-dark bg-info-light hover:bg-info-light rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-blue-700/10"
 										>Details</a
 									>
 								</div>
 							</div>
 						{:else}
-							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+							<div class="flex h-full items-center justify-center text-[10px] text-text-muted">
 								No cases to deliver
 							</div>
 						{/each}
@@ -630,15 +635,15 @@
 				</div>
 
 				<!-- Finished -->
-				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+				<div class="border-border flex h-64 flex-col rounded border bg-white shadow-sm">
 					<div
-						class="flex items-center justify-between border-b border-gray-100 bg-green-50/50 px-3 py-2"
+						class="border-border flex items-center justify-between border-b bg-green-50/50 px-3 py-2"
 					>
-						<span class="text-xs font-semibold tracking-wider text-green-800 uppercase"
+						<span class="text-success-dark text-xs font-semibold tracking-wider uppercase"
 							>Finished</span
 						>
 						<span
-							class="rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-bold text-green-800"
+							class="text-success-dark bg-success-light rounded-full px-1.5 py-0.5 text-[10px] font-bold"
 							>{finishedCases.length}</span
 						>
 					</div>
@@ -648,14 +653,14 @@
 								class="block rounded border border-green-100/50 bg-white p-2 transition-colors hover:bg-green-50"
 							>
 								<div class="mb-1 flex items-start justify-between">
-									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+									<span class="text-text-primary truncate pr-2 text-xs font-medium"
 										>{record.patientName}</span
 									>
-									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
 										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
 									>
 								</div>
-								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>
 								<div class="flex gap-1.5">
 									<a
 										href="/status/{record.recordId}"
@@ -664,18 +669,18 @@
 									>
 									<a
 										href="/amount/{record.recordId}"
-										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										class="text-primary-dark bg-primary/10 hover:bg-primary/20 rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-indigo-700/10"
 										>Amount</a
 									>
 									<a
 										href="/details/{record.recordId}"
-										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										class="text-info-dark bg-info-light hover:bg-info-light rounded px-1.5 py-0.5 text-[9px] font-medium ring-1 ring-blue-700/10"
 										>Details</a
 									>
 								</div>
 							</div>
 						{:else}
-							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+							<div class="flex h-full items-center justify-center text-[10px] text-text-muted">
 								No finished cases
 							</div>
 						{/each}
@@ -687,22 +692,22 @@
 {/if}
 
 <!-- Filter Form -->
-<div class="w-full border-b border-gray-200 bg-gray-50 p-2 pb-1 print:hidden">
+<div class="bg-surface border-border w-full border-b p-2 pb-1 print:hidden">
 	<form method="GET" class="mx-auto max-w-7xl">
-		<div class="rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
+		<div class="border-border rounded-lg border bg-white p-3 shadow-sm">
 			<div class="mb-2 flex items-center justify-between">
-				<h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
+				<h3 class="text-text-secondary text-sm font-semibold">Quick Filters</h3>
 				<div class="flex gap-2">
 					<button
 						type="reset"
-						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50"
+						class="text-text-secondary hover:bg-surface ring-border rounded bg-white px-2 py-1 text-xs font-medium shadow-sm ring-1 transition"
 						onclick={() => (window.location.href = '/')}
 					>
 						Clear
 					</button>
 					<button
 						type="submit"
-						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-500"
+						class="hover:bg-primary/100 rounded bg-primary px-3 py-1 text-xs font-medium text-white shadow-sm transition"
 					>
 						Apply Filters
 					</button>
@@ -711,7 +716,7 @@
 
 			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
 				<div class="relative" bind:this={clinicContainer}>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Clinic</label
 					>
 					<input
@@ -719,7 +724,7 @@
 						bind:value={clinicSearch}
 						placeholder="Search clinic..."
 						autocomplete="off"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						onfocus={() => {
 							showAllClinics = true;
 						}}
@@ -741,7 +746,7 @@
 							{#each filteredClinics as clinic}
 								<button
 									type="button"
-									class="w-full p-2 text-left text-xs hover:bg-gray-50"
+									class="hover:bg-surface w-full p-2 text-left text-xs"
 									onclick={() => {
 										handleClinicSelect(clinic);
 										showAllClinics = false;
@@ -755,13 +760,13 @@
 				</div>
 
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Case Type</label
 					>
 					<select
 						name="case_type_id"
 						bind:value={caseTypeId}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					>
 						<option value="">All Types</option>
 						{#each data.caseTypes as type}
@@ -771,7 +776,7 @@
 				</div>
 
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Case No</label
 					>
 					<input
@@ -779,12 +784,12 @@
 						name="case_no"
 						bind:value={caseNo}
 						placeholder="Case #"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Patient</label
 					>
 					<input
@@ -792,18 +797,18 @@
 						name="patient_name"
 						bind:value={patientName}
 						placeholder="Patient Name"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Payment</label
 					>
 					<select
 						name="payment_status"
 						bind:value={paymentStatus}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					>
 						<option value="">All Status</option>
 						<option value="paid">Paid</option>
@@ -812,13 +817,13 @@
 				</div>
 
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Status</label
 					>
 					<select
 						name="case_status"
 						bind:value={caseStatus}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					>
 						<option value="">All Status</option>
 						<option value="pending">Pending</option>
@@ -831,42 +836,45 @@
 			</div>
 
 			<div
-				class="mt-3 grid grid-cols-1 gap-4 border-t border-gray-100 pt-3 md:grid-cols-3 md:items-end md:gap-3"
+				class="border-border mt-3 grid grid-cols-1 gap-4 border-t pt-3 md:grid-cols-3 md:items-end md:gap-3"
 			>
 				<div class="flex flex-col items-center gap-2 sm:flex-row">
 					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						<label
+							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Start Date</label
 						>
 						<input
 							type="date"
 							name="start_date"
 							bind:value={startDate}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						/>
 					</div>
 					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						<label
+							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>End Date</label
 						>
 						<input
 							type="date"
 							name="end_date"
 							bind:value={endDate}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						/>
 					</div>
 				</div>
 
 				<div class="flex flex-col items-center gap-2 sm:flex-row">
 					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						<label
+							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Filter by Month</label
 						>
 						<select
 							bind:value={selectedMonth}
 							onchange={handleMonthFilter}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						>
 							<option value="">Select Month</option>
 							{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
@@ -877,13 +885,14 @@
 						</select>
 					</div>
 					<div class="w-full sm:w-24">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						<label
+							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Year</label
 						>
 						<select
 							bind:value={selectedYear}
 							onchange={handleMonthFilter}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						>
 							{#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
 								<option value={year}>{year}</option>
@@ -894,7 +903,8 @@
 
 				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
 					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						<label
+							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Record ID</label
 						>
 						<input
@@ -902,20 +912,20 @@
 							name="record_id"
 							bind:value={recordId}
 							placeholder="Record #"
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 						/>
 					</div>
 					<div class="flex items-center sm:pt-[18px]">
 						{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
 							<label
-								class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
+								class="bg-error-light/50 hover:bg-error-light inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 px-2.5 py-1.5 transition-colors sm:w-auto"
 							>
 								<input
 									type="checkbox"
 									bind:checked={showDelete}
-									class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+									class="text-error-dark border-border h-3.5 w-3.5 rounded focus:ring-red-500"
 								/>
-								<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
+								<span class="text-error-dark text-[10px] font-bold tracking-wider uppercase"
 									>Show Delete</span
 								>
 							</label>
@@ -932,43 +942,45 @@
 	{#if data.records && data.records.length > 0}
 		<!-- Statement Header -->
 		{#if Object.keys(data.filters).length > 0}
-			<div class="border-b border-gray-200 bg-white p-8">
+			<div class="border-border border-b bg-white p-8">
 				<div class="flex flex-row items-start justify-between space-x-12">
 					<div class="flex flex-col">
-						<h1 class="text-2xl font-bold text-gray-900">NUNEZ DENTAL LABORATORY</h1>
-						<h2 class="mt-1 text-xl font-semibold text-gray-700">STATEMENT OF ACCOUNT</h2>
+						<h1 class="text-text-primary text-2xl font-bold">NUNEZ DENTAL LABORATORY</h1>
+						<h2 class="text-text-secondary mt-1 text-xl font-semibold">STATEMENT OF ACCOUNT</h2>
 					</div>
 
-					<div class="flex flex-col items-start space-y-1.5 pt-1 text-sm text-gray-800">
+					<div class="text-text-primary flex flex-col items-start space-y-1.5 pt-1 text-sm">
 						<div class="flex items-baseline">
-							<span class="w-32 pr-2 text-right font-medium text-gray-600">PRINT DATE:</span>
-							<span class="inline-block w-40 border-b border-gray-500">
+							<span class="text-text-secondary w-32 pr-2 text-right font-medium">PRINT DATE:</span>
+							<span class="border-text-secondary inline-block w-40 border-b">
 								{getCurrentDateTime().fullDateTime}
 							</span>
 						</div>
 						{#if customerNames.length == 1}
 							<div class="flex items-baseline">
-								<span class="w-fit pr-2 text-right font-medium text-gray-600">CUSTOMER NAME:</span>
-								<span class="inline-block w-40 border-b border-gray-500">
+								<span class="text-text-secondary w-fit pr-2 text-right font-medium"
+									>CUSTOMER NAME:</span
+								>
+								<span class="border-text-secondary inline-block w-40 border-b">
 									{customerNames.join(', ')}
 								</span>
 							</div>
 						{/if}
 						<div class="flex items-baseline">
-							<span class="w-32 pr-2 text-right font-medium text-gray-600">START DATE:</span>
-							<span class="inline-block w-40 border-b border-gray-500">
+							<span class="text-text-secondary w-32 pr-2 text-right font-medium">START DATE:</span>
+							<span class="border-text-secondary inline-block w-40 border-b">
 								{formatDate(getRecordDateRange(data.records).startingDate)}
 							</span>
 						</div>
 						<div class="flex items-baseline">
-							<span class="w-32 pr-2 text-right font-medium text-gray-600">END DATE:</span>
-							<span class="inline-block w-40 border-b border-gray-500">
+							<span class="text-text-secondary w-32 pr-2 text-right font-medium">END DATE:</span>
+							<span class="border-text-secondary inline-block w-40 border-b">
 								{formatDate(getRecordDateRange(data.records).recentDate)}
 							</span>
 						</div>
 						<div class="flex items-baseline">
-							<span class="w-32 pr-2 text-right font-medium text-gray-600">STATUS:</span>
-							<span class="inline-block w-40 font-semibold text-gray-900">
+							<span class="text-text-secondary w-32 pr-2 text-right font-medium">STATUS:</span>
+							<span class="text-text-primary inline-block w-40 font-semibold">
 								{generateRecordsSummary(data.records).processStatus} -
 								{generateRecordsSummary(data.records).financialStatus}
 							</span>
@@ -980,10 +992,12 @@
 
 		<!-- Color Legend -->
 		<div
-			class="mb-3 flex flex-wrap items-center gap-4 px-1 text-[10px] font-medium tracking-wider text-gray-500 uppercase print:hidden"
+			class="text-text-muted mb-3 flex flex-wrap items-center gap-4 px-1 text-[10px] font-medium tracking-wider uppercase print:hidden"
 		>
 			<div class="flex items-center gap-1.5">
-				<div class="inline-block h-3 w-3 rounded-full border border-green-300 bg-green-200"></div>
+				<div
+					class="bg-success-light inline-block h-3 w-3 rounded-full border border-green-300"
+				></div>
 				<span>Paid & Delivered</span>
 			</div>
 			<div class="flex items-center gap-1.5">
@@ -995,114 +1009,114 @@
 				<span>In Progress / Other</span>
 			</div>
 			<div class="flex items-center gap-1.5">
-				<div class="inline-block h-3 w-3 rounded-full border border-gray-300 bg-white"></div>
+				<div class="border-border inline-block h-3 w-3 rounded-full border bg-white"></div>
 				<span>Pending / Normal</span>
 			</div>
 		</div>
 
 		<!-- Table -->
-		<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white pt-1 shadow-sm">
-			<table class="min-w-full table-fixed divide-y divide-gray-200">
-				<thead class="bg-gray-50/50">
+		<div class="border-border overflow-x-auto rounded-lg border bg-white pt-1 shadow-sm">
+			<table class="divide-border min-w-full table-fixed divide-y">
+				<thead class="bg-surface/50">
 					<tr>
 						<th
 							scope="col"
-							class="sticky top-0 bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 sticky top-0 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Date Pickup
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Date Dropoff
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Deadline
 						</th>
 						{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 							<th
 								scope="col"
-								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+								class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 							>
 								Clinic
 							</th>
 						{/if}
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Patient Name
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Case Info
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Description
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Total Amount
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Paid Amount
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Balance
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase"
 						>
 							Status
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase print:hidden"
 						>
 							Actions
 						</th>
 						<th
 							scope="col"
-							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+							class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase print:hidden"
 						>
 							History
 						</th>
 						{#if showDelete && data.user && data.user.role === 'admin'}
 							<th
 								scope="col"
-								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
+								class="text-text-muted bg-surface/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider uppercase print:hidden"
 							>
 								Delete
 							</th>
 						{/if}
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-100 bg-white">
+				<tbody class="divide-border divide-y bg-white">
 					{#each paginatedRecords as record}
 						<tr
 							class={`
-							border-b border-gray-100 transition-colors hover:bg-black/5
+							border-border border-b transition-colors hover:bg-black/5
 							${
 								record.paymentStatus === 'paid' && record.caseStatus === 'delivered'
-									? 'bg-green-200'
+									? 'bg-success-light'
 									: record.paymentStatus === 'unpaid' && record.caseStatus === 'delivered'
 										? 'bg-red-300'
 										: record.paymentStatus === 'unpaid' && record.caseStatus === 'pending'
@@ -1118,7 +1132,7 @@
 								{formatDateTime(record.dateDropoff)}
 							</td>
 							<td
-								class="px-3 py-2 text-xs font-medium tracking-tight whitespace-nowrap text-red-600"
+								class="text-error-dark px-3 py-2 text-xs font-medium tracking-tight whitespace-nowrap"
 							>
 								{record.finishBy ? formatDateTime(record.finishBy) : 'None'}
 							</td>
@@ -1134,13 +1148,15 @@
 								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
 										<div class="leading-none">
-											<span class="font-bold text-gray-900">{item.caseTypeName}</span>
+											<span class="text-text-primary font-bold">{item.caseTypeName}</span>
 											{#if item.caseTypeAbbrv}
-												<span class="ml-0.5 text-[10px] font-medium text-gray-500"
+												<span class="text-text-muted ml-0.5 text-[10px] font-medium"
 													>({item.caseTypeAbbrv})</span
 												>
 											{/if}
-											<div class="mt-1 text-[10px] font-medium text-gray-700">{item.caseNo}</div>
+											<div class="text-text-secondary mt-1 text-[10px] font-medium">
+												{item.caseNo}
+											</div>
 										</div>
 									{/each}
 								</div>
@@ -1149,7 +1165,7 @@
 								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
 										<div
-											class="rounded-r-sm border-l-[3px] border-indigo-200 bg-gray-50/50 py-0.5 pl-2 text-[11px] leading-tight break-words whitespace-normal text-gray-700"
+											class="text-text-secondary bg-surface/50 rounded-r-sm border-l-[3px] border-indigo-200 py-0.5 pl-2 text-[11px] leading-tight break-words whitespace-normal"
 										>
 											{item.orderDescription || '-'}
 										</div>
@@ -1174,13 +1190,13 @@
 									<span class="font-medium capitalize">{record.caseStatus || 'No status'}</span>
 									{#if record.caseNotes}
 										<span
-											class="max-w-[150px] truncate text-[10px] text-gray-500"
+											class="text-text-muted max-w-[150px] truncate text-[10px]"
 											title={record.caseNotes}>{record.caseNotes}</span
 										>
 									{/if}
 									<span
 										class={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium 
-										${record.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+										${record.paymentStatus === 'paid' ? 'text-success-dark bg-success-light' : 'text-error-dark bg-error-light'}`}
 									>
 										{record.paymentStatus}
 									</span>
@@ -1190,13 +1206,13 @@
 								<div class="flex max-w-[280px] min-w-[150px] flex-wrap gap-1.5">
 									<a
 										href={`/details/${record.recordId}`}
-										class="inline-flex items-center rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										class="text-info-dark bg-info-light hover:bg-info-light inline-flex items-center rounded px-2 py-1 text-xs font-medium ring-1 ring-blue-700/10"
 									>
 										View
 									</a>
 									<a
 										href={`/invoice/${record.recordId}`}
-										class="inline-flex items-center rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										class="text-info-dark bg-info-light hover:bg-info-light inline-flex items-center rounded px-2 py-1 text-xs font-medium ring-1 ring-blue-700/10"
 									>
 										Invoice
 									</a>
@@ -1214,7 +1230,7 @@
 									</a>
 									<a
 										href={`/amount/${record.recordId}`}
-										class="inline-flex items-center rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										class="text-primary-dark bg-primary/10 hover:bg-primary/20 inline-flex items-center rounded px-2 py-1 text-xs font-medium ring-1 ring-indigo-700/10"
 									>
 										Amount
 									</a>
@@ -1223,7 +1239,7 @@
 							<td class="px-3 py-2 text-xs whitespace-nowrap print:hidden">
 								<a
 									href={`/history/${record.recordId}`}
-									class="inline-flex items-center rounded bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-700/10 hover:bg-gray-100"
+									class="text-text-secondary bg-surface hover:bg-surface-alt ring-primary-dark/10 inline-flex items-center rounded px-2 py-1 text-xs font-medium ring-1"
 								>
 									History
 								</a>
@@ -1233,7 +1249,7 @@
 									<button
 										type="button"
 										onclick={() => openDeleteModal(record.recordId)}
-										class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-700/10 hover:bg-red-100"
+										class="hover:bg-error-light bg-error-light inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-700/10"
 									>
 										Delete
 									</button>
@@ -1244,7 +1260,7 @@
 				</tbody>
 				{#if Object.keys(data.filters).length > 0}
 					<tfoot>
-						<tr class="border-t-2 border-gray-300 bg-gray-50 font-medium">
+						<tr class="bg-surface border-border border-t-2 font-medium">
 							<td colspan={showDelete ? 7 : 6} class="px-3 py-2 text-right text-xs"> Total: </td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalOrderAmount()}</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalPaidAmount()}</td>
@@ -1264,33 +1280,33 @@
 
 		{#if data.records && data.records.length > 0}
 			<div
-				class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 print:hidden"
+				class="border-border flex items-center justify-between border-t bg-white px-4 py-3 sm:px-6 print:hidden"
 			>
 				<div class="flex flex-1 justify-between sm:hidden">
 					<button
 						onclick={goToFirstPage}
-						class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="text-text-secondary hover:bg-surface border-border relative inline-flex items-center rounded-md border bg-white px-4 py-2 text-sm font-medium"
 						disabled={currentPage === 1}
 					>
 						First
 					</button>
 					<button
 						onclick={prevPage}
-						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="text-text-secondary hover:bg-surface border-border relative ml-2 inline-flex items-center rounded-md border bg-white px-4 py-2 text-sm font-medium"
 						disabled={currentPage === 1}
 					>
 						Prev
 					</button>
 					<button
 						onclick={nextPage}
-						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="text-text-secondary hover:bg-surface border-border relative ml-2 inline-flex items-center rounded-md border bg-white px-4 py-2 text-sm font-medium"
 						disabled={currentPage === totalPages}
 					>
 						Next
 					</button>
 					<button
 						onclick={goToLastPage}
-						class="relative ml-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						class="text-text-secondary hover:bg-surface border-border relative ml-2 inline-flex items-center rounded-md border bg-white px-4 py-2 text-sm font-medium"
 						disabled={currentPage === totalPages}
 					>
 						Last
@@ -1298,7 +1314,7 @@
 				</div>
 				<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
 					<div class="flex items-center gap-6">
-						<p class="text-sm text-gray-700">
+						<p class="text-text-secondary text-sm">
 							Showing <span class="font-medium"
 								>{totalOrderAmount() === '0.00' ? 0 : (currentPage - 1) * recordsPerPage + 1}</span
 							>
@@ -1309,13 +1325,13 @@
 							of <span class="font-medium">{data.records?.length || 0}</span> results
 						</p>
 						<div class="flex items-center gap-2">
-							<label for="rows-per-page" class="text-sm font-medium text-gray-700"
+							<label for="rows-per-page" class="text-text-secondary text-sm font-medium"
 								>Rows per page:</label
 							>
 							<select
 								id="rows-per-page"
 								bind:value={recordsPerPage}
-								class="rounded-md border border-gray-300 py-1 pr-6 pl-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+								class="border-border rounded-md border py-1 pr-6 pl-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
 							>
 								<option value={10}>10</option>
 								<option value={20}>20</option>
@@ -1331,7 +1347,7 @@
 						>
 							<button
 								onclick={goToFirstPage}
-								class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								class="hover:bg-surface text-text-muted ring-border relative inline-flex items-center rounded-l-md px-2 py-2 ring-1 ring-inset"
 								disabled={currentPage === 1}
 								title="First Page"
 							>
@@ -1346,7 +1362,7 @@
 							</button>
 							<button
 								onclick={prevPage}
-								class="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								class="hover:bg-surface text-text-muted ring-border relative inline-flex items-center px-2 py-2 ring-1 ring-inset"
 								disabled={currentPage === 1}
 								title="Previous Page"
 							>
@@ -1362,7 +1378,7 @@
 							{#each getPageList(totalPages, currentPage) as pageItem}
 								{#if pageItem === '...'}
 									<span
-										class="relative inline-flex items-center px-4 py-2 text-sm text-gray-500 ring-1 ring-gray-300 ring-inset"
+										class="text-text-muted ring-border relative inline-flex items-center px-4 py-2 text-sm ring-1 ring-inset"
 										>{pageItem}</span
 									>
 								{:else}
@@ -1370,8 +1386,8 @@
 										onclick={() => goToPage(Number(pageItem))}
 										class={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
 											pageItem === currentPage
-												? 'z-10 bg-indigo-600 text-white'
-												: 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50'
+												? 'z-10 bg-primary text-white'
+												: 'text-text-primary hover:bg-surface ring-border ring-1 ring-inset'
 										}`}
 									>
 										{pageItem}
@@ -1380,7 +1396,7 @@
 							{/each}
 							<button
 								onclick={nextPage}
-								class="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								class="hover:bg-surface text-text-muted ring-border relative inline-flex items-center px-2 py-2 ring-1 ring-inset"
 								disabled={currentPage === totalPages}
 								title="Next Page"
 							>
@@ -1395,7 +1411,7 @@
 							</button>
 							<button
 								onclick={goToLastPage}
-								class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+								class="hover:bg-surface text-text-muted ring-border relative inline-flex items-center rounded-r-md px-2 py-2 ring-1 ring-inset"
 								disabled={currentPage === totalPages}
 								title="Last Page"
 							>
@@ -1415,7 +1431,7 @@
 		{/if}
 	{:else}
 		<div class="flex h-96 items-center justify-center">
-			<p class="text-center text-gray-500">
+			<p class="text-text-muted text-center">
 				<span class="block text-2xl font-semibold">No records found</span>
 				<span class="mt-2 block text-sm">Try adjusting your filters or create a new record</span>
 			</p>
@@ -1427,10 +1443,10 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 print:hidden">
 		<div class="mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg">
 			<div class="p-4">
-				<h3 class="text-lg font-medium text-red-600">Confirm Deletion</h3>
-				<div class="mt-3 rounded-md bg-gray-50 p-3 text-sm">
-					<p class="mb-2 font-semibold text-gray-900">Record Information:</p>
-					<div class="space-y-1.5 text-gray-700">
+				<h3 class="text-error-dark text-lg font-medium">Confirm Deletion</h3>
+				<div class="bg-surface mt-3 rounded-md p-3 text-sm">
+					<p class="text-text-primary mb-2 font-semibold">Record Information:</p>
+					<div class="text-text-secondary space-y-1.5">
 						<div class="flex">
 							<span class="w-28 font-medium">Record ID:</span>
 							<span>{modalDeleteRecord.recordId}</span>
@@ -1465,20 +1481,20 @@
 								<span
 									class={`rounded-full px-2 py-0.5 text-xs font-medium ${
 										modalDeleteRecord.paymentStatus === 'paid'
-											? 'bg-green-100 text-green-800'
-											: 'bg-red-100 text-red-800'
+											? 'text-success-dark bg-success-light'
+											: 'text-error-dark bg-error-light'
 									}`}
 								>
 									{modalDeleteRecord.paymentStatus}
 								</span>
-								<span class="text-xs text-gray-600"
+								<span class="text-text-secondary text-xs"
 									>({modalDeleteRecord.caseStatus || 'No status'})</span
 								>
 							</span>
 						</div>
 					</div>
 				</div>
-				<p class="mt-3 text-sm text-gray-600">
+				<p class="text-text-secondary mt-3 text-sm">
 					Enter your <strong>Account Password</strong> to confirm deletion.
 				</p>
 				<form
@@ -1503,7 +1519,7 @@
 					}}
 				>
 					<input type="hidden" name="record_id" value={modalDeleteRecordId} />
-					<label for="confirm_password" class="block text-sm font-medium text-gray-700"
+					<label for="confirm_password" class="text-text-secondary block text-sm font-medium"
 						>Password</label
 					>
 					<input
@@ -1511,7 +1527,7 @@
 						name="confirm_password"
 						type="password"
 						bind:value={deletePassword}
-						class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
+						class="border-border mt-1 w-full rounded-md border p-2 text-sm shadow-sm"
 						required
 					/>
 					<div class="mt-4 flex justify-end gap-2">

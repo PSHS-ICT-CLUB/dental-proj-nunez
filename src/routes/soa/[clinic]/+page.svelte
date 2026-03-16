@@ -19,9 +19,9 @@
 		</div>
 	</div>
 	<table
-		class=" dark:text-gray-40 mx-5 mt-2 w-[97%] text-left text-sm text-gray-500 rtl:text-right"
+		class=" dark:text-text-muted mx-5 mt-2 w-[97%] text-left text-sm text-text-muted rtl:text-right"
 	>
-		<thead class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
+		<thead class="bg-surface text-xs text-text-secondary uppercase dark:bg-secondary-dark dark:text-text-muted">
 			<tr>
 				{#each keys as key}
 					<th class="px-6 py-3"
@@ -35,7 +35,7 @@
 		</thead>
 		<tbody>
 			{#each table as row, index}
-				<tr class="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+				<tr class="border-b border-border bg-white dark:border-secondary-dark dark:bg-primary-dark">
 					{#each keys as key}
 						<td class="px-6 py-4">{row[Object.keys(table[0])[key]]}</td>
 					{/each}

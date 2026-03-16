@@ -34,16 +34,16 @@
 <div class="flex flex-col gap-4">
 	<!-- Upper Section -->
 	{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
-		<div class="overflow-hidden rounded-md border border-gray-200">
+		<div class="overflow-hidden rounded-md border border-border">
 			<button
 				type="button"
 				onclick={() => (showUpper = !showUpper)}
-				class="flex w-full items-center justify-between bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+				class="flex w-full items-center justify-between bg-surface p-3 transition-colors hover:bg-surface-alt"
 			>
-				<h3 class="text-[10px] font-bold tracking-wider text-gray-600 uppercase">Upper</h3>
+				<h3 class="text-[10px] font-bold tracking-wider text-text-secondary uppercase">Upper</h3>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					class="h-4 w-4 text-gray-500 transition-transform {showUpper ? 'rotate-180' : ''}"
+					class="h-4 w-4 text-text-muted transition-transform {showUpper ? 'rotate-180' : ''}"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
@@ -63,14 +63,14 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_type_upper"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Case type
 							<select
 								name="case_type_upper"
 								bind:value={case_type_upper}
 								required
-								class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+								class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 							>
 								{#each data?.caseTypes as caseType}
 									<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>
@@ -83,13 +83,13 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_number_upper"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Case number
 							<input
 								type="text"
 								name="case_number_upper"
-								class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+								class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 								placeholder="Case number"
 								value={formatCaseNumber(next_case_upper, case_type_upper)}
 								disabled
@@ -101,12 +101,12 @@
 					<div class="sm:col-span-2">
 						<label
 							for="upper_description"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Description
 							<textarea
 								name="upper_description"
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								rows="1"
 							></textarea>
 						</label>
@@ -116,7 +116,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="upper_unit"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Unit
 							<input
@@ -124,7 +124,7 @@
 								id="upper_unit"
 								name="upper_unit"
 								bind:value={upper_unit}
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								placeholder="Units"
 								min="1"
 								defaultvalue="1"
@@ -135,19 +135,19 @@
 					<!-- Cost -->
 					<div class="sm:col-span-1">
 						<label
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 							for="upper_cost">Cost</label
 						>
 						<div class="relative mt-1">
 							<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-								<span class="font-medium text-gray-500 sm:text-sm">₱</span>
+								<span class="font-medium text-text-muted sm:text-sm">₱</span>
 							</div>
 							<input
 								type="number"
 								id="upper_cost"
 								name="upper_cost"
 								bind:value={upper_cost}
-								class="block w-full rounded-md border border-gray-300 py-2 pr-3 pl-7 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="block w-full rounded-md border border-border py-2 pr-3 pl-7 text-sm focus:border-primary focus:ring-primary"
 								placeholder="0.00"
 								min="0"
 								required
@@ -161,16 +161,16 @@
 
 	<!-- Lower Section -->
 	{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
-		<div class="overflow-hidden rounded-md border border-gray-200">
+		<div class="overflow-hidden rounded-md border border-border">
 			<button
 				type="button"
 				onclick={() => (showLower = !showLower)}
-				class="flex w-full items-center justify-between bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+				class="flex w-full items-center justify-between bg-surface p-3 transition-colors hover:bg-surface-alt"
 			>
-				<h3 class="text-[10px] font-bold tracking-wider text-gray-600 uppercase">Lower</h3>
+				<h3 class="text-[10px] font-bold tracking-wider text-text-secondary uppercase">Lower</h3>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					class="h-4 w-4 text-gray-500 transition-transform {showLower ? 'rotate-180' : ''}"
+					class="h-4 w-4 text-text-muted transition-transform {showLower ? 'rotate-180' : ''}"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
@@ -190,14 +190,14 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_type_lower"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Case type
 							<select
 								name="case_type_lower"
 								bind:value={case_type_lower}
 								required
-								class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+								class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 							>
 								{#each data?.caseTypes as caseType}
 									<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>
@@ -210,13 +210,13 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_number_lower"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Case number
 							<input
 								type="text"
 								name="case_number_lower"
-								class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+								class="mt-1 block w-full cursor-not-allowed appearance-none rounded-md border border-dashed border-indigo-200 bg-indigo-50 px-3 py-2 text-center font-mono font-bold text-indigo-900 shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 								placeholder="Case number"
 								value={formatCaseNumber(next_case_lower, case_type_lower)}
 								disabled
@@ -228,12 +228,12 @@
 					<div class="sm:col-span-2">
 						<label
 							for="lower_description"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Description
 							<textarea
 								name="lower_description"
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								rows="1"
 							></textarea>
 						</label>
@@ -243,7 +243,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="lower_unit"
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>
 							Unit
 							<input
@@ -251,7 +251,7 @@
 								id="lower_unit"
 								name="lower_unit"
 								bind:value={lower_unit}
-								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								placeholder="Units"
 								min="1"
 								defaultvalue="1"
@@ -262,19 +262,19 @@
 					<!-- Cost -->
 					<div class="sm:col-span-1">
 						<label
-							class="block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 							for="lower_cost">Cost</label
 						>
 						<div class="relative mt-1">
 							<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-								<span class="font-medium text-gray-500 sm:text-sm">₱</span>
+								<span class="font-medium text-text-muted sm:text-sm">₱</span>
 							</div>
 							<input
 								type="number"
 								id="lower_cost"
 								name="lower_cost"
 								bind:value={lower_cost}
-								class="block w-full rounded-md border border-gray-300 py-2 pr-3 pl-7 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+								class="block w-full rounded-md border border-border py-2 pr-3 pl-7 text-sm focus:border-primary focus:ring-primary"
 								placeholder="0.00"
 								min="0"
 								required

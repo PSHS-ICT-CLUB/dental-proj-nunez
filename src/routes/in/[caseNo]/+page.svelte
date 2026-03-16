@@ -68,19 +68,19 @@
 
 <div class="flex flex-col items-center justify-center rounded-md bg-white p-8">
 	<h1 class="mb-4 text-2xl font-semibold">Record Details</h1>
-	<div class="mb-4 text-gray-600">
+	<div class="mb-4 text-text-secondary">
 		<p>Patient: {record.patientName}</p>
 		<p>Doctor: {record.doctorName}</p>
 		<p>Clinic: {record.clinicName}</p>
 	</div>
 
 	<!-- Case Status Display -->
-	<div class="mb-6 w-full max-w-2xl rounded-md border border-gray-200 bg-gray-50 p-4">
+	<div class="mb-6 w-full max-w-2xl rounded-md border border-border bg-surface p-4">
 		<div class="mb-2 flex items-center justify-between">
-			<p class="font-semibold text-gray-700">Case Status:</p>
+			<p class="font-semibold text-text-secondary">Case Status:</p>
 			<span
 				class={`rounded-full px-3 py-1 text-sm font-semibold ${
-					canAction ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+					canAction ? 'bg-success-light text-success-dark' : 'bg-yellow-100 text-yellow-800'
 				}`}
 			>
 				{record.caseStatus}
@@ -98,7 +98,7 @@
 				</p>
 			</div>
 		{:else}
-			<div class="mt-3 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+			<div class="mt-3 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-success-dark">
 				<p class="mb-1 font-semibold">✓ Ready for Action</p>
 				<p>This case is ready to be taken out for action.</p>
 			</div>
@@ -108,7 +108,7 @@
 	<form
 		method="POST"
 		enctype="multipart/form-data"
-		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-gray-200 bg-green-50 px-4 py-6 shadow-sm sm:px-8"
+		class="mb-4 flex w-full max-w-2xl flex-col gap-6 rounded-md border border-border bg-green-50 px-4 py-6 shadow-sm sm:px-8"
 		use:enhance={() => {
 			isSubmitting = true;
 			return async ({ update }) => {
@@ -120,7 +120,7 @@
 		<input type="hidden" name="recordId" value={record.recordId} />
 
 		{#if !canAction}
-			<div class="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">
+			<div class="rounded-md border border-red-200 bg-error-light p-4 text-red-700">
 				<p class="mb-2 font-semibold">⛔ Cannot Process Action</p>
 				<p class="text-sm">
 					This case is not ready for action. Current status: <strong>{record.caseStatus}</strong>
@@ -139,10 +139,10 @@
 		>
 			<!-- Date/Time inputs -->
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-				<label for="date" class="block text-sm font-medium text-gray-700">
+				<label for="date" class="block text-sm font-medium text-text-secondary">
 					IN Date
 					<input
-						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						type="date"
 						name="date"
 						required
@@ -150,10 +150,10 @@
 						bind:value={date}
 					/>
 				</label>
-				<label for="time" class="block text-sm font-medium text-gray-700">
+				<label for="time" class="block text-sm font-medium text-text-secondary">
 					IN Time
 					<input
-						class="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						type="time"
 						name="time"
 						placeholder="Time"
@@ -166,19 +166,19 @@
 
 			<!-- Image upload section -->
 			<div>
-				<span class="mb-2 block text-sm font-medium text-gray-700">IN Image</span>
+				<span class="mb-2 block text-sm font-medium text-text-secondary">IN Image</span>
 				<div class="mb-4 flex flex-wrap gap-3">
 					<button
 						type="button"
 						disabled={!canAction}
-						class="flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+						class="flex items-center justify-center rounded-md border border-border bg-white px-4 py-2 text-sm font-semibold text-text-secondary shadow-sm hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
 						onclick={() => {
 							showCameraModal = true;
 						}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="mr-2 h-5 w-5 text-gray-400"
+							class="mr-2 h-5 w-5 text-text-muted"
 							viewBox="0 0 20 20"
 							fill="currentColor"
 						>
@@ -191,7 +191,7 @@
 						Use Camera
 					</button>
 					<label
-						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-6 py-4 text-sm font-medium text-gray-600 hover:border-indigo-500 hover:bg-indigo-50 disabled:opacity-50"
+						class="flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-border px-6 py-4 text-sm font-medium text-text-secondary hover:border-indigo-500 hover:bg-indigo-50 disabled:opacity-50"
 						class:opacity-50={!canAction}
 						class:cursor-not-allowed={!canAction}
 					>
@@ -214,13 +214,13 @@
 						{#each in_img_urls as url, i}
 							<div class="group relative">
 								<img
-									class="h-24 w-full rounded-md border border-gray-100 object-cover shadow-sm"
+									class="h-24 w-full rounded-md border border-surface-alt object-cover shadow-sm"
 									src={url}
 									alt="IN Preview"
 								/>
 								<button
 									type="button"
-									class="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white shadow-lg transition-colors hover:bg-red-600 focus:outline-none"
+									class="absolute -top-2 -right-2 rounded-full bg-error-light0 p-1 text-white shadow-lg transition-colors hover:bg-red-600 focus:outline-none"
 									onclick={() => removeInImage(i)}
 									title="Remove image"
 									aria-label="Remove image"
@@ -245,10 +245,10 @@
 					</div>
 				{/if}
 				<div
-					class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-gray-200 pt-6"
+					class="mt-6 flex flex-col items-center justify-center gap-2 border-t border-border pt-6"
 				>
 					<button
-						class="w-full rounded-md bg-indigo-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+						class="w-full rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
 						type="submit"
 						disabled={isSubmitting || !canAction}
 					>

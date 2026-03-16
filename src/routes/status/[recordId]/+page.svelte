@@ -132,22 +132,22 @@
 	<!-- Header -->
 	<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 		<div>
-			<h1 class="text-2xl font-bold text-gray-900">Case Timeline #{record.recordId}</h1>
-			<p class="text-sm text-gray-500 mt-1">
-				Patient: <span class="font-medium text-gray-700">{record.patientName}</span> • 
-				Clinic: <span class="font-medium text-gray-700">{record.clinicName}</span>
+			<h1 class="text-2xl font-bold text-text-primary">Case Timeline #{record.recordId}</h1>
+			<p class="text-sm text-text-muted mt-1">
+				Patient: <span class="font-medium text-text-secondary">{record.patientName}</span> • 
+				Clinic: <span class="font-medium text-text-secondary">{record.clinicName}</span>
 			</p>
 		</div>
 		<div class="flex items-center gap-3">
             <a
 				href="/edit/{record.recordId}"
-				class="rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+				class="rounded-md bg-white border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface shadow-sm"
 			>
 				Edit Info
 			</a>
 			<a
 				href="/"
-				class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-sm"
+				class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary shadow-sm"
 			>
 				Dashboard
 			</a>
@@ -156,10 +156,10 @@
 
 	<!-- Status Feedback -->
 	{#if errorMessage}
-		<div class="mb-6 rounded-md bg-red-50 p-4 border border-red-100">
+		<div class="mb-6 rounded-md bg-error-light p-4 border border-red-100">
 			<div class="flex">
 				<div class="ml-3">
-					<h3 class="text-sm font-medium text-red-800">Error</h3>
+					<h3 class="text-sm font-medium text-error-dark">Error</h3>
 					<div class="mt-2 text-sm text-red-700">
 						<p>{errorMessage}</p>
 					</div>
@@ -172,21 +172,21 @@
 		<div class="mb-6 rounded-md bg-green-50 p-4 border border-green-100 transition-opacity">
 			<div class="flex">
 				<div class="ml-3">
-					<p class="text-sm font-medium text-green-800">{successMessage}</p>
+					<p class="text-sm font-medium text-success-dark">{successMessage}</p>
 				</div>
 			</div>
 		</div>
 	{/if}
 
 	<!-- Interactive Timeline Card -->
-	<div class="rounded-xl bg-white p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+	<div class="rounded-xl bg-white p-8 shadow-sm border border-surface-alt relative overflow-hidden">
 		<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
 		
-		<h2 class="text-lg font-semibold text-gray-900 mb-8 border-b border-gray-100 pb-4">Workflow Progress</h2>
+		<h2 class="text-lg font-semibold text-text-primary mb-8 border-b border-surface-alt pb-4">Workflow Progress</h2>
 
 		<div class="relative">
 			<!-- Visual Pipeline Line -->
-			<div class="absolute left-[28px] sm:left-1/2 top-4 bottom-4 w-0.5 bg-gray-200 sm:-translate-x-1/2"></div>
+			<div class="absolute left-[28px] sm:left-1/2 top-4 bottom-4 w-0.5 bg-border-border sm:-translate-x-1/2"></div>
 
 			<!-- Pipeline Stages -->
 			<div class="space-y-12">
@@ -201,16 +201,16 @@
 						<!-- Left Side (Past Status or empty space on sm) -->
 						<div class="hidden sm:block sm:w-1/2 sm:pr-12 sm:text-right">
 							{#if isPast}
-								<span class="text-sm font-medium text-gray-400">Completed Stage</span>
+								<span class="text-sm font-medium text-text-muted">Completed Stage</span>
 							{/if}
 						</div>
 
 						<!-- Center Node -->
-						<div class="absolute left-0 sm:left-1/2 flex items-center justify-center w-14 h-14 bg-white border-4 {isCurrent ? 'border-indigo-600 shadow-md ring-4 ring-indigo-50' : isPast ? 'border-gray-300' : 'border-gray-200'} rounded-full sm:-translate-x-1/2 z-10 transition-all duration-300">
+						<div class="absolute left-0 sm:left-1/2 flex items-center justify-center w-14 h-14 bg-white border-4 {isCurrent ? 'border-indigo-600 shadow-md ring-4 ring-indigo-50' : isPast ? 'border-border' : 'border-border'} rounded-full sm:-translate-x-1/2 z-10 transition-all duration-300">
 							{#if isCurrent}
 								<span class="text-2xl animate-pulse">{configInfo.icon}</span>
 							{:else if isPast}
-								<svg class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="w-6 h-6 text-border-border" fill="currentColor" viewBox="0 0 20 20">
 									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
 								</svg>
 							{:else}
@@ -220,15 +220,15 @@
 
 						<!-- Right Side Details & Actions -->
 						<div class="pl-20 sm:pl-12 sm:w-1/2 pt-2 sm:pt-0 pb-6 sm:pb-0">
-							<h3 class="text-lg font-bold {isCurrent ? 'text-indigo-900' : isPast ? 'text-gray-400' : 'text-gray-600'}">
+							<h3 class="text-lg font-bold {isCurrent ? 'text-indigo-900' : isPast ? 'text-text-muted' : 'text-text-secondary'}">
 								{configInfo.label}
 							</h3>
-							<p class="text-sm mt-1 {isCurrent ? 'text-indigo-600 font-medium' : 'text-gray-500'}">
+							<p class="text-sm mt-1 {isCurrent ? 'text-primary font-medium' : 'text-text-muted'}">
 								{configInfo.description}
 							</p>
 
 							{#if isCurrent}
-								<div class="mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-100 ring-1 ring-inset ring-indigo-700/10">
+								<div class="mt-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-primary-dark bg-indigo-100 ring-1 ring-inset ring-indigo-700/10">
 									Current Status
 								</div>
                                 
@@ -252,26 +252,26 @@
                                                 }; 
                                             }}>
 											<input type="hidden" name="recordId" value={record.recordId} />
-											<h4 class="font-bold text-gray-900 mb-4 text-sm border-b border-gray-100 pb-2">Record IN (Dispatch from Lab)</h4>
+											<h4 class="font-bold text-text-primary mb-4 text-sm border-b border-surface-alt pb-2">Record IN (Dispatch from Lab)</h4>
 											
 											<div class="grid grid-cols-2 gap-3 mb-4">
 												<div>
-													<label class="block text-xs font-semibold text-gray-700 mb-1">IN Date</label>
-													<input type="date" name="date" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+													<label class="block text-xs font-semibold text-text-secondary mb-1">IN Date</label>
+													<input type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
 												</div>
 												<div>
-													<label class="block text-xs font-semibold text-gray-700 mb-1">IN Time</label>
-													<input type="time" name="time" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+													<label class="block text-xs font-semibold text-text-secondary mb-1">IN Time</label>
+													<input type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
 												</div>
 											</div>
 											
 											<div class="mb-4">
-												<label class="block text-xs font-semibold text-gray-700 mb-1">IN Image</label>
+												<label class="block text-xs font-semibold text-text-secondary mb-1">IN Image</label>
 												<div class="flex items-center gap-2 mb-2">
-													<button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-gray-50 border border-gray-200 px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50" onclick={() => showInCameraModal = true}>
+													<button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-surface border border-border px-2 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt disabled:opacity-50" onclick={() => showInCameraModal = true}>
 														📷 Use Camera
 													</button>
-													<label class="flex-1 flex items-center justify-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-2 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 cursor-pointer" class:opacity-50={isSubmittingAction}>
+													<label class="flex-1 flex items-center justify-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-2 py-1.5 text-xs font-medium text-primary-dark hover:bg-indigo-100 cursor-pointer" class:opacity-50={isSubmittingAction}>
 														📁 Upload
 														<input type="file" name="in-img" accept="image/*" bind:this={in_file} onchange={handleInImageChange} multiple required disabled={isSubmittingAction} style="display: none;" />
 													</label>
@@ -279,21 +279,21 @@
 												{#if in_img_urls.length > 0}
 													<div class="grid grid-cols-3 gap-2 mt-2">
 														{#each in_img_urls as url, i}
-															<div class="relative rounded overflow-hidden border border-gray-200 h-16">
+															<div class="relative rounded overflow-hidden border border-border h-16">
 																<img src={url} alt="Preview" class="w-full h-full object-cover" />
-																<button type="button" class="absolute top-0 right-0 bg-red-500 text-white rounded-bl-md w-5 h-5 flex items-center justify-center text-[10px]" onclick={() => removeInImage(i)} disabled={isSubmittingAction}>×</button>
+																<button type="button" class="absolute top-0 right-0 bg-error-light0 text-white rounded-bl-md w-5 h-5 flex items-center justify-center text-[10px]" onclick={() => removeInImage(i)} disabled={isSubmittingAction}>×</button>
 															</div>
 														{/each}
 													</div>
 												{/if}
 											</div>
 											
-											<button type="submit" disabled={isSubmittingAction} class="w-full rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 transition-colors">
+											<button type="submit" disabled={isSubmittingAction} class="w-full rounded bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary disabled:opacity-50 transition-colors">
 												{isSubmittingAction ? 'Processing...' : 'Submit IN'}
 											</button>
 										</form>
 									{:else}
-										<div class="mt-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800 flex items-center gap-2 animate-in fade-in">
+										<div class="mt-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-success-dark flex items-center gap-2 animate-in fade-in">
 											<svg class="h-4 w-4 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
 											Dispatch IN completed. Case is ready for OUT delivery.
 										</div>
@@ -302,7 +302,7 @@
 									<button
 										disabled={isLoading}
 										onclick={() => { if(confirm('Are you sure you want to mark this case as failed and send it back to Pending for technicians to redo?')) updateStatus('pending') }}
-										class="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-white border border-red-200 px-3 py-2.5 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
+										class="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-white border border-red-200 px-3 py-2.5 text-sm font-semibold text-error-dark shadow-sm hover:bg-error-light disabled:opacity-50 transition-colors"
 									>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -339,26 +339,26 @@
                                                 }; 
                                             }}>
                                             <input type="hidden" name="recordId" value={record.recordId} />
-                                            <h4 class="font-bold text-gray-900 mb-4 text-sm border-b border-gray-100 pb-2">Record OUT (Drop-off at Clinic)</h4>
+                                            <h4 class="font-bold text-text-primary mb-4 text-sm border-b border-surface-alt pb-2">Record OUT (Drop-off at Clinic)</h4>
                                             
                                             <div class="grid grid-cols-2 gap-3 mb-4">
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Date</label>
-                                                    <input type="date" name="date" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+                                                    <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Date</label>
+                                                    <input type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Time</label>
-                                                    <input type="time" name="time" class="block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+                                                    <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Time</label>
+                                                    <input type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
                                                 </div>
                                             </div>
                                             
                                             <div class="mb-4">
-                                                <label class="block text-xs font-semibold text-gray-700 mb-1">OUT Image</label>
+                                                <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Image</label>
                                                 <div class="flex items-center gap-2 mb-2">
-                                                    <button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-gray-50 border border-gray-200 px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50" onclick={() => showOutCameraModal = true}>
+                                                    <button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-surface border border-border px-2 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt disabled:opacity-50" onclick={() => showOutCameraModal = true}>
                                                         📷 Use Camera
                                                     </button>
-                                                    <label class="flex-1 flex items-center justify-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-2 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 cursor-pointer" class:opacity-50={isSubmittingAction}>
+                                                    <label class="flex-1 flex items-center justify-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-2 py-1.5 text-xs font-medium text-primary-dark hover:bg-indigo-100 cursor-pointer" class:opacity-50={isSubmittingAction}>
                                                         📁 Upload
                                                         <input type="file" name="out-img" accept="image/*" bind:this={out_file} onchange={handleOutImageChange} multiple required disabled={isSubmittingAction} style="display: none;" />
                                                     </label>
@@ -366,18 +366,18 @@
                                                 {#if out_img_urls.length > 0}
                                                     <div class="grid grid-cols-3 gap-2 mt-2">
                                                         {#each out_img_urls as url, i}
-                                                            <div class="relative rounded overflow-hidden border border-gray-200 h-16">
+                                                            <div class="relative rounded overflow-hidden border border-border h-16">
                                                                 <img src={url} alt="Preview" class="w-full h-full object-cover" />
-                                                                <button type="button" class="absolute top-0 right-0 bg-red-500 text-white rounded-bl-md w-5 h-5 flex items-center justify-center text-[10px]" onclick={() => removeOutImage(i)} disabled={isSubmittingAction}>×</button>
+                                                                <button type="button" class="absolute top-0 right-0 bg-error-light0 text-white rounded-bl-md w-5 h-5 flex items-center justify-center text-[10px]" onclick={() => removeOutImage(i)} disabled={isSubmittingAction}>×</button>
                                                             </div>
                                                         {/each}
                                                     </div>
                                                 {/if}
                                             </div>
 
-                                            <div class="flex items-center gap-2 mb-4 bg-gray-50 p-2 rounded border border-gray-200">
-                                                <input type="checkbox" name="finished" id="finished" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" disabled={isSubmittingAction} />
-                                                <label for="finished" class="text-xs font-semibold text-gray-800 tracking-wide"> Mark as Finished (Generate SOA) </label>
+                                            <div class="flex items-center gap-2 mb-4 bg-surface p-2 rounded border border-border">
+                                                <input type="checkbox" name="finished" id="finished" class="h-4 w-4 rounded border-border text-primary focus:ring-primary" disabled={isSubmittingAction} />
+                                                <label for="finished" class="text-xs font-semibold text-text-primary tracking-wide"> Mark as Finished (Generate SOA) </label>
                                             </div>
                                             
                                             <button type="submit" disabled={isSubmittingAction} class="w-full rounded bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 disabled:opacity-50 transition-colors">
@@ -389,7 +389,7 @@
                                     <button
                                         disabled={isLoading}
                                         onclick={() => updateStatus(stage.status)}
-                                        class="mt-3 inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm ring-1 ring-inset ring-indigo-300 hover:bg-indigo-50 disabled:opacity-50 transition-colors"
+                                        class="mt-3 inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary shadow-sm ring-1 ring-inset ring-indigo-300 hover:bg-indigo-50 disabled:opacity-50 transition-colors"
                                     >
                                         Move to {configInfo.label}
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -406,11 +406,11 @@
 	</div>
 
 	<!-- Info Alert -->
-	<div class="mt-6 rounded-md bg-blue-50 p-4 border border-blue-100 flex items-start">
+	<div class="mt-6 rounded-md bg-info-light p-4 border border-blue-100 flex items-start">
 		<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 mt-0.5 mr-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
 			<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
 		</svg>
-		<p class="text-sm text-blue-800 leading-relaxed">
+		<p class="text-sm text-info-dark leading-relaxed">
 			For data integrity, standard staff can only advance cases forward progressively. If you need to revert a case backwards (e.g. from "Delivered" back to "In Progress"), you must have <strong>Admin</strong> privileges.
 		</p>
 	</div>

@@ -23,7 +23,7 @@
 <div class="flex items-center gap-2">
 	<select
 		name="month"
-		class="rounded-md border-gray-300 py-2 pr-10 pl-3 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+		class="rounded-md border-border py-2 pr-10 pl-3 text-sm focus:border-primary focus:ring-primary focus:outline-none"
 		bind:value={selectedMonth}
 	>
 		{#each months as { value, label }}
@@ -33,7 +33,7 @@
 
 	<select
 		name="year"
-		class="rounded-md border-gray-300 py-2 pr-10 pl-3 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+		class="rounded-md border-border py-2 pr-10 pl-3 text-sm focus:border-primary focus:ring-primary focus:outline-none"
 		bind:value={selectedYear}
 	>
 		{#each years as year}

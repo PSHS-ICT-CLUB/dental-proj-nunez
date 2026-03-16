@@ -26,12 +26,12 @@
 	);
 </script>
 
-<div class="min-h-screen bg-gray-50 flex justify-center py-8 px-4">
-	<div class="w-full max-w-4xl rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+<div class="min-h-screen bg-surface flex justify-center py-8 px-4">
+	<div class="w-full max-w-4xl rounded-lg bg-white p-6 shadow-sm border border-border">
 		<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900">Global Change Log</h1>
-				<p class="text-sm text-gray-500 mt-1">
+				<h1 class="text-2xl font-bold text-text-primary">Global Change Log</h1>
+				<p class="text-sm text-text-muted mt-1">
 					Audit trail of all records and history items across the system. (Admin view)
 				</p>
 			</div>
@@ -41,31 +41,31 @@
 					type="text"
 					bind:value={searchQuery}
 					placeholder="Search by user or record ID..."
-					class="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					class="w-full appearance-none rounded-md border border-border px-3 py-2 text-sm text-text-primary shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 				/>
 			</div>
 		</div>
 
 		{#if filteredLogs.length > 0}
-			<div class="overflow-hidden rounded-md border border-gray-200">
-				<table class="min-w-full divide-y divide-gray-200 text-left text-sm">
-					<thead class="bg-gray-50/50">
+			<div class="overflow-hidden rounded-md border border-border">
+				<table class="min-w-full divide-y divide-border-border text-left text-sm">
+					<thead class="bg-surface/50">
 						<tr>
-							<th class="px-4 py-3 font-semibold text-gray-600">Timestamp</th>
-							<th class="px-4 py-3 font-semibold text-gray-600">Action / Case Info</th>
-							<th class="px-4 py-3 font-semibold text-gray-600">Performed By</th>
-							<th class="px-4 py-3 font-semibold text-gray-600 text-right">Link</th>
+							<th class="px-4 py-3 font-semibold text-text-secondary">Timestamp</th>
+							<th class="px-4 py-3 font-semibold text-text-secondary">Action / Case Info</th>
+							<th class="px-4 py-3 font-semibold text-text-secondary">Performed By</th>
+							<th class="px-4 py-3 font-semibold text-text-secondary text-right">Link</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y divide-gray-100 bg-white">
+					<tbody class="divide-y divide-bg-surface-alt bg-white">
 						{#each filteredLogs as log (log.id)}
-							<tr class="hover:bg-gray-50 transition-colors">
-								<td class="px-4 py-3 text-gray-500 whitespace-nowrap">
+							<tr class="hover:bg-surface transition-colors">
+								<td class="px-4 py-3 text-text-muted whitespace-nowrap">
 									{formatDate(log.timestamp)}
 								</td>
 								<td class="px-4 py-3">
-									<div class="font-medium text-gray-900">{log.actionName}</div>
-									<div class="text-xs text-gray-500 mt-0.5">Record ID: <span class="font-mono text-indigo-600">{log.recordId}</span></div>
+									<div class="font-medium text-text-primary">{log.actionName}</div>
+									<div class="text-xs text-text-muted mt-0.5">Record ID: <span class="font-mono text-primary">{log.recordId}</span></div>
 								</td>
 								<td class="px-4 py-3">
 									<span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
@@ -75,7 +75,7 @@
 								<td class="px-4 py-3 text-right">
 									<a
 										href="/history/{log.recordId}"
-										class="text-indigo-600 hover:text-indigo-900 text-xs font-medium"
+										class="text-primary hover:text-indigo-900 text-xs font-medium"
 									>
 										View History
 									</a>
@@ -86,8 +86,8 @@
 				</table>
 			</div>
 		{:else}
-			<div class="flex flex-col items-center justify-center py-12 text-center text-gray-500">
-				<svg class="h-12 w-12 stroke-gray-300 mb-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+			<div class="flex flex-col items-center justify-center py-12 text-center text-text-muted">
+				<svg class="h-12 w-12 stroke-border-border mb-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 				</svg>
 				<p class="text-sm">No recent activity or logs matched your search.</p>

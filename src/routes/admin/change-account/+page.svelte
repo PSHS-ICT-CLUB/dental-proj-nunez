@@ -35,14 +35,14 @@
 <div class="mx-auto mt-10 max-w-lg rounded-xl bg-white p-8 shadow-lg print:hidden">
 	<h1 class="mb-6 text-center text-3xl font-bold text-[#164154]">Change User Account</h1>
 
-	<p class="mb-6 text-center text-sm text-gray-600">
+	<p class="mb-6 text-center text-sm text-text-secondary">
 		Modify user details and passwords. Only users with the <span class="font-bold">admin</span> role
 		have access to this page.
 	</p>
 
 	{#if form?.message}
 		<div
-			class={`mb-6 rounded-md p-4 text-sm font-medium ${form.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+			class={`mb-6 rounded-md p-4 text-sm font-medium ${form.success ? 'bg-success-light text-success-dark' : 'bg-error-light text-error-dark'}`}
 		>
 			{form.message}
 		</div>
@@ -61,13 +61,13 @@
 		class="space-y-6"
 	>
 		<div>
-			<label for="userId" class="block text-sm font-medium text-gray-700">Select User</label>
+			<label for="userId" class="block text-sm font-medium text-text-secondary">Select User</label>
 			<select
 				id="userId"
 				name="userId"
 				bind:value={selectedUserId}
 				required
-				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 			>
 				<option value="">-- Choose a user --</option>
 				{#each data.users as user (user.id)}
@@ -80,70 +80,70 @@
 
 		{#if selectedUser}
 			<div>
-				<label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+				<label for="name" class="block text-sm font-medium text-text-secondary">Full Name</label>
 				<input
 					id="name"
 					name="name"
 					type="text"
 					required
 					bind:value={name}
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 					placeholder="John Doe"
 				/>
 			</div>
 
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+				<label for="email" class="block text-sm font-medium text-text-secondary">Email Address</label>
 				<input
 					id="email"
 					name="email"
 					type="email"
 					required
 					bind:value={email}
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 					placeholder="john@example.com"
 				/>
 			</div>
 
 			<div>
-				<label for="role" class="block text-sm font-medium text-gray-700">User Role</label>
+				<label for="role" class="block text-sm font-medium text-text-secondary">User Role</label>
 				<select
 					id="role"
 					name="role"
 					required
 					bind:value={role}
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 				>
 					<option value="staff">Staff</option>
 					<option value="dentist">Dentist</option>
 					<option value="admin">Admin</option>
 				</select>
-				<p class="mt-1 text-xs text-gray-500">
+				<p class="mt-1 text-xs text-text-muted">
 					Select the role for this user.
 				</p>
 			</div>
 
-			<div class="rounded-md bg-gray-50 p-4">
-				<h3 class="mb-4 text-sm font-medium text-gray-700">
-					Change Password <span class="text-xs text-gray-500"
+			<div class="rounded-md bg-surface p-4">
+				<h3 class="mb-4 text-sm font-medium text-text-secondary">
+					Change Password <span class="text-xs text-text-muted"
 						>(optional - leave blank to keep current password)</span
 					>
 				</h3>
 
 				<div>
-					<label for="password" class="block text-sm font-medium text-gray-700">New Password</label>
+					<label for="password" class="block text-sm font-medium text-text-secondary">New Password</label>
 					<input
 						id="password"
 						name="password"
 						type="password"
 						bind:value={password}
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+						class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 						placeholder="Enter a new password (or leave blank)"
 					/>
 				</div>
 
 				<div class="mt-3">
-					<label for="confirmPassword" class="block text-sm font-medium text-gray-700"
+					<label for="confirmPassword" class="block text-sm font-medium text-text-secondary"
 						>Confirm Password</label
 					>
 					<input
@@ -151,7 +151,7 @@
 						name="confirmPassword"
 						type="password"
 						bind:value={confirmPassword}
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+						class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 						placeholder="Confirm new password"
 					/>
 				</div>
@@ -167,7 +167,7 @@
 				</button>
 			</div>
 		{:else}
-			<div class="rounded-md bg-gray-100 p-4 text-center text-sm text-gray-600">
+			<div class="rounded-md bg-surface-alt p-4 text-center text-sm text-text-secondary">
 				Select a user to view and edit their account details
 			</div>
 		{/if}

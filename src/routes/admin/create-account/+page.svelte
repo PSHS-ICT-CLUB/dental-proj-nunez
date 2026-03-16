@@ -13,14 +13,14 @@
 <div class="mx-auto mt-10 max-w-lg rounded-xl bg-white p-8 shadow-lg print:hidden">
 	<h1 class="mb-6 text-center text-3xl font-bold text-[#164154]">Create New Account</h1>
 
-	<p class="mb-6 text-center text-sm text-gray-600">
+	<p class="mb-6 text-center text-sm text-text-secondary">
 		Create a new user. Only users with the <span class="font-bold">admin</span> role have access to this
 		page.
 	</p>
 
 	{#if form?.message}
 		<div
-			class={`mb-6 rounded-md p-4 text-sm font-medium ${form.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+			class={`mb-6 rounded-md p-4 text-sm font-medium ${form.success ? 'bg-success-light text-success-dark' : 'bg-error-light text-error-dark'}`}
 		>
 			{form.message}
 		</div>
@@ -39,56 +39,56 @@
 		class="space-y-6"
 	>
 		<div>
-			<label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+			<label for="name" class="block text-sm font-medium text-text-secondary">Full Name</label>
 			<input
 				id="name"
 				name="name"
 				type="text"
 				required
 				value={form?.name ?? ''}
-				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 				placeholder="John Doe"
 			/>
 		</div>
 
 		<div>
-			<label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+			<label for="email" class="block text-sm font-medium text-text-secondary">Email Address</label>
 			<input
 				id="email"
 				name="email"
 				type="email"
 				required
 				value={form?.email ?? ''}
-				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 				placeholder="john@example.com"
 			/>
 		</div>
 
 		<div>
-			<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+			<label for="password" class="block text-sm font-medium text-text-secondary">Password</label>
 			<input
 				id="password"
 				name="password"
 				type="password"
 				required
-				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 				placeholder="Enter a secure password"
 			/>
 		</div>
 
 		<div>
-			<label for="role" class="block text-sm font-medium text-gray-700">User Role</label>
+			<label for="role" class="block text-sm font-medium text-text-secondary">User Role</label>
 			<select
 				id="role"
 				name="role"
 				required
-				class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
+				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 			>
 				<option value="staff" selected={(!form?.role || form?.role === 'staff')}>Staff</option>
 				<option value="dentist" selected={form?.role === 'dentist'}>Dentist</option>
 				<option value="admin" selected={form?.role === 'admin'}>Admin</option>
 			</select>
-			<p class="mt-1 text-xs text-gray-500">
+			<p class="mt-1 text-xs text-text-muted">
 				Select the role for this user.
 			</p>
 		</div>

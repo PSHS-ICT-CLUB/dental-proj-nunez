@@ -95,7 +95,7 @@
 
 <div class="mx-auto max-w-7xl px-4 py-8">
 	{#if success && message}
-		<div class="mb-4 rounded-md bg-green-100 p-4">
+		<div class="mb-4 rounded-md bg-success-light p-4">
 			<div class="flex">
 				<div class="flex-shrink-0">
 					<svg
@@ -112,12 +112,12 @@
 					</svg>
 				</div>
 				<div class="ml-3">
-					<p class="text-sm font-medium text-green-800">{message}</p>
+					<p class="text-sm font-medium text-success-dark">{message}</p>
 				</div>
 			</div>
 		</div>
 	{:else if form?.error}
-		<div class="mb-4 rounded-md bg-red-100 p-4">
+		<div class="mb-4 rounded-md bg-error-light p-4">
 			<div class="flex">
 				<div class="flex-shrink-0">
 					<svg
@@ -134,7 +134,7 @@
 					</svg>
 				</div>
 				<div class="ml-3">
-					<h3 class="text-sm font-medium text-red-800">There was an error:</h3>
+					<h3 class="text-sm font-medium text-error-dark">There was an error:</h3>
 					<div class="mt-2 text-sm text-red-700">
 						<p>{form.error}</p>
 					</div>
@@ -147,26 +147,26 @@
 		<!-- LEFT COLUMN: Tables -->
 		<div class="w-full space-y-12 xl:w-[60%]">
 			<section>
-				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-gray-900">Doctors</h2>
+				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-text-primary">Doctors</h2>
 				<div class="overflow-x-auto pb-4">
-					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
-						<thead class="bg-gray-50">
+					<table class="w-full min-w-[600px] divide-y divide-border-border rounded-md shadow-md">
+						<thead class="bg-surface">
 							<tr>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Doctor Name
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Clinic
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Doctor Contact
 								</th>
@@ -175,25 +175,25 @@
 								</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-gray-200 bg-white">
+						<tbody class="divide-y divide-border-border bg-white">
 							{#each doctorsWithClinic as doctor}
 								<tr>
-									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-text-primary">
 										{doctor.name}
 									</td>
-									<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500"
+									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted"
 										>{doctor.clinicName}</td
 									>
-									<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if doctor.doctorPhone}
-												<span class="text-gray-700">📞 {doctor.doctorPhone}</span>
+												<span class="text-text-secondary">📞 {doctor.doctorPhone}</span>
 											{/if}
 											{#if doctor.doctorEmail}
-												<span class="text-gray-700">✉ {doctor.doctorEmail}</span>
+												<span class="text-text-secondary">✉ {doctor.doctorEmail}</span>
 											{/if}
 											{#if !doctor.doctorPhone && !doctor.doctorEmail}
-												<span class="text-gray-400 italic">No contact details</span>
+												<span class="text-text-muted italic">No contact details</span>
 											{/if}
 										</div>
 									</td>
@@ -218,20 +218,20 @@
 			</section>
 
 			<section>
-				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-gray-900">Clinics</h2>
+				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-text-primary">Clinics</h2>
 				<div class="overflow-x-auto pb-4">
-					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
-						<thead class="bg-gray-50">
+					<table class="w-full min-w-[600px] divide-y divide-border-border rounded-md shadow-md">
+						<thead class="bg-surface">
 							<tr>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Clinic Name
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Clinic Contact
 								</th>
@@ -240,22 +240,22 @@
 								</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-gray-200 bg-white">
+						<tbody class="divide-y divide-border-border bg-white">
 							{#each clinics as clinic}
 								<tr>
-									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-text-primary">
 										{clinic.label}
 									</td>
-									<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if clinic.clinicPhone}
-												<span class="text-gray-700">📞 {clinic.clinicPhone}</span>
+												<span class="text-text-secondary">📞 {clinic.clinicPhone}</span>
 											{/if}
 											{#if clinic.clinicEmail}
-												<span class="text-gray-700">✉ {clinic.clinicEmail}</span>
+												<span class="text-text-secondary">✉ {clinic.clinicEmail}</span>
 											{/if}
 											{#if !clinic.clinicPhone && !clinic.clinicEmail}
-												<span class="text-gray-400 italic">No contact details</span>
+												<span class="text-text-muted italic">No contact details</span>
 											{/if}
 										</div>
 									</td>
@@ -280,26 +280,26 @@
 			</section>
 
 			<section>
-				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-gray-900">Technicians</h2>
+				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-text-primary">Technicians</h2>
 				<div class="overflow-x-auto pb-4">
-					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
-						<thead class="bg-gray-50">
+					<table class="w-full min-w-[600px] divide-y divide-border-border rounded-md shadow-md">
+						<thead class="bg-surface">
 							<tr>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Name
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Role
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Contact
 								</th>
@@ -308,28 +308,28 @@
 								</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-gray-200 bg-white">
+						<tbody class="divide-y divide-border-border bg-white">
 							{#each technicians as tech}
 								<tr>
-									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-text-primary">
 										{tech.name}
 									</td>
-									<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										{tech.role || '-'}
 									</td>
-									<td class="px-6 py-2 text-sm whitespace-nowrap text-gray-500">
+									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if tech.phone}
-												<span class="text-gray-700">📞 {tech.phone}</span>
+												<span class="text-text-secondary">📞 {tech.phone}</span>
 											{/if}
 											{#if tech.email}
-												<span class="text-gray-700">✉ {tech.email}</span>
+												<span class="text-text-secondary">✉ {tech.email}</span>
 											{/if}
 											{#if tech.notes}
-												<span class="text-gray-500">{tech.notes}</span>
+												<span class="text-text-muted">{tech.notes}</span>
 											{/if}
 											{#if !tech.phone && !tech.email && !tech.notes}
-												<span class="text-gray-400 italic">No details</span>
+												<span class="text-text-muted italic">No details</span>
 											{/if}
 										</div>
 									</td>
@@ -354,27 +354,27 @@
 			</section>
 
 			<section>
-				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-gray-900">Case Types</h2>
+				<h2 class="mb-4 border-b pb-2 text-xl font-semibold text-text-primary">Case Types</h2>
 				<div class="overflow-x-auto pb-4">
 					<!-- Case Types Table -->
-					<table class="w-full min-w-[600px] divide-y divide-gray-200 rounded-md shadow-md">
-						<thead class="bg-gray-50">
+					<table class="w-full min-w-[600px] divide-y divide-border-border rounded-md shadow-md">
+						<thead class="bg-surface">
 							<tr>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Case Type
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Code
 								</th>
 								<th
 									scope="col"
-									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase"
 								>
 									Case Number Count
 								</th>
@@ -383,10 +383,10 @@
 								</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-gray-200 bg-white">
+						<tbody class="divide-y divide-border-border bg-white">
 							{#each caseTypes as caseType}
 								<tr>
-									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+									<td class="px-6 py-2 text-sm font-medium whitespace-nowrap text-text-primary">
 										<form
 											action="?/updateCaseTypeCount"
 											method="post"
@@ -398,7 +398,7 @@
 												type="text"
 												name="case_type_name"
 												value={caseType.caseTypeName}
-												class="w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+												class="w-full min-w-[120px] rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 											/>
 										</form>
 									</td>
@@ -408,7 +408,7 @@
 											name="case_type_abbrv"
 											value={caseType.caseTypeAbbrv}
 											form="update-form-{caseType.caseTypeId}"
-											class="w-24 rounded-md border-gray-300 font-mono shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+											class="w-24 rounded-md border-border font-mono shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 										/>
 									</td>
 									<td class="px-6 py-2 text-sm whitespace-nowrap">
@@ -418,7 +418,7 @@
 											value={caseType.numberOfCases}
 											min="0"
 											form="update-form-{caseType.caseTypeId}"
-											class="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+											class="w-20 rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 										/>
 									</td>
 									<td
@@ -427,7 +427,7 @@
 										<button
 											type="submit"
 											form="update-form-{caseType.caseTypeId}"
-											class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+											class="inline-flex items-center rounded-md border border-transparent bg-primary px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 										>
 											Save
 										</button>
@@ -457,10 +457,10 @@
 				<!-- New section for adding only a clinic -->
 				<form method="POST" action="?/addClinic" class="w-full space-y-4">
 					<div>
-						<h3 class="text-lg font-medium text-gray-900">Add New Clinic</h3>
+						<h3 class="text-lg font-medium text-text-primary">Add New Clinic</h3>
 						<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 							<div>
-								<label for="clinic_name_only" class="block text-sm font-medium text-gray-700"
+								<label for="clinic_name_only" class="block text-sm font-medium text-text-secondary"
 									>Clinic Name</label
 								>
 								<div class="mt-1">
@@ -468,14 +468,14 @@
 										type="text"
 										name="clinic_name"
 										id="clinic_name_only"
-										class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+										class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 										placeholder="Enter clinic name"
 										required
 									/>
 								</div>
 							</div>
 							<div>
-								<label for="clinic_phone_only" class="block text-sm font-medium text-gray-700"
+								<label for="clinic_phone_only" class="block text-sm font-medium text-text-secondary"
 									>Clinic Phone (optional)</label
 								>
 								<div class="mt-1">
@@ -483,13 +483,13 @@
 										type="text"
 										name="clinic_phone"
 										id="clinic_phone_only"
-										class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+										class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 										placeholder="e.g. 0917 123 4567"
 									/>
 								</div>
 							</div>
 							<div>
-								<label for="clinic_email_only" class="block text-sm font-medium text-gray-700"
+								<label for="clinic_email_only" class="block text-sm font-medium text-text-secondary"
 									>Clinic Email (optional)</label
 								>
 								<div class="mt-1">
@@ -497,7 +497,7 @@
 										type="email"
 										name="clinic_email"
 										id="clinic_email_only"
-										class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+										class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 										placeholder="e.g. clinic@example.com"
 									/>
 								</div>
@@ -506,7 +506,7 @@
 						<div class="mt-4">
 							<button
 								type="submit"
-								class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+								class="inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2"
 							>
 								Add Clinic Only
 							</button>
@@ -522,12 +522,12 @@
 					action="?/{isNewClinic ? 'addClinicAndDoctor' : 'addDoctor'}"
 					class="w-full space-y-4"
 				>
-					<h3 class="text-lg font-medium text-gray-900">
+					<h3 class="text-lg font-medium text-text-primary">
 						{isNewClinic ? 'Add New Clinic with Doctor' : 'Add Doctor to Existing Clinic'}
 					</h3>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<label for="clinic_name" class="block text-sm font-medium text-gray-700">
+							<label for="clinic_name" class="block text-sm font-medium text-text-secondary">
 								Clinic
 							</label>
 							<div class="relative mt-1" bind:this={clinicContainer}>
@@ -535,7 +535,7 @@
 									type="text"
 									name="clinic_name"
 									bind:value={newClinicSearch}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="Search for a clinic or enter a new one"
 									onfocus={handleClinicInputFocus}
 									onblur={handleClinicInputBlur}
@@ -551,7 +551,7 @@
 											<li>
 												<button
 													type="button"
-													class="w-full cursor-pointer appearance-none px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+													class="w-full cursor-pointer appearance-none px-4 py-2 text-left text-sm text-text-secondary hover:bg-surface-alt focus:bg-surface-alt"
 													onclick={() => selectClinic(clinic)}
 												>
 													{clinic.label}
@@ -562,14 +562,14 @@
 								{/if}
 							</div>
 							{#if newClinicId}
-								<p class="mt-1 text-sm text-gray-500">
+								<p class="mt-1 text-sm text-text-muted">
 									Selected Clinic: {clinics.find((c) => c.clinicId === newClinicId)?.label}
 								</p>
 								<input type="hidden" name="clinic_id" value={newClinicId} />
 							{/if}
 						</div>
 						<div>
-							<label for="doctor_name" class="block text-sm font-medium text-gray-700">
+							<label for="doctor_name" class="block text-sm font-medium text-text-secondary">
 								Doctor Name
 							</label>
 							<div class="mt-1">
@@ -577,13 +577,13 @@
 									type="text"
 									name="doctor_name"
 									bind:value={newDoctorName}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="Enter doctor's name"
 								/>
 							</div>
 						</div>
 						<div>
-							<label for="doctor_phone" class="block text-sm font-medium text-gray-700">
+							<label for="doctor_phone" class="block text-sm font-medium text-text-secondary">
 								Doctor Phone (optional)
 							</label>
 							<div class="mt-1">
@@ -592,13 +592,13 @@
 									name="doctor_phone"
 									id="doctor_phone"
 									bind:value={newDoctorPhone}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="e.g. 0917 123 4567"
 								/>
 							</div>
 						</div>
 						<div>
-							<label for="doctor_email" class="block text-sm font-medium text-gray-700">
+							<label for="doctor_email" class="block text-sm font-medium text-text-secondary">
 								Doctor Email (optional)
 							</label>
 							<div class="mt-1">
@@ -607,7 +607,7 @@
 									name="doctor_email"
 									id="doctor_email"
 									bind:value={newDoctorEmail}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="e.g. doctor@example.com"
 								/>
 							</div>
@@ -616,7 +616,7 @@
 					<div>
 						<button
 							type="submit"
-							class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+							class="inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 						>
 							Add
 						</button>
@@ -627,24 +627,24 @@
 			<section class="space-y-4">
 				<!-- Add Technician Form -->
 				<form method="POST" action="?/addTechnician" class="w-full space-y-4">
-					<h2 class="text-xl font-semibold text-gray-900">Add Technician</h2>
+					<h2 class="text-xl font-semibold text-text-primary">Add Technician</h2>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<label for="tech_name" class="block text-sm font-medium text-gray-700"> Name </label>
+							<label for="tech_name" class="block text-sm font-medium text-text-secondary"> Name </label>
 							<div class="mt-1">
 								<input
 									type="text"
 									id="tech_name"
 									name="name"
 									bind:value={newTechnicianName}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="Technician name"
 									required
 								/>
 							</div>
 						</div>
 						<div>
-							<label for="tech_role" class="block text-sm font-medium text-gray-700">
+							<label for="tech_role" class="block text-sm font-medium text-text-secondary">
 								Role (optional)
 							</label>
 							<div class="mt-1">
@@ -653,13 +653,13 @@
 									id="tech_role"
 									name="role"
 									bind:value={newTechnicianRole}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="e.g. Ceramist, Model, Finisher"
 								/>
 							</div>
 						</div>
 						<div>
-							<label for="tech_phone" class="block text-sm font-medium text-gray-700">
+							<label for="tech_phone" class="block text-sm font-medium text-text-secondary">
 								Phone (optional)
 							</label>
 							<div class="mt-1">
@@ -668,13 +668,13 @@
 									id="tech_phone"
 									name="phone"
 									bind:value={newTechnicianPhone}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="e.g. 0917 123 4567"
 								/>
 							</div>
 						</div>
 						<div>
-							<label for="tech_email" class="block text-sm font-medium text-gray-700">
+							<label for="tech_email" class="block text-sm font-medium text-text-secondary">
 								Email (optional)
 							</label>
 							<div class="mt-1">
@@ -683,13 +683,13 @@
 									id="tech_email"
 									name="email"
 									bind:value={newTechnicianEmail}
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="e.g. tech@example.com"
 								/>
 							</div>
 						</div>
 						<div class="md:col-span-2">
-							<label for="tech_notes" class="block text-sm font-medium text-gray-700">
+							<label for="tech_notes" class="block text-sm font-medium text-text-secondary">
 								Notes (optional)
 							</label>
 							<div class="mt-1">
@@ -698,7 +698,7 @@
 									name="notes"
 									bind:value={newTechnicianNotes}
 									rows="2"
-									class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+									class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 									placeholder="Special skills, schedule, etc."
 								></textarea>
 							</div>
@@ -707,7 +707,7 @@
 					<div>
 						<button
 							type="submit"
-							class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+							class="inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 						>
 							Add Technician
 						</button>
@@ -716,15 +716,15 @@
 			</section>
 
 			<section class="space-y-4">
-				<h2 class="text-xl font-semibold text-gray-900">Add Case Type</h2>
+				<h2 class="text-xl font-semibold text-text-primary">Add Case Type</h2>
 				<!-- Add Case Type Form -->
 				<form
 					method="POST"
 					action="?/addCaseType"
-					class="flex w-full flex-col items-end gap-4 rounded-md bg-gray-50 p-4 shadow-sm sm:flex-row"
+					class="flex w-full flex-col items-end gap-4 rounded-md bg-surface p-4 shadow-sm sm:flex-row"
 				>
 					<div class="flex-1">
-						<label for="case_type" class="block text-sm font-medium text-gray-700">
+						<label for="case_type" class="block text-sm font-medium text-text-secondary">
 							Full Name
 						</label>
 						<div class="mt-1">
@@ -733,14 +733,14 @@
 								name="case_type"
 								id="case_type"
 								bind:value={newCaseType}
-								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+								class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 								placeholder="e.g. Crown"
 								required
 							/>
 						</div>
 					</div>
 					<div class="flex-1">
-						<label for="case_type_abbrv" class="block text-sm font-medium text-gray-700">
+						<label for="case_type_abbrv" class="block text-sm font-medium text-text-secondary">
 							Abbreviation/Code
 						</label>
 						<div class="mt-1">
@@ -749,7 +749,7 @@
 								name="case_type_abbrv"
 								id="case_type_abbrv"
 								bind:value={newCaseTypeAbbrv}
-								class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+								class="block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
 								placeholder="e.g. CRN"
 								required
 							/>
@@ -757,7 +757,7 @@
 					</div>
 					<button
 						type="submit"
-						class="inline-flex h-[38px] items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+						class="inline-flex h-[38px] items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 					>
 						Add Case Type
 					</button>

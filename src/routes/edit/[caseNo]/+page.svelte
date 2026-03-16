@@ -333,10 +333,10 @@
 
 <div class="mx-auto max-w-2xl px-4 py-8">
 	<div class="mb-8 flex items-center justify-between">
-		<h1 class="text-2xl font-bold text-gray-900">Edit Record #{record.recordId}</h1>
+		<h1 class="text-2xl font-bold text-text-primary">Edit Record #{record.recordId}</h1>
 		<a
 			href="/"
-			class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+			class="rounded-md bg-surface-alt px-4 py-2 text-sm font-medium text-text-secondary hover:bg-border-border"
 		>
 			Back to List
 		</a>
@@ -355,13 +355,13 @@
 		<div
 			class="mb-4 rounded-md p-4 {form.success
 				? 'bg-green-50 text-green-700'
-				: 'bg-red-50 text-red-700'}"
+				: 'bg-error-light text-red-700'}"
 		>
 			{form.message}
 		</div>
 	{/if}
 	{#if form?.error}
-		<div class="mb-4 rounded-md bg-red-50 p-4 text-red-700">
+		<div class="mb-4 rounded-md bg-error-light p-4 text-red-700">
 			{form.error}
 		</div>
 	{/if}
@@ -398,13 +398,13 @@
 
 		<div class="grid gap-6 md:grid-cols-2">
 			<!-- RECORD DETAILS SECTION -->
-			<div class="mb-2 border-b border-gray-200 pb-4 md:col-span-2">
-				<h2 class="text-lg font-semibold text-gray-900">Record Details</h2>
+			<div class="mb-2 border-b border-border pb-4 md:col-span-2">
+				<h2 class="text-lg font-semibold text-text-primary">Record Details</h2>
 			</div>
 
 			<!-- Clinic Name with Dropdown -->
 			<div class="relative" bind:this={clinicContainer}>
-				<label for="clinic_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="clinic_name" class="mb-2 block text-sm font-bold text-text-secondary">
 					Clinic
 					<input
 						type="text"
@@ -422,7 +422,7 @@
 							}
 						}}
 						required
-						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+						class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						placeholder="Clinic name"
 					/>
 				</label>
@@ -434,13 +434,13 @@
 							<li class="role-none relative py-2 pr-9 pl-3">
 								<button
 									type="button"
-									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-text-primary hover:bg-primary hover:text-white"
 									onclick={() => selectClinic(clinic)}
 								>
 									<span class="block truncate">{clinic.clinicName}</span>
 								</button>
 								{#if selectedClinic === clinic.clinicId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-primary"
 										>✓</span
 									>
 								{/if}
@@ -453,7 +453,7 @@
 
 			<!-- Doctor Name with Dropdown -->
 			<div class="relative" bind:this={doctorContainer}>
-				<label for="doctor_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="doctor_name" class="mb-2 block text-sm font-bold text-text-secondary">
 					Doctor
 					<input
 						type="text"
@@ -471,8 +471,8 @@
 						required
 						disabled={!selectedClinic}
 						class="block w-full appearance-none rounded-md border {selectedClinic
-							? 'border-gray-300'
-							: 'cursor-not-allowed border-dashed border-gray-300 bg-gray-100'} px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+							? 'border-border'
+							: 'cursor-not-allowed border-dashed border-border bg-surface-alt'} px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 						placeholder={selectedClinic ? 'Doctor name' : 'Select a clinic first'}
 					/>
 				</label>
@@ -484,13 +484,13 @@
 							<li class="role-none relative py-2 pr-9 pl-3">
 								<button
 									type="button"
-									class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
+									class="w-full cursor-pointer border-none bg-transparent text-left text-text-primary hover:bg-primary hover:text-white"
 									onclick={() => selectDoctor(doctor)}
 								>
 									<span class="block truncate">{doctor.doctorName}</span>
 								</button>
 								{#if selectedDoctor === doctor.doctorId}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+									<span class="absolute inset-y-0 right-0 flex items-center pr-2 text-primary"
 										>✓</span
 									>
 								{/if}
@@ -503,7 +503,7 @@
 
 			<!-- Patient Name -->
 			<div>
-				<label for="patient_name" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="patient_name" class="mb-2 block text-sm font-bold text-text-secondary">
 					Patient Name
 					<input
 						type="text"
@@ -511,7 +511,7 @@
 						name="patientName"
 						bind:value={patientName}
 						required
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 						placeholder="Patient name"
 					/>
 				</label>
@@ -523,14 +523,14 @@
 			>
 				<div>
 					<h3 class="text-sm font-bold text-indigo-900">Manage Workflow Status</h3>
-					<p class="mt-1 text-xs text-indigo-700">
+					<p class="mt-1 text-xs text-primary-dark">
 						Status changes are now managed in the dedicated workflow timeline to enforce proper
 						staging logic.
 					</p>
 				</div>
 				<a
 					href={`/status/${record.recordId}`}
-					class="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm hover:bg-indigo-500 focus-visible:outline"
+					class="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm hover:bg-primary focus-visible:outline"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -550,31 +550,31 @@
 
 			<!-- Case Notes -->
 			<div class="md:col-span-2">
-				<label for="caseNotes" class="block text-sm font-bold text-gray-700">Case Notes</label>
+				<label for="caseNotes" class="block text-sm font-bold text-text-secondary">Case Notes</label>
 				<textarea
 					id="caseNotes"
 					name="caseNotes"
 					rows="3"
 					bind:value={caseNotes}
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					class="mt-1 block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary"
 					placeholder="Enter patient observations, treatment notes, etc."
 				></textarea>
 			</div>
 
 			<!-- ORDER ITEMS SECTION -->
-			<div class="mt-4 mb-2 border-b border-gray-200 pb-4 md:col-span-2">
-				<h2 class="text-lg font-semibold text-gray-900">Order Items</h2>
+			<div class="mt-4 mb-2 border-b border-border pb-4 md:col-span-2">
+				<h2 class="text-lg font-semibold text-text-primary">Order Items</h2>
 			</div>
 
 			<div class="space-y-4 md:col-span-2">
 				{#each orderItems as item, i}
-					<div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+					<div class="rounded-lg border border-border bg-surface p-4">
 						<div class="mb-4 flex items-center justify-between">
-							<h4 class="text-sm font-bold tracking-wide text-indigo-600 uppercase">
+							<h4 class="text-sm font-bold tracking-wide text-primary uppercase">
 								{item.upOrDown === 'up' ? 'Upper Case' : 'Lower Case'}
 							</h4>
-							<div class="text-sm font-medium text-gray-500">
-								Subtotal: <span class="ml-1 font-bold text-gray-900"
+							<div class="text-sm font-medium text-text-muted">
+								Subtotal: <span class="ml-1 font-bold text-text-primary"
 									>₱{((parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1)).toFixed(2)}</span
 								>
 							</div>
@@ -584,9 +584,9 @@
 							<!-- Case Type & No -->
 							<div class="flex gap-2 sm:col-span-1 lg:col-span-4">
 								<div class="flex-1">
-									<label class="mb-1 block text-xs font-semibold text-gray-600">Case Type</label>
+									<label class="mb-1 block text-xs font-semibold text-text-secondary">Case Type</label>
 									<select
-										class="block w-full rounded-md border border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+										class="block w-full rounded-md border border-border bg-white py-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
 										value={item.caseTypeId}
 										onchange={(e) =>
 											updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
@@ -599,12 +599,12 @@
 									</select>
 								</div>
 								<div class="w-16 shrink-0">
-									<label class="mb-1 block text-xs font-semibold text-gray-600">No.</label>
+									<label class="mb-1 block text-xs font-semibold text-text-secondary">No.</label>
 									<input
 										type="text"
 										value={item.caseNo}
 										disabled
-										class="block w-full cursor-not-allowed rounded-md border-gray-200 bg-gray-100 py-2 text-center text-sm font-medium text-gray-500"
+										class="block w-full cursor-not-allowed rounded-md border-border bg-surface-alt py-2 text-center text-sm font-medium text-text-muted"
 									/>
 									<input type="hidden" name={`caseNo_${i}`} value={item.caseNo} />
 								</div>
@@ -612,12 +612,12 @@
 
 							<!-- Description -->
 							<div class="sm:col-span-1 lg:col-span-4">
-								<label class="mb-1 block text-xs font-semibold text-gray-600">Description</label>
+								<label class="mb-1 block text-xs font-semibold text-text-secondary">Description</label>
 								<input
 									type="text"
 									value={item.orderDescription || ''}
 									oninput={(e) => updateOrderItem(i, 'orderDescription', e.currentTarget.value)}
-									class="block w-full rounded-md border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+									class="block w-full rounded-md border-border bg-white py-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
 									placeholder="Tooth details, shade, etc."
 								/>
 							</div>
@@ -625,24 +625,24 @@
 							<!-- Units & Cost -->
 							<div class="flex gap-3 sm:col-span-2 lg:col-span-4">
 								<div class="w-20 shrink-0">
-									<label class="mb-1 block text-xs font-semibold text-gray-600">Units</label>
+									<label class="mb-1 block text-xs font-semibold text-text-secondary">Units</label>
 									<input
 										type="number"
 										value={item.itemQuantity}
 										min="1"
 										oninput={(e) =>
 											updateOrderItem(i, 'itemQuantity', parseInt(e.currentTarget.value))}
-										class="block w-full rounded-md border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+										class="block w-full rounded-md border-border bg-white py-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
 									/>
 								</div>
 								<div class="flex-1">
-									<label class="mb-1 block text-xs font-semibold text-gray-600">Cost per Unit</label
+									<label class="mb-1 block text-xs font-semibold text-text-secondary">Cost per Unit</label
 									>
 									<div class="relative">
 										<div
 											class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
 										>
-											<span class="text-gray-500 sm:text-sm">₱</span>
+											<span class="text-text-muted sm:text-sm">₱</span>
 										</div>
 										<input
 											type="number"
@@ -650,7 +650,7 @@
 											step="0.01"
 											oninput={(e) =>
 												updateOrderItem(i, 'itemCost', parseFloat(e.currentTarget.value))}
-											class="block w-full rounded-md border-gray-300 bg-white py-2 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+											class="block w-full rounded-md border-border bg-white py-2 pl-8 text-sm shadow-sm focus:border-primary focus:ring-primary"
 										/>
 									</div>
 								</div>
@@ -659,8 +659,8 @@
 					</div>
 				{/each}
 				<div class="flex justify-end pt-2">
-					<div class="text-base font-medium text-gray-700">
-						Total Order Amount: <span class="ml-2 text-xl font-bold tracking-tight text-gray-900"
+					<div class="text-base font-medium text-text-secondary">
+						Total Order Amount: <span class="ml-2 text-xl font-bold tracking-tight text-text-primary"
 							>₱{total_amount?.toFixed(2) || '0.00'}</span
 						>
 					</div>
@@ -668,17 +668,17 @@
 			</div>
 
 			<!-- DELIVERY & SCHEDULING SECTION -->
-			<div class="mt-4 mb-2 border-b border-gray-200 pb-4 md:col-span-2">
-				<h2 class="text-lg font-semibold text-gray-900">Delivery & Scheduling</h2>
+			<div class="mt-4 mb-2 border-b border-border pb-4 md:col-span-2">
+				<h2 class="text-lg font-semibold text-text-primary">Delivery & Scheduling</h2>
 			</div>
 
 			<!-- Delivery Details -->
 			<div class="md:col-span-2">
-				<label class="mb-3 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label
+				<label class="mb-3 block text-sm font-bold text-text-secondary">Delivery Details (Optional)</label
 				>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<div>
-						<label for="delivery_courier" class="block text-xs font-medium text-gray-600">
+						<label for="delivery_courier" class="block text-xs font-medium text-text-secondary">
 							Courier
 						</label>
 						<input
@@ -686,12 +686,12 @@
 							id="delivery_courier"
 							name="deliveryCourier"
 							bind:value={deliveryCourier}
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 							placeholder="e.g. Lalamove, Grab, In-house"
 						/>
 					</div>
 					<div>
-						<label for="delivery_fee" class="block text-xs font-medium text-gray-600">
+						<label for="delivery_fee" class="block text-xs font-medium text-text-secondary">
 							Delivery Fee
 						</label>
 						<input
@@ -701,12 +701,12 @@
 							id="delivery_fee"
 							name="deliveryFee"
 							bind:value={deliveryFee}
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 							placeholder="e.g. 150.00"
 						/>
 					</div>
 					<div class="sm:col-span-2 lg:col-span-1">
-						<label for="delivery_notes" class="block text-xs font-medium text-gray-600">
+						<label for="delivery_notes" class="block text-xs font-medium text-text-secondary">
 							Notes
 						</label>
 						<textarea
@@ -714,7 +714,7 @@
 							name="deliveryNotes"
 							rows="1"
 							bind:value={deliveryNotes}
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 							placeholder="Optional delivery instructions or remarks"
 						></textarea>
 					</div>
@@ -723,7 +723,7 @@
 
 			<!-- To be finished at -->
 			<div>
-				<label for="finish_by" class="mb-2 block text-sm font-bold text-gray-700">
+				<label for="finish_by" class="mb-2 block text-sm font-bold text-text-secondary">
 					To be finished at (Optional)
 				</label>
 				<input
@@ -731,13 +731,13 @@
 					id="finish_by"
 					name="finishBy"
 					bind:value={finishBy}
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 				/>
 			</div>
 
 			<!-- Assigned Technicians -->
 			<div class="md:col-span-2">
-				<label for="assigned_technicians" class="mb-1 block text-sm font-bold text-gray-700">
+				<label for="assigned_technicians" class="mb-1 block text-sm font-bold text-text-secondary">
 					Assigned Technician(s)
 				</label>
 				<textarea
@@ -745,10 +745,10 @@
 					name="assignedTechnicians"
 					rows="2"
 					bind:value={assignedTechnicians}
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 					placeholder="Enter one or more technician names (e.g. Juan, Maria, Pedro)"
 				/>
-				<p class="mt-1 text-xs text-gray-500">
+				<p class="mt-1 text-xs text-text-muted">
 					You can assign multiple technicians by separating names with commas.
 				</p>
 			</div>
@@ -760,7 +760,7 @@
 					onclick={() => {
 						openPasswordModal();
 					}}
-					class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+					class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 				>
 					Update Record
 				</button>
@@ -775,10 +775,10 @@
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 print:hidden">
 			<div class="mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg">
 				<div class="p-4">
-					<h3 class="text-lg font-medium text-gray-900">Confirm update</h3>
-					<div class="mt-3 rounded-md bg-gray-50 p-3 text-sm">
-						<p class="mb-2 font-semibold text-gray-900">Record Information:</p>
-						<div class="space-y-1.5 text-gray-700">
+					<h3 class="text-lg font-medium text-text-primary">Confirm update</h3>
+					<div class="mt-3 rounded-md bg-surface p-3 text-sm">
+						<p class="mb-2 font-semibold text-text-primary">Record Information:</p>
+						<div class="space-y-1.5 text-text-secondary">
 							<div class="flex">
 								<span class="w-28 font-medium">Record ID:</span>
 								<span>{record.recordId}</span>
@@ -817,18 +817,18 @@
 					</div>
 
 					{#if changes.length > 0}
-						<div class="mt-3 rounded-md bg-blue-50 p-3 text-sm">
+						<div class="mt-3 rounded-md bg-info-light p-3 text-sm">
 							<p class="mb-2 font-semibold text-blue-900">Changes to be made:</p>
-							<div class="space-y-2 text-blue-800">
+							<div class="space-y-2 text-info-dark">
 								{#each changes as change}
 									<div class="flex flex-col gap-1">
 										<div class="font-medium">{change.field}:</div>
 										<div class="flex items-center gap-2 pl-2">
-											<span class="rounded bg-red-100 px-2 py-0.5 text-xs line-through">
+											<span class="rounded bg-error-light px-2 py-0.5 text-xs line-through">
 												{change.oldValue || '(empty)'}
 											</span>
 											<span class="text-blue-600">→</span>
-											<span class="rounded bg-green-100 px-2 py-0.5 text-xs font-medium">
+											<span class="rounded bg-success-light px-2 py-0.5 text-xs font-medium">
 												{change.newValue || '(empty)'}
 											</span>
 										</div>
@@ -842,18 +842,18 @@
 						</div>
 					{/if}
 
-					<p class="mt-3 text-sm text-gray-600">
+					<p class="mt-3 text-sm text-text-secondary">
 						Enter your password to confirm updating this record.
 					</p>
 					<div class="mt-4">
-						<label for="edit_password" class="block text-sm font-medium text-gray-700"
+						<label for="edit_password" class="block text-sm font-medium text-text-secondary"
 							>Password</label
 						>
 						<input
 							id="edit_password"
 							type="password"
 							bind:value={editPassword}
-							class="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm shadow-sm"
+							class="mt-1 w-full rounded-md border border-border p-2 text-sm shadow-sm"
 							required
 							disabled={isSubmitting}
 							onkeydown={(e) => {
@@ -874,12 +874,12 @@
 						<div class="mt-4 flex justify-end gap-2">
 							<button
 								type="button"
-								class="rounded border border-gray-300 bg-white px-3 py-1 text-sm hover:bg-gray-50"
+								class="rounded border border-border bg-white px-3 py-1 text-sm hover:bg-surface"
 								onclick={closePasswordModal}>Cancel</button
 							>
 							<button
 								type="button"
-								class="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+								class="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
 								disabled={!editPassword || isSubmitting}
 								onclick={() => {
 									if (editPassword && editForm && !isSubmitting) {

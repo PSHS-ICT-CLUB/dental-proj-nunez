@@ -136,12 +136,12 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-50 p-4">
+<div class="min-h-screen bg-surface p-4">
 	<div class="mx-auto max-w-7xl">
 		<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900">Calendar</h1>
-				<p class="text-sm text-gray-500">
+				<h1 class="text-2xl font-bold text-text-primary">Calendar</h1>
+				<p class="text-sm text-text-muted">
 					View delivery dates and deadlines - Click a date to see details
 				</p>
 			</div>
@@ -149,25 +149,25 @@
 			<div class="flex items-center gap-3">
 				<button
 					onclick={goToToday}
-					class="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50"
+					class="rounded border border-border bg-white px-3 py-1.5 text-sm font-medium text-text-secondary shadow-sm transition-all hover:bg-surface"
 				>
 					Today
 				</button>
-				<div class="flex items-center rounded border border-gray-300 bg-white shadow-sm">
+				<div class="flex items-center rounded border border-border bg-white shadow-sm">
 					<button
 						onclick={() => navigateMonth(-1)}
-						class="px-3 py-1.5 text-gray-600 transition-all hover:bg-gray-50"
+						class="px-3 py-1.5 text-text-secondary transition-all hover:bg-surface"
 						aria-label="Previous month"
 					>
 						←
 					</button>
-					<span class="min-w-[140px] px-4 py-1.5 text-center text-sm font-semibold text-gray-900">
+					<span class="min-w-[140px] px-4 py-1.5 text-center text-sm font-semibold text-text-primary">
 						{monthNames[currentMonth - 1]}
 						{currentYear}
 					</span>
 					<button
 						onclick={() => navigateMonth(1)}
-						class="px-3 py-1.5 text-gray-600 transition-all hover:bg-gray-50"
+						class="px-3 py-1.5 text-text-secondary transition-all hover:bg-surface"
 						aria-label="Next month"
 					>
 						→
@@ -179,21 +179,21 @@
 		<div class="mb-4 flex flex-wrap gap-4">
 			<div class="flex items-center gap-2">
 				<div class="h-4 w-4 rounded bg-amber-500"></div>
-				<span class="text-sm text-gray-600">Delivery Date (Dropoff)</span>
+				<span class="text-sm text-text-secondary">Delivery Date (Dropoff)</span>
 			</div>
 			<div class="flex items-center gap-2">
-				<div class="h-4 w-4 rounded bg-blue-500"></div>
-				<span class="text-sm text-gray-600">To Be Finished By</span>
+				<div class="h-4 w-4 rounded bg-info-light0"></div>
+				<span class="text-sm text-text-secondary">To Be Finished By</span>
 			</div>
 		</div>
 
 		<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 			<div class="lg:col-span-1">
-				<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-					<div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+				<div class="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+					<div class="grid grid-cols-7 border-b border-border bg-surface">
 						{#each daysOfWeek as day}
 							<div
-								class="px-2 py-3 text-center text-xs font-semibold tracking-wide text-gray-500 uppercase"
+								class="px-2 py-3 text-center text-xs font-semibold tracking-wide text-text-muted uppercase"
 							>
 								{day}
 							</div>
@@ -211,17 +211,17 @@
 								{@const hasRecords = totalRecords > 0}
 
 								<button
-									class="min-h-[80px] border-r border-b border-gray-100 p-1.5 text-center transition-all {isSelected
+									class="min-h-[80px] border-r border-b border-surface-alt p-1.5 text-center transition-all {isSelected
 										? 'bg-indigo-50 ring-2 ring-indigo-500 ring-inset'
-										: 'hover:bg-gray-50'} {hasRecords ? 'cursor-pointer' : 'cursor-default'}"
+										: 'hover:bg-surface'} {hasRecords ? 'cursor-pointer' : 'cursor-default'}"
 									onclick={() => hasRecords && selectDate(fullDate)}
 									disabled={!hasRecords}
 								>
 									<div class="mb-1">
 										<span
 											class="text-sm font-medium {isToday
-												? 'font-bold text-indigo-600'
-												: 'text-gray-900'}"
+												? 'font-bold text-primary'
+												: 'text-text-primary'}"
 										>
 											{date}
 										</span>
@@ -238,7 +238,7 @@
 											{/if}
 											{#if finishBys.length > 0}
 												<div
-													class="truncate rounded bg-blue-100 px-1 py-0.5 text-[10px] text-blue-800"
+													class="truncate rounded bg-info-light px-1 py-0.5 text-[10px] text-info-dark"
 												>
 													{finishBys.length} finish
 												</div>
@@ -247,7 +247,7 @@
 									{/if}
 								</button>
 							{:else}
-								<div class="min-h-[80px] border-r border-b border-gray-100 bg-gray-50/50"></div>
+								<div class="min-h-[80px] border-r border-b border-surface-alt bg-surface/50"></div>
 							{/if}
 						{/each}
 					</div>
@@ -255,11 +255,11 @@
 
 				<div class="mt-4 grid grid-cols-2 gap-3">
 					<div class="rounded-lg border border-amber-200 bg-white p-4 shadow-sm">
-						<div class="text-sm text-gray-500">Deliveries This Month</div>
+						<div class="text-sm text-text-muted">Deliveries This Month</div>
 						<div class="text-2xl font-bold text-amber-600">{data.deliveryRecords.length}</div>
 					</div>
 					<div class="rounded-lg border border-blue-200 bg-white p-4 shadow-sm">
-						<div class="text-sm text-gray-500">Deadlines This Month</div>
+						<div class="text-sm text-text-muted">Deadlines This Month</div>
 						<div class="text-2xl font-bold text-blue-600">{data.finishByRecords.length}</div>
 					</div>
 				</div>
@@ -267,24 +267,24 @@
 
 			<div class="lg:col-span-2">
 				<div
-					class="min-h-[500px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm"
+					class="min-h-[500px] overflow-hidden rounded-lg border border-border bg-white shadow-sm"
 				>
 					{#if selectedDate}
-						<div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
-							<h2 class="text-lg font-bold text-gray-900">{formatDisplayDate(selectedDate)}</h2>
-							<p class="text-sm text-gray-500">
+						<div class="border-b border-border bg-surface px-6 py-4">
+							<h2 class="text-lg font-bold text-text-primary">{formatDisplayDate(selectedDate)}</h2>
+							<p class="text-sm text-text-muted">
 								{selectedDateTotal} case{selectedDateTotal !== 1 ? 's' : ''} scheduled
 							</p>
 						</div>
 
-						<div class="border-b border-gray-200">
+						<div class="border-b border-border">
 							<nav class="flex">
 								<button
 									onclick={() => (selectedDeliveryTab = 'delivery')}
 									class="flex-1 px-6 py-3 text-sm font-medium transition-colors {selectedDeliveryTab ===
 									'delivery'
-										? 'border-b-2 border-indigo-600 bg-indigo-50 text-indigo-600'
-										: 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}"
+										? 'border-b-2 border-indigo-600 bg-indigo-50 text-primary'
+										: 'text-text-muted hover:bg-surface hover:text-text-secondary'}"
 								>
 									<span class="flex items-center justify-center gap-2">
 										<span class="h-2 w-2 rounded-full bg-amber-500"></span>
@@ -295,11 +295,11 @@
 									onclick={() => (selectedDeliveryTab = 'finish')}
 									class="flex-1 px-6 py-3 text-sm font-medium transition-colors {selectedDeliveryTab ===
 									'finish'
-										? 'border-b-2 border-indigo-600 bg-indigo-50 text-indigo-600'
-										: 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}"
+										? 'border-b-2 border-indigo-600 bg-indigo-50 text-primary'
+										: 'text-text-muted hover:bg-surface hover:text-text-secondary'}"
 								>
 									<span class="flex items-center justify-center gap-2">
-										<span class="h-2 w-2 rounded-full bg-blue-500"></span>
+										<span class="h-2 w-2 rounded-full bg-info-light0"></span>
 										To Be Finished ({selectedDateFinishBys.length})
 									</span>
 								</button>
@@ -308,7 +308,7 @@
 
 						<div class="max-h-[500px] overflow-y-auto p-6">
 							{#if displayedRecords.length === 0}
-								<div class="py-8 text-center text-gray-500">
+								<div class="py-8 text-center text-text-muted">
 									No cases in this category for this date.
 								</div>
 							{:else}
@@ -316,7 +316,7 @@
 									{#each displayedRecords as record}
 										<a
 											href="/details/{record.recordId}"
-											class="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md"
+											class="block rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md"
 										>
 											<div
 												class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -327,34 +327,34 @@
 															class="rounded-full px-2 py-0.5 text-xs font-medium {selectedDeliveryTab ===
 															'delivery'
 																? 'bg-amber-100 text-amber-800'
-																: 'bg-blue-100 text-blue-800'}"
+																: 'bg-info-light text-info-dark'}"
 														>
 															#{record.recordId}
 														</span>
-														<span class="text-lg font-semibold text-gray-900"
+														<span class="text-lg font-semibold text-text-primary"
 															>{record.patientName}</span
 														>
 													</div>
-													<div class="mb-1 text-sm text-gray-600">
+													<div class="mb-1 text-sm text-text-secondary">
 														<span class="font-medium">{record.doctorName}</span>
-														<span class="text-gray-400"> • </span>
+														<span class="text-text-muted"> • </span>
 														<span>{record.clinicName}</span>
 													</div>
 													{#if record.remarks}
-														<div class="mt-1 text-sm text-gray-500">{record.remarks}</div>
+														<div class="mt-1 text-sm text-text-muted">{record.remarks}</div>
 													{/if}
 
 													<div class="mt-3 flex flex-wrap gap-2">
 														{#each record.orderItems as item}
 															<span
-																class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs text-gray-700"
+																class="inline-flex items-center rounded border border-border bg-surface-alt px-2.5 py-1 text-xs text-text-secondary"
 															>
 																<span class="font-medium">{item.caseTypeName}</span>
-																<span class="mx-1 text-gray-400">#</span>
+																<span class="mx-1 text-text-muted">#</span>
 																<span>{item.caseNo}</span>
-																<span class="mx-1 text-gray-400">({item.upOrDown})</span>
+																<span class="mx-1 text-text-muted">({item.upOrDown})</span>
 																{#if item.orderDescription}
-																	<span class="ml-1 text-gray-500">- {item.orderDescription}</span>
+																	<span class="ml-1 text-text-muted">- {item.orderDescription}</span>
 																{/if}
 															</span>
 														{/each}
@@ -378,7 +378,7 @@
 							<div class="text-center">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="mx-auto h-12 w-12 text-gray-300"
+									class="mx-auto h-12 w-12 text-border-border"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -390,8 +390,8 @@
 										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
 									/>
 								</svg>
-								<p class="mt-4 text-lg font-medium text-gray-900">Select a date</p>
-								<p class="mt-1 text-sm text-gray-500">
+								<p class="mt-4 text-lg font-medium text-text-primary">Select a date</p>
+								<p class="mt-1 text-sm text-text-muted">
 									Click on a day in the calendar to view case details
 								</p>
 							</div>

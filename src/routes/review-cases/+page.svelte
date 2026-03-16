@@ -180,8 +180,8 @@
 {#if showToast}
 	<div
 		class="fixed top-4 right-4 z-50 max-w-sm animate-slide-in rounded-lg border px-4 py-3 shadow-lg {toastType === 'success'
-			? 'border-green-200 bg-green-50 text-green-800'
-			: 'border-red-200 bg-red-50 text-red-800'}"
+			? 'border-green-200 bg-green-50 text-success-dark'
+			: 'border-red-200 bg-error-light text-error-dark'}"
 	>
 		<div class="flex items-center gap-2">
 			{#if toastType === 'success'}
@@ -194,7 +194,7 @@
 				</svg>
 			{/if}
 			<p class="text-sm font-medium">{toastMessage}</p>
-			<button onclick={() => (showToast = false)} class="ml-auto text-gray-400 hover:text-gray-600">
+			<button onclick={() => (showToast = false)} class="ml-auto text-text-muted hover:text-text-secondary">
 				<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 				</svg>
@@ -236,23 +236,23 @@
 	<!-- Page Header -->
 	<div class="mb-6 flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+			<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-info-light">
 				<svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
 				</svg>
 			</div>
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900">Cases For Review</h1>
-				<p class="text-sm text-gray-500">
+				<h1 class="text-2xl font-bold text-text-primary">Cases For Review</h1>
+				<p class="text-sm text-text-muted">
 					Review cases and approve for delivery
 				</p>
 			</div>
 		</div>
 		<div class="flex items-center gap-2">
-			<span class="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+			<span class="rounded-full bg-info-light px-3 py-1 text-sm font-semibold text-info-dark">
 				{cases.length} case{cases.length !== 1 ? 's' : ''}
 			</span>
-			<span class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 capitalize">
+			<span class="rounded border border-border bg-surface px-2 py-1 text-xs text-text-muted capitalize">
 				{data.userRole}
 			</span>
 		</div>
@@ -260,14 +260,14 @@
 
 	<!-- Cases Grid -->
 	{#if cases.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-16">
-			<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+		<div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-surface/50 py-16">
+			<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success-light">
 				<svg class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 				</svg>
 			</div>
-			<h3 class="text-lg font-semibold text-gray-700">All Caught Up!</h3>
-			<p class="mt-1 text-sm text-gray-500">No cases are awaiting review at the moment.</p>
+			<h3 class="text-lg font-semibold text-text-secondary">All Caught Up!</h3>
+			<p class="mt-1 text-sm text-text-muted">No cases are awaiting review at the moment.</p>
 			<a href="/" class="mt-4 rounded-lg bg-[#164154] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#1f3a4d]">
 				Back to Dashboard
 			</a>
@@ -276,12 +276,12 @@
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 			{#each cases as caseItem (caseItem.recordId)}
 				{@const statusConfig = getStatusConfig(caseItem.caseStatus)}
-				<div class="relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+				<div class="relative flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
 					<!-- Card Header -->
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-2">
-								<span class="text-base font-bold text-gray-900">#{caseItem.recordId}</span>
+								<span class="text-base font-bold text-text-primary">#{caseItem.recordId}</span>
 								<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase {statusConfig.bgColor} {statusConfig.color}">
 									{statusConfig.icon} {statusConfig.label}
 								</span>
@@ -298,8 +298,8 @@
 					<!-- Case Info -->
 					<div class="flex-1 p-4">
 						<div class="mb-3">
-							<h3 class="text-lg font-semibold text-gray-900">{caseItem.patientName}</h3>
-							<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+							<h3 class="text-lg font-semibold text-text-primary">{caseItem.patientName}</h3>
+							<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
 								<span class="flex items-center gap-1">
 									<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -320,7 +320,7 @@
 							<div class="mb-3">
 								<div class="flex flex-wrap gap-1">
 									{#each caseItem.orderItems as item}
-										<span class="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-700">
+										<span class="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-primary-dark">
 											<span class="font-bold uppercase">{item.upOrDown}</span>
 											{item.caseTypeName}
 											<span class="text-indigo-400">({item.caseNo})</span>
@@ -332,8 +332,8 @@
 
 						<!-- Case Notes / Description -->
 						{#if caseItem.caseNotes || caseItem.description}
-							<div class="mb-3 rounded-lg bg-gray-50 p-2.5 text-xs text-gray-600">
-								<p class="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+							<div class="mb-3 rounded-lg bg-surface p-2.5 text-xs text-text-secondary">
+								<p class="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
 									Notes
 								</p>
 								{caseItem.caseNotes || caseItem.description}
@@ -343,13 +343,13 @@
 						<!-- Dates Row -->
 						<div class="mb-3 grid grid-cols-2 gap-2 text-xs">
 							<div>
-								<span class="text-[10px] font-medium uppercase text-gray-400">Received</span>
-								<p class="font-medium text-gray-700">{formatDate(caseItem.dateIn || caseItem.datePickup)}</p>
+								<span class="text-[10px] font-medium uppercase text-text-muted">Received</span>
+								<p class="font-medium text-text-secondary">{formatDate(caseItem.dateIn || caseItem.datePickup)}</p>
 							</div>
 							{#if caseItem.finishBy}
 								<div>
-									<span class="text-[10px] font-medium uppercase text-gray-400">Finish By</span>
-									<p class="font-medium text-gray-700">{formatDate(caseItem.finishBy)}</p>
+									<span class="text-[10px] font-medium uppercase text-text-muted">Finish By</span>
+									<p class="font-medium text-text-secondary">{formatDate(caseItem.finishBy)}</p>
 								</div>
 							{/if}
 						</div>
@@ -357,14 +357,14 @@
 						<!-- Images Gallery -->
 						{#if caseItem.images && caseItem.images.length > 0}
 							<div class="mb-3">
-								<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+								<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
 									📷 Attached Images ({caseItem.images.length})
 								</p>
 								<div class="grid grid-cols-3 gap-1.5">
 									{#each caseItem.images as img}
 										<button
 											onclick={() => openLightbox(img.imageUrl, `Case #${caseItem.recordId} - ${img.historyType}`)}
-											class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100 transition hover:border-blue-400 hover:shadow-md"
+											class="group relative aspect-square overflow-hidden rounded-lg border border-border bg-surface-alt transition hover:border-blue-400 hover:shadow-md"
 										>
 											<img
 												src={img.imageUrl}
@@ -385,36 +385,36 @@
 								</div>
 							</div>
 						{:else}
-							<div class="mb-3 rounded-lg border border-dashed border-gray-200 bg-gray-50/50 px-3 py-2 text-center text-xs text-gray-400">
+							<div class="mb-3 rounded-lg border border-dashed border-border bg-surface/50 px-3 py-2 text-center text-xs text-text-muted">
 								No images attached
 							</div>
 						{/if}
 
 						<!-- Payment Info -->
-						<div class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-xs">
-							<span class="text-gray-500">Total</span>
-							<span class="font-bold text-gray-900">{formatCurrency(caseItem.orderTotal)}</span>
+						<div class="flex items-center justify-between rounded-lg bg-surface px-3 py-2 text-xs">
+							<span class="text-text-muted">Total</span>
+							<span class="font-bold text-text-primary">{formatCurrency(caseItem.orderTotal)}</span>
 						</div>
 					</div>
 
 					<!-- Card Footer: Proof Image Upload & Approve -->
-					<div class="border-t border-gray-100 bg-gray-50/30 px-4 py-3">
+					<div class="border-t border-surface-alt bg-surface/30 px-4 py-3">
 						<!-- Proof Image Upload Area -->
 						<div class="mb-3">
-							<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+							<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
 								📎 Attach Review Proof Image(s)
 							</p>
 
 							<!-- Upload Drop Zone -->
 							<label
-								class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-white px-3 py-3 transition-colors hover:border-emerald-400 hover:bg-emerald-50/30"
+								class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-border bg-white px-3 py-3 transition-colors hover:border-emerald-400 hover:bg-emerald-50/30"
 								ondragover={(e) => e.preventDefault()}
 								ondrop={(e) => handleDrop(e, caseItem.recordId)}
 							>
-								<svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<svg class="h-5 w-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
 								</svg>
-								<span class="text-xs text-gray-500">Click or drop image(s) here</span>
+								<span class="text-xs text-text-muted">Click or drop image(s) here</span>
 								<input
 									type="file"
 									accept="image/*"
@@ -428,7 +428,7 @@
 							{#if proofPreviews[caseItem.recordId]?.length > 0}
 								<div class="mt-2 grid grid-cols-4 gap-1.5">
 									{#each proofPreviews[caseItem.recordId] as preview, idx}
-										<div class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200">
+										<div class="group relative aspect-square overflow-hidden rounded-lg border border-border">
 											<img
 												src={preview}
 												alt="Proof {idx + 1}"
@@ -436,7 +436,7 @@
 											/>
 											<button
 												onclick={() => removeProofImage(caseItem.recordId, idx)}
-												class="absolute top-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+												class="absolute top-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-error-light0 text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
 												aria-label="Remove image"
 											>
 												<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -480,7 +480,7 @@
 							<button
 								onclick={() => rejectCase(caseItem.recordId)}
 								disabled={loadingCaseId === caseItem.recordId}
-								class="w-full flex justify-center items-center gap-2 rounded-lg bg-white border border-red-200 px-4 py-2 text-sm font-bold text-red-600 shadow-sm transition-all hover:bg-red-50 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+								class="w-full flex justify-center items-center gap-2 rounded-lg bg-white border border-red-200 px-4 py-2 text-sm font-bold text-error-dark shadow-sm transition-all hover:bg-error-light hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
 							>
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />

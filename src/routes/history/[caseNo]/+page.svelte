@@ -50,19 +50,19 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-surface-alt p-6">
 	<div class="mb-6 flex flex-col items-center sm:flex-row sm:justify-between rounded-md bg-white p-6 shadow-md">
 		<div class="flex flex-col">
 			<div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
-				<h1 class="text-xl font-semibold text-gray-800">
-					CASE NUMBER: <span class="font-bold text-indigo-600">{data.caseNo}</span>
+				<h1 class="text-xl font-semibold text-text-primary">
+					CASE NUMBER: <span class="font-bold text-primary">{data.caseNo}</span>
 				</h1>
-				<h2 class="text-lg text-gray-700">
+				<h2 class="text-lg text-text-secondary">
 					CLINIC: <span class="font-medium text-green-600">{data.recordData[0]?.clinicName}</span>
 				</h2>
 			</div>
 			{#if data.recordData[0]?.creatorName || data.recordData[0]?.createdAt}
-				<div class="text-xs text-gray-500 mt-1">
+				<div class="text-xs text-text-muted mt-1">
 					<span class="font-medium">Created by:</span> {data.recordData[0]?.creatorName || 'Unknown Admin'}
 					{#if data.recordData[0]?.createdAt}
 						<span class="mx-1">•</span>
@@ -72,7 +72,7 @@
 			{/if}
 		</div>
 		<button
-			class="mt-4 sm:mt-0 rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:outline-none"
+			class="mt-4 sm:mt-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:outline-none"
 			onclick={toggleSort}
 		>
 			Sort by Date ({sortAscending ? 'Oldest First' : 'Newest First'})
@@ -83,30 +83,30 @@
 	<div class="mx-auto flex w-full max-w-2xl flex-col space-y-6">
 		{#each historyItems as item}
 			<div
-				class={`w-full rounded-xl border border-gray-200/50 p-5 shadow-sm transition-all hover:shadow-md ${
-					item.historyType === 'in' ? 'bg-green-100/80' : 'bg-red-200/80'
+				class={`w-full rounded-xl border border-border/50 p-5 shadow-sm transition-all hover:shadow-md ${
+					item.historyType === 'in' ? 'bg-success-light/80' : 'bg-red-200/80'
 				}`}
 			>
 				<div class="flex items-start space-x-4">
 					<div class="flex-grow">
 						<div class="mb-1 flex items-center justify-between">
-							<span class="text-sm text-gray-500">
+							<span class="text-sm text-text-muted">
 								{formatDate(item.historyDate)}
 							</span>
 							<span
 								class={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
 									item.historyType === 'in'
-										? 'bg-green-100 text-green-700'
-										: 'bg-red-100 text-red-700'
+										? 'bg-success-light text-green-700'
+										: 'bg-error-light text-red-700'
 								}`}>{item.historyType}</span
 							>
 						</div>
-						<p class="text-gray-700">
+						<p class="text-text-secondary">
 							<span class="font-semibold">Time:</span>
 							<span class="text-blue-500">{formatTimeToStandard(item.historyTime)}</span>
 						</p>
 						{#if item.imageData}
-							<div class="mt-4 overflow-hidden rounded-lg border border-gray-200/60 bg-white/50 p-1">
+							<div class="mt-4 overflow-hidden rounded-lg border border-border/60 bg-white/50 p-1">
 								<img
 									src={item.imageData}
 									alt="{item.historyType} History"
@@ -114,9 +114,9 @@
 								/>
 							</div>
 						{:else}
-							<p class="mt-2 text-gray-500 italic">No Image Available</p>
+							<p class="mt-2 text-text-muted italic">No Image Available</p>
 						{/if}
-						<div class="mt-3 border-t border-gray-300/30 pt-2 text-xs text-gray-600">
+						<div class="mt-3 border-t border-border/30 pt-2 text-xs text-text-secondary">
 							<span class="font-medium">Uploaded by:</span> {item.creatorName || 'Unknown Admin'}
 						</div>
 					</div>

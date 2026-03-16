@@ -71,13 +71,13 @@
 
 <div class="relative">
 	{#if label}
-		<label for={id} class="text-sm text-gray-600">{label}</label>
+		<label for={id} class="text-sm text-text-secondary">{label}</label>
 	{/if}
 	<div class="relative" bind:this={container}>
 		<input
 			type="text"
 			{id}
-			class="w-full rounded-md border-gray-300 p-2"
+			class="w-full rounded-md border-border p-2"
 			{placeholder}
 			value={isOpen ? searchTerm : selectedOption?.label || ''}
 			oninput={handleInput}
@@ -87,15 +87,15 @@
 		/>
 		{#if isOpen && filteredOptions.length > 0}
 			<div
-				class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg"
+				class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-white shadow-lg"
 			>
 				{#each filteredOptions as option}
 					<button
 						type="button"
-						class="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none {option.value ===
+						class="w-full px-4 py-2 text-left hover:bg-surface-alt focus:bg-surface-alt focus:outline-none {option.value ===
 						value
-							? 'bg-indigo-50 text-indigo-600'
-							: 'text-gray-900'}"
+							? 'bg-indigo-50 text-primary'
+							: 'text-text-primary'}"
 						onclick={() => selectOption(option)}
 					>
 						{option.label}
@@ -105,7 +105,7 @@
 		{/if}
 		{#if isOpen && filteredOptions.length === 0 && searchTerm}
 			<div
-				class="absolute z-50 mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-500 shadow-lg"
+				class="absolute z-50 mt-1 w-full rounded-md border border-border bg-white px-4 py-2 text-text-muted shadow-lg"
 			>
 				No results found
 			</div>

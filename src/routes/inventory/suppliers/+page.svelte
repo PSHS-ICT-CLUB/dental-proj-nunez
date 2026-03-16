@@ -14,8 +14,8 @@
 
 	<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
 		<!-- Add Supplier Form -->
-		<div class="col-span-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:col-span-1 h-fit">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
+		<div class="col-span-1 rounded-lg border border-border bg-white p-6 shadow-sm md:col-span-1 h-fit">
+			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">
 				Add New Supplier
 			</h2>
 
@@ -25,7 +25,7 @@
 				</div>
 			{/if}
 			{#if form?.error}
-				<div class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+				<div class="mb-4 rounded-md bg-error-light p-3 text-sm text-red-700">
 					{form?.error}
 				</div>
 			{/if}
@@ -38,71 +38,71 @@
 				};
 			}}>
 				<div>
-					<label for="name" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Supplier Name *</label>
+					<label for="name" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Supplier Name *</label>
 					<input
 						type="text"
 						id="name"
 						name="name"
 						required
 						placeholder="E.g. XYZ Dental Supply"
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 				<div>
-					<label for="contact_person" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Contact Person</label>
+					<label for="contact_person" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Contact Person</label>
 					<input
 						type="text"
 						id="contact_person"
 						name="contact_person"
 						placeholder="Jane Doe"
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 				<div>
-					<label for="phone" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Phone</label>
+					<label for="phone" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Phone</label>
 					<input
 						type="text"
 						id="phone"
 						name="phone"
 						placeholder="+63 912 345 6789"
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 				<div>
-					<label for="email" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Email</label>
+					<label for="email" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Email</label>
 					<input
 						type="email"
 						id="email"
 						name="email"
 						placeholder="contact@supplier.com"
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 				<div>
-					<label for="address" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Address</label>
+					<label for="address" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Address</label>
 					<textarea
 						id="address"
 						name="address"
 						rows="2"
 						placeholder="123 Manila St."
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					></textarea>
 				</div>
 				<div>
-					<label for="notes" class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase">Notes</label>
+					<label for="notes" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Notes</label>
 					<input
 						type="text"
 						id="notes"
 						name="notes"
 						placeholder="Delivery only on Mondays"
-						class="w-full rounded border border-gray-200 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 					/>
 				</div>
 				<div class="flex justify-end pt-2">
 					<button
 						type="submit"
 						disabled={isSubmitting}
-						class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
+						class="rounded bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary disabled:opacity-50"
 					>
 						{isSubmitting ? 'Adding...' : 'Add Supplier'}
 					</button>
@@ -111,39 +111,39 @@
 		</div>
 
 		<!-- Suppliers Table -->
-		<div class="col-span-1 md:col-span-2 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm h-fit">
+		<div class="col-span-1 md:col-span-2 overflow-x-auto rounded-lg border border-border bg-white shadow-sm h-fit">
 			<table class="min-w-full border-collapse">
-				<thead class="bg-gray-50">
+				<thead class="bg-surface">
 					<tr>
-						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase">
 							Name
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase">
 							Contact Info
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+						<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-text-muted uppercase">
 							Address / Notes
 						</th>
-						<th class="px-6 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase">
+						<th class="px-6 py-3 text-center text-xs font-medium tracking-wider text-text-muted uppercase">
 							Actions
 						</th>
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-200 bg-white">
+				<tbody class="divide-y divide-border-border bg-white">
 					{#if suppliers && suppliers.length > 0}
 						{#each suppliers as supplier}
-							<tr class="transition-colors hover:bg-gray-50">
-								<td class="px-6 py-4 text-sm text-gray-900 font-medium">
+							<tr class="transition-colors hover:bg-surface">
+								<td class="px-6 py-4 text-sm text-text-primary font-medium">
 									{supplier.name}
 								</td>
-								<td class="px-6 py-4 text-sm text-gray-900">
-									{#if supplier.contactPerson}<div><span class="font-medium text-gray-500 text-xs uppercase tracking-wider">Person:</span> {supplier.contactPerson}</div>{/if}
-									{#if supplier.phone}<div><span class="font-medium text-gray-500 text-xs uppercase tracking-wider">Phone:</span> {supplier.phone}</div>{/if}
-									{#if supplier.email}<div><span class="font-medium text-gray-500 text-xs uppercase tracking-wider">Email:</span> {supplier.email}</div>{/if}
+								<td class="px-6 py-4 text-sm text-text-primary">
+									{#if supplier.contactPerson}<div><span class="font-medium text-text-muted text-xs uppercase tracking-wider">Person:</span> {supplier.contactPerson}</div>{/if}
+									{#if supplier.phone}<div><span class="font-medium text-text-muted text-xs uppercase tracking-wider">Phone:</span> {supplier.phone}</div>{/if}
+									{#if supplier.email}<div><span class="font-medium text-text-muted text-xs uppercase tracking-wider">Email:</span> {supplier.email}</div>{/if}
 								</td>
-								<td class="px-6 py-4 text-sm text-gray-500">
+								<td class="px-6 py-4 text-sm text-text-muted">
 									{#if supplier.address}<div class="mb-1">{supplier.address}</div>{/if}
-									{#if supplier.notes}<div class="text-xs italic text-gray-400">{supplier.notes}</div>{/if}
+									{#if supplier.notes}<div class="text-xs italic text-text-muted">{supplier.notes}</div>{/if}
 								</td>
 								<td class="px-6 py-4 text-center text-sm whitespace-nowrap">
 									{#if data.session?.user && (data.session.user.role === 'admin' || data.session.user.role === 'dentist')}
@@ -173,9 +173,9 @@
 						{/each}
 					{:else}
 						<tr>
-							<td colspan="4" class="px-6 py-12 text-center text-sm text-gray-500">
+							<td colspan="4" class="px-6 py-12 text-center text-sm text-text-muted">
 								<div class="flex flex-col items-center justify-center space-y-3">
-									<svg class="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<svg class="h-10 w-10 text-border-border" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
 									</svg>
 									<p>No suppliers found. Add your first supplier using the form.</p>

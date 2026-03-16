@@ -18,11 +18,11 @@
 	} = $props();
 </script>
 
-<div class="rounded-md border border-gray-200 p-4">
+<div class="rounded-md border border-border p-4">
 	<div class="mb-2 flex flex-col gap-2">
-		<span class="block text-[10px] font-bold tracking-wider text-gray-500 uppercase"> IN Image </span>
+		<span class="block text-[10px] font-bold tracking-wider text-text-muted uppercase"> IN Image </span>
 		{#if in_img_urls.length === 0}
-			<p class="mb-2 text-sm text-gray-500">No images uploaded yet</p>
+			<p class="mb-2 text-sm text-text-muted">No images uploaded yet</p>
 		{/if}
 		<div class="flex gap-2">
 			<button
@@ -47,7 +47,7 @@
 				Use Camera
 			</button>
 			<label
-				class="flex cursor-pointer items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+				class="flex cursor-pointer items-center justify-center rounded-md bg-text-text-secondary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-text-text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text-text-secondary"
 			>
 				<input
 					type="file"
@@ -67,7 +67,7 @@
 			{#each in_img_urls as url, i}
 				<div class="relative group">
 					<img
-						class="h-24 w-full rounded-md object-cover shadow-sm border border-gray-100"
+						class="h-24 w-full rounded-md object-cover shadow-sm border border-surface-alt"
 						src={url}
 						alt="IN Preview"
 					/>
@@ -87,7 +87,7 @@
 		</div>
 	{/if}
 	<div class="mt-4 flex flex-col gap-2">
-		<label for="date" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+		<label for="date" class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase">
 			IN Date
 			<input
 				type="date"
@@ -95,10 +95,10 @@
 				placeholder="Date"
 				required
 				bind:value={date}
-				class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+				class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 			/>
 		</label>
-		<label for="time" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+		<label for="time" class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase">
 			IN Time
 			<input
 				type="time"
@@ -106,7 +106,7 @@
 				placeholder="Time"
 				required
 				bind:value={time}
-				class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+				class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 			/>
 		</label>
 	</div>

@@ -424,14 +424,14 @@
 		<!-- Header -->
 		<div class="mb-6 mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div>
-				<h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Add New Record</h2>
-				<p class="mt-1 text-sm text-gray-500">
+				<h2 class="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Add New Record</h2>
+				<p class="mt-1 text-sm text-text-muted">
 					Create a new case record for processing. All required fields are across the dashboard.
 				</p>
 			</div>
 			
 			{#if stepError}
-				<div class="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+				<div class="rounded-md bg-error-light p-3 text-sm text-error-dark border border-red-200">
 					{stepError}
 				</div>
 			{/if}
@@ -440,7 +440,7 @@
 					{form.success}
 				</div>
 			{:else if form?.error}
-				<div class="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+				<div class="rounded-md bg-error-light p-3 text-sm text-error-dark border border-red-200">
 					Error: {form.error}
 				</div>
 			{/if}
@@ -452,10 +452,10 @@
 			<!-- Column 1: Client, Case, & Payment Data -->
 			<div class="flex flex-col gap-6">
 				<!-- Client Info Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
 							</svg>
 							Client Details
@@ -487,16 +487,16 @@
 				</section>
 				
 				<!-- Case Details Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
 							</svg>
 							Case Configuration
 						</h3>
 					</div>
-					<div class="p-4 bg-gray-50/30">
+					<div class="p-4 bg-surface/30">
 						<CaseSpecs
 							{data}
 							{selected_jaw}
@@ -514,10 +514,10 @@
 				</section>
 
 				<!-- Payment Details Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
 							</svg>
 							Billing Details
@@ -539,10 +539,10 @@
 			<div class="flex flex-col gap-6">
 
 				<!-- Documentation In Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
 							</svg>
@@ -563,10 +563,10 @@
 				</section>
 
 				<!-- Materials Usage Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
 							</svg>
 							Inventory Usage
@@ -584,10 +584,10 @@
 				</section>
 				
 				<!-- Delivery & Work Details Card -->
-				<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
-					<div class="border-b border-gray-100 bg-gray-50/50 px-4 py-3">
-						<h3 class="font-semibold text-gray-800 flex items-center gap-2">
-							<svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
+					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
+						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 							</svg>
 							Logistics & Team
@@ -617,18 +617,18 @@
 		</div>
 
 		<!-- Sticky Footer Bar -->
-		<div class="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white/90 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md z-40">
+		<div class="fixed bottom-0 left-0 right-0 border-t border-border bg-white/90 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md z-40">
 			<div class="mx-auto flex w-full max-w-[1400px] flex-col sm:flex-row flex-wrap items-center justify-between gap-4 px-4 md:px-8">
 				<div class="flex flex-wrap items-baseline gap-3">
-					<span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Amount</span>
-					<span class="text-2xl font-bold text-gray-900">
-						<span class="text-sm font-medium text-gray-500">₱</span>{total_amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+					<span class="text-sm font-medium text-text-muted uppercase tracking-wider">Total Amount</span>
+					<span class="text-2xl font-bold text-text-primary">
+						<span class="text-sm font-medium text-text-muted">₱</span>{total_amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
 					</span>
 				</div>
 				<button
 					type="submit"
 					disabled={isSubmitting}
-					class="w-full sm:w-auto rounded-lg bg-indigo-600 px-10 py-3 text-sm font-bold tracking-wide text-white shadow-md transition-all hover:bg-indigo-700 hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-indigo-400 disabled:opacity-70 active:scale-[0.98]"
+					class="w-full sm:w-auto rounded-lg bg-primary px-10 py-3 text-sm font-bold tracking-wide text-white shadow-md transition-all hover:bg-indigo-700 hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-indigo-400 disabled:opacity-70 active:scale-[0.98]"
 				>
 					{isSubmitting ? 'Submitting...' : '✓ Add Record'}
 				</button>

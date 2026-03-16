@@ -98,21 +98,21 @@
 {/if}
 
 {#if isAuthenticated}
-	<nav class="sticky top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
+	<nav class="bg-primary sticky top-0 left-0 z-50 w-full text-white shadow-md print:hidden">
 		<div class="mx-auto flex items-center justify-between px-4 py-3">
 			<div class="flex items-center gap-6">
 				<!-- Logo -->
 				{#if page.url.pathname !== '/'}
 					<a
 						href="/"
-						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-[#A1AEB3]"
+						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-white/80"
 					>
 						Nunez Dental
 					</a>
 				{:else}
 					<button
 						onclick={() => window.location.reload()}
-						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-[#A1AEB3]"
+						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-white/80"
 					>
 						Nunez Dental
 					</button>
@@ -126,7 +126,7 @@
 							class={`relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
 								isActive(link.href)
 									? 'bg-white/10 text-white'
-									: `${link.color || 'text-[#A1AEB3]'} hover:bg-white/5 hover:text-white`
+									: `${link.color || 'text-white/70'} hover:bg-white/5 hover:text-white`
 							}`}
 						>
 							{link.label}
@@ -151,7 +151,7 @@
 					<!-- Print Button -->
 					<button
 						onclick={() => window.print()}
-						class="flex items-center gap-1.5 rounded-md border border-[#A1AEB3]/30 bg-[#233B48] px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-[#1f3a4d]"
+						class="bg-primary-dark hover:bg-primary-dark/80 flex items-center gap-1.5 rounded-md border border-white/20 px-3 py-1.5 text-sm font-medium text-white transition-all"
 					>
 						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path
@@ -167,7 +167,7 @@
 					<!-- Add Record Button -->
 					<a
 						href="/upload-record"
-						class="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-emerald-700"
+						class="bg-success hover:bg-success-dark flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white transition-all"
 					>
 						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path
@@ -184,10 +184,10 @@
 					<div class="relative">
 						<button
 							onclick={() => (isUserMenuOpen = !isUserMenuOpen)}
-							class="flex items-center gap-2 rounded-full bg-[#1F3A4D] px-3 py-1.5 text-sm font-medium text-[#A1AEB3] transition-all hover:bg-[#233B48] hover:text-white"
+							class="bg-primary-dark hover:bg-primary-dark/80 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-white/70 transition-all hover:text-white"
 						>
 							<span
-								class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-bold text-emerald-400"
+								class="bg-success/20 text-success flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
 							>
 								{data?.session?.user?.name?.charAt(0)?.toUpperCase() ||
 									data?.session?.user?.email?.charAt(0)?.toUpperCase() ||
@@ -208,16 +208,16 @@
 
 						{#if isUserMenuOpen}
 							<div
-								class="absolute top-full right-0 mt-1 w-56 rounded-lg border border-white/10 bg-[#1F3A4D] py-1 shadow-xl"
+								class="bg-primary-dark absolute top-full right-0 mt-1 w-56 rounded-lg border border-white/10 py-1 shadow-xl"
 							>
 								<div class="border-b border-white/10 px-4 py-2">
-									<p class="text-xs text-[#A1AEB3]">Signed in as</p>
+									<p class="text-xs text-white/60">Signed in as</p>
 									<p class="truncate text-sm font-medium text-white">
 										{data?.session?.user?.email}
 									</p>
 									{#if data?.session?.user?.role}
 										<span
-											class="mt-1 inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400"
+											class="bg-success/20 text-success mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
 										>
 											{data.session.user.role}
 										</span>
@@ -227,8 +227,7 @@
 								{#each settingsLinks as link}
 									<a
 										href={link.href}
-										class="flex items-center gap-2 px-4 py-2 text-sm text-[#A1AEB3] transition-colors hover:bg-white/5 hover:text-white"
-										onclick={() => (isUserMenuOpen = false)}
+										class="flex items-center gap-2 px-4 py-2 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white"
 									>
 										{link.label}
 									</a>
@@ -321,7 +320,7 @@
 		<!-- Mobile Navigation -->
 		{#if isMenuOpen}
 			<div
-				class="max-h-[calc(100vh-80px)] overflow-y-auto border-t border-white/10 bg-[#164154] px-4 py-4 text-white shadow-xl lg:hidden"
+				class="bg-primary max-h-[calc(100vh-80px)] overflow-y-auto border-t border-white/10 px-4 py-4 text-white shadow-xl lg:hidden"
 			>
 				<div class="flex flex-col gap-1">
 					<!-- Primary Links -->
@@ -352,7 +351,7 @@
 					<!-- Admin Section -->
 					{#if data?.session?.user?.role === 'admin'}
 						<div class="mt-2 border-t border-white/10 pt-2">
-							<p class="px-3 py-1 text-xs font-medium tracking-wider text-[#A1AEB3]/70 uppercase">
+							<p class="px-3 py-1 text-xs font-medium tracking-wider text-white/60 uppercase">
 								Admin
 							</p>
 							<a
@@ -379,9 +378,7 @@
 						</p>
 						{#each settingsLinks as link}
 							<a
-								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#A1AEB3] transition-all hover:bg-white/5 hover:text-white"
-								href={link.href}
-								onclick={() => (isMenuOpen = false)}
+								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-all hover:bg-white/5 hover:text-white"
 							>
 								{link.label}
 							</a>

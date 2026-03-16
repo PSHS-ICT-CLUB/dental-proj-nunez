@@ -180,7 +180,7 @@
 				<button
 					type="button"
 					aria-label="Close"
-					class="text-gray-400 hover:text-gray-500"
+					class="text-text-muted hover:text-text-muted"
 					onclick={closeCameraModal}
 				>
 					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,14 +195,14 @@
 			</div>
 			{#if availableCameras.length > 1}
 				<div class="mb-4">
-					<label for="camera-select" class="mb-2 block text-sm font-medium text-gray-700">
+					<label for="camera-select" class="mb-2 block text-sm font-medium text-text-secondary">
 						Select Camera
 					</label>
 					<select
 						id="camera-select"
 						bind:value={selectedCameraId}
 						onchange={switchCamera}
-						class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+						class="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary focus:outline-none"
 					>
 						{#each availableCameras as camera}
 							<option value={camera.deviceId}>
@@ -220,14 +220,14 @@
 			<div class="mt-4 flex justify-end gap-2">
 				<button
 					type="button"
-					class="rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+					class="rounded-md bg-white px-4 py-2 text-sm font-medium text-text-secondary shadow-sm hover:bg-surface focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 					onclick={closeCameraModal}
 				>
 					Cancel
 				</button>
 				<button
 					type="button"
-					class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+					class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 					onclick={captureImage}
 				>
 					Capture (Space)
@@ -246,13 +246,13 @@
 	>
 		<div class="w-96 rounded-lg bg-white p-6 shadow-xl">
 			<div class="mb-4 flex justify-between">
-				<h3 id="settings-modal-title" class="text-lg font-medium text-gray-900">
+				<h3 id="settings-modal-title" class="text-lg font-medium text-text-primary">
 					Camera Access Required
 				</h3>
 				<button
 					type="button"
 					aria-label="Close"
-					class="text-gray-400 hover:text-gray-500"
+					class="text-text-muted hover:text-text-muted"
 					onclick={closeSettingsModal}
 				>
 					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -266,14 +266,14 @@
 				</button>
 			</div>
 			<div class="mb-4">
-				<p class="text-sm text-gray-500">
+				<p class="text-sm text-text-muted">
 					To use the camera feature, you need to allow camera permission or configure Chrome if on
 					HTTP with Mobile:
 				</p>
-				<ol class="mt-2 list-decimal pl-4 text-sm text-gray-600">
+				<ol class="mt-2 list-decimal pl-4 text-sm text-text-secondary">
 					<li class="mb-2">
 						Open Chrome settings by copying this URL:
-						<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-sm break-all">
+						<code class="ml-2 rounded bg-surface-alt px-2 py-1 text-sm break-all">
 							chrome://flags/#unsafely-treat-insecure-origin-as-secure
 						</code>
 					</li>
@@ -284,14 +284,14 @@
 			<div class="mt-6 flex justify-end gap-3">
 				<button
 					type="button"
-					class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
+					class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-text-primary shadow-sm ring-1 ring-border-border ring-inset hover:bg-surface"
 					onclick={closeSettingsModal}
 				>
 					Close
 				</button>
 				<button
 					type="button"
-					class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+					class="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary"
 					onclick={() => {
 						navigator.clipboard.writeText(
 							'chrome://flags/#unsafely-treat-insecure-origin-as-secure'
