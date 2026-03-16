@@ -13,7 +13,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const session = await locals.auth();
 	// Get current month/year for calendar data (needed for catch block)
 	const now = new Date();
 	const currentMonth = now.getMonth() + 1;
@@ -58,8 +59,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (url.searchParams.get('payment_status')) {
 			whereConditions.push(sql`orders.payment_status = ${url.searchParams.get('payment_status')}`);
 		}
-		if (url.searchParams.get('remarks')) {
-			whereConditions.push(eq(records.caseStatus, url.searchParams.get('remarks')));
+		if (url.searchParams.get('case_status')) {
+			whereConditions.push(eq(records.caseStatus, url.searchParams.get('case_status')));
 		}
 		let baseQuery;
 		if (whereConditions.length > 0) {
@@ -68,8 +69,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
+					finishBy: records.finishBy,
 					patientName: records.patientName,
-					remarks: records.caseStatus,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -81,6 +84,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							caseNo: number;
 							orderDescription: string | null;
 							upOrDown: string;
+							caseTypeAbbrv?: string;
 						}>
 					>`COALESCE(
             array_agg(
@@ -88,7 +92,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
                 'caseTypeName', ${caseTypes.caseTypeName},
                 'caseNo', ${orderItems.caseNo},
                 'orderDescription', ${orderItems.orderDescription},
-                'upOrDown', ${orderItems.upOrDown}
+                'upOrDown', ${orderItems.upOrDown},
+                'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv}
               )
             ),
             ARRAY[]::json[]
@@ -103,6 +108,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.groupBy(
 					records.recordId,
 					records.caseStatus,
+					records.finishBy,
+					records.caseNotes,
 					doctors.doctorName,
 					clinics.clinicName,
 					orders.orderTotal,
@@ -117,8 +124,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
+					finishBy: records.finishBy,
 					patientName: records.patientName,
-					remarks: records.caseStatus,
+					caseStatus: records.caseStatus,
+					caseNotes: records.caseNotes,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -130,6 +139,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							caseNo: number;
 							orderDescription: string | null;
 							upOrDown: string;
+							caseTypeAbbrv?: string;
 						}>
 					>`COALESCE(
             array_agg(
@@ -137,7 +147,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
                 'caseTypeName', ${caseTypes.caseTypeName},
                 'caseNo', ${orderItems.caseNo},
                 'orderDescription', ${orderItems.orderDescription},
-                'upOrDown', ${orderItems.upOrDown}
+                'upOrDown', ${orderItems.upOrDown},
+                'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv}
               )
             ),
             ARRAY[]::json[]
@@ -152,6 +163,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.groupBy(
 					records.recordId,
 					records.caseStatus,
+					records.finishBy,
+					records.caseNotes,
 					doctors.doctorName,
 					clinics.clinicName,
 					orders.orderTotal,
@@ -182,7 +195,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					dateDropoff: records.dateDropoff,
 					patientName: records.patientName,
-					remarks: records.caseStatus,
+					caseStatus: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
@@ -225,7 +238,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					finishBy: records.finishBy,
 					patientName: records.patientName,
-					remarks: records.caseStatus,
+					caseStatus: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
@@ -281,6 +294,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			clinics: clinicData,
 			filters: Object.fromEntries(url.searchParams),
 			passwordIsSet,
+			user: session?.user,
 			calendarData: {
 				deliveryRecords: calendarDeliveryRecords,
 				finishByRecords: calendarFinishByRecords,
@@ -297,6 +311,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			clinics: [],
 			filters: {},
 			passwordIsSet: false,
+			user: session?.user,
 			calendarData: {
 				deliveryRecords: [],
 				finishByRecords: [],

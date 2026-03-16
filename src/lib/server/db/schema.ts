@@ -136,6 +136,7 @@ export const caseTypes = pgTable(
 	{
 		caseTypeId: serial('case_type_id').primaryKey().notNull(),
 		caseTypeName: varchar('case_type_name', { length: 255 }).notNull(),
+		caseTypeAbbrv: varchar('case_type_abbrv', { length: 50 }),
 		numberOfCases: integer('number_of_cases').notNull(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 			sql`CURRENT_TIMESTAMP`
@@ -195,18 +196,9 @@ export const records = pgTable(
 			'btree',
 			table.caseStatus.asc().nullsLast().op('text_ops')
 		),
-		index('idx_records_date_in').using(
-			'btree',
-			table.dateIn.asc().nullsLast().op('date_ops')
-		),
-		index('idx_records_date_out').using(
-			'btree',
-			table.dateOut.asc().nullsLast().op('date_ops')
-		),
-		index('idx_records_order_id').using(
-			'btree',
-			table.orderId.asc().nullsLast().op('int4_ops')
-		),
+		index('idx_records_date_in').using('btree', table.dateIn.asc().nullsLast().op('date_ops')),
+		index('idx_records_date_out').using('btree', table.dateOut.asc().nullsLast().op('date_ops')),
+		index('idx_records_order_id').using('btree', table.orderId.asc().nullsLast().op('int4_ops')),
 		index('idx_records_created_at').using(
 			'btree',
 			table.createdAt.desc().nullsLast().op('timestamp_ops')

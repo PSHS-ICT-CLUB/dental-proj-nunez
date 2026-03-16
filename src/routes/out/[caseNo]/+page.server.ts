@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			doctorName: doctors.doctorName,
 			clinicName: clinics.clinicName,
 			description: records.description,
-			remarks: records.remarks
+			caseStatus: records.caseStatus
 		})
 		.from(records)
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
@@ -40,7 +40,7 @@ export const actions = {
 				.update(records)
 				.set({
 					actualDropoff: data.get('date')?.toString(),
-					remarks: data.get('finished') ? 'finished' : 'pending'
+					caseStatus: data.get('finished') ? 'finished' : 'pending'
 				} as any)
 				.where(eq(records.recordId, recordId));
 
@@ -66,7 +66,7 @@ export const actions = {
 							imageUrl: publicUrlData.publicUrl,
 							historyDate: data.get('date')?.toString(),
 							historyTime: data.get('time')?.toString()
-						});
+						} as any);
 					} else {
 						console.error('Supabase upload error:', uploadError);
 					}

@@ -27,7 +27,7 @@
 	let caseNo = $state('');
 	let patientName = $state('');
 	let paymentStatus = $state('');
-	let remarks = $state('');
+	let caseStatus = $state('');
 	let recordId = $state('');
 
 	// Synchronize filter states from URL parameters (data.filters) directly
@@ -41,7 +41,7 @@
 			caseTypeId = '';
 			caseNo = '';
 			patientName = '';
-			remarks = '';
+			caseStatus = '';
 			paymentStatus = '';
 			recordId = '';
 			startDate = '';
@@ -67,7 +67,7 @@
 		caseTypeId = filtersData.case_type_id ? String(filtersData.case_type_id) : '';
 		caseNo = filtersData.case_no ? String(filtersData.case_no) : '';
 		patientName = filtersData.patient_name || '';
-		remarks = filtersData.remarks || '';
+		caseStatus = filtersData.case_status || '';
 		paymentStatus = filtersData.payment_status || '';
 		recordId = filtersData.record_id ? String(filtersData.record_id) : '';
 
@@ -110,7 +110,7 @@
 	console.log(data);
 
 	let customerNames = $derived(
-		Object.keys(data.filters).length > 0 && data.records
+		Object.keys(data.filters).length > 0
 			? [...new Set(data.records.map((record) => record.clinicName))]
 			: []
 	);
@@ -130,11 +130,6 @@
 	let paginatedRecords = $derived(
 		data.records?.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage) || []
 	);
-
-	// Handle case where data.records is undefined
-	if (!data.records) {
-		data.records = [];
-	}
 
 	// Pagination controls
 	function nextPage() {
@@ -343,240 +338,30 @@
 		selectedCalendarDate ? finishByDate[selectedCalendarDate] || [] : []
 	);
 	let selectedDateTotal = $derived(selectedDateDeliveries.length + selectedDateFinishBys.length);
+
+	// Case Status Lists
+	let pendingCases = $derived(data.records?.filter((r) => r.caseStatus === 'pending') || []);
+	let deliverCases = $derived(data.records?.filter((r) => r.caseStatus === 'to be deliver') || []);
+	let finishedCases = $derived(data.records?.filter((r) => r.caseStatus === 'finished') || []);
+
+	function formatDateTime(dateStr: string | null | undefined) {
+		if (!dateStr) return '-';
+		try {
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) return dateStr;
+			return date.toLocaleString('en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric',
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			});
+		} catch (e) {
+			return dateStr;
+		}
+	}
 </script>
-
-<!-- Filter Form -->
-<div class="w-full border-b border-gray-200 bg-gray-50 p-2 pb-1 print:hidden">
-	<form method="GET" class="mx-auto max-w-7xl">
-		<div class="rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
-			<div class="mb-2 flex items-center justify-between">
-				<h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
-				<div class="flex gap-2">
-					<button
-						type="reset"
-						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50"
-						onclick={() => (window.location.href = '/')}
-					>
-						Clear
-					</button>
-					<button
-						type="submit"
-						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-500"
-					>
-						Apply Filters
-					</button>
-				</div>
-			</div>
-
-			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-				<div class="relative">
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Clinic</label
-					>
-					<input
-						type="text"
-						bind:value={clinicSearch}
-						placeholder="Search clinic..."
-						autocomplete="off"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						onfocus={() => {
-							showAllClinics = true;
-						}}
-						onblur={() => {
-							setTimeout(() => (showAllClinics = false), 200);
-						}}
-						oninput={() => {
-							selectedClinicId = null;
-						}}
-					/>
-					<input type="hidden" name="clinic_id" value={selectedClinicId || ''} />
-					{#if showAllClinics && filteredClinics && filteredClinics.length > 0}
-						<div
-							class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg"
-						>
-							{#each filteredClinics as clinic}
-								<button
-									type="button"
-									class="w-full p-2 text-left text-xs hover:bg-gray-50"
-									onclick={() => {
-										handleClinicSelect(clinic);
-										showAllClinics = false;
-									}}
-								>
-									{clinic.clinicName}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Case Type</label
-					>
-					<select
-						name="case_type_id"
-						bind:value={caseTypeId}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					>
-						<option value="">All Types</option>
-						{#each data.caseTypes as type}
-							<option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
-						{/each}
-					</select>
-				</div>
-
-				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Case No</label
-					>
-					<input
-						type="text"
-						name="case_no"
-						bind:value={caseNo}
-						placeholder="Case #"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					/>
-				</div>
-
-				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Patient</label
-					>
-					<input
-						type="text"
-						name="patient_name"
-						bind:value={patientName}
-						placeholder="Patient Name"
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					/>
-				</div>
-
-				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Payment</label
-					>
-					<select
-						name="payment_status"
-						bind:value={paymentStatus}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					>
-						<option value="">All Status</option>
-						<option value="paid">Paid</option>
-						<option value="unpaid">Unpaid</option>
-					</select>
-				</div>
-
-				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-						>Status</label
-					>
-					<select
-						name="remarks"
-						bind:value={remarks}
-						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-					>
-						<option value="">All Remarks</option>
-						<option value="pending">Pending</option>
-						<option value="finished">Finished</option>
-					</select>
-				</div>
-			</div>
-
-			<div
-				class="mt-3 grid grid-cols-1 gap-4 border-t border-gray-100 pt-3 md:grid-cols-3 md:items-end md:gap-3"
-			>
-				<div class="flex flex-col items-center gap-2 sm:flex-row">
-					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-							>Start Date</label
-						>
-						<input
-							type="date"
-							name="start_date"
-							bind:value={startDate}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						/>
-					</div>
-					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-							>End Date</label
-						>
-						<input
-							type="date"
-							name="end_date"
-							bind:value={endDate}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						/>
-					</div>
-				</div>
-
-				<div class="flex flex-col items-center gap-2 sm:flex-row">
-					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-							>Filter by Month</label
-						>
-						<select
-							bind:value={selectedMonth}
-							onchange={handleMonthFilter}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						>
-							<option value="">Select Month</option>
-							{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
-								<option value={month}>
-									{new Date(2000, month - 1).toLocaleString('default', { month: 'short' })}
-								</option>
-							{/each}
-						</select>
-					</div>
-					<div class="w-full sm:w-24">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-							>Year</label
-						>
-						<select
-							bind:value={selectedYear}
-							onchange={handleMonthFilter}
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						>
-							{#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
-								<option value={year}>{year}</option>
-							{/each}
-						</select>
-					</div>
-				</div>
-
-				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-					<div class="w-full sm:flex-1">
-						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
-							>Record ID</label
-						>
-						<input
-							type="number"
-							name="record_id"
-							bind:value={recordId}
-							placeholder="Record #"
-							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-						/>
-					</div>
-					<div class="flex items-center sm:pt-[18px]">
-						<label
-							class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
-						>
-							<input
-								type="checkbox"
-								bind:checked={showDelete}
-								class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
-							/>
-							<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
-								>Show Delete</span
-							>
-						</label>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
-</div>
 
 <!-- Compact Calendar Widget -->
 {#if data.calendarData}
@@ -732,6 +517,412 @@
 	</div>
 {/if}
 
+<!-- Case Status Overview -->
+{#if data.records && data.records.length > 0 && Object.keys(data.filters).length === 0}
+	<div class="w-full border-b border-gray-200 bg-gray-50 p-2 print:hidden">
+		<div class="mx-auto max-w-7xl">
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="ml-1 text-sm font-semibold text-gray-700">Case Status Overview</h3>
+			</div>
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<!-- Pending -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div
+						class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-3 py-2"
+					>
+						<span class="text-xs font-semibold tracking-wider text-gray-700 uppercase">Pending</span
+						>
+						<span class="rounded-full bg-gray-200 px-1.5 py-0.5 text-[10px] font-bold text-gray-700"
+							>{pendingCases.length}</span
+						>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each pendingCases as record}
+							<div
+								class="block rounded border border-gray-100 bg-white p-2 transition-colors hover:bg-gray-50"
+							>
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+										>{record.patientName}</span
+									>
+									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+									>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a
+										href="/status/{record.recordId}"
+										class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
+										>Timeline</a
+									>
+									<a
+										href="/amount/{record.recordId}"
+										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										>Amount</a
+									>
+									<a
+										href="/details/{record.recordId}"
+										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										>Details</a
+									>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+								No pending cases
+							</div>
+						{/each}
+					</div>
+				</div>
+
+				<!-- To Be Delivered -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div
+						class="flex items-center justify-between border-b border-gray-100 bg-blue-50/50 px-3 py-2"
+					>
+						<span class="text-xs font-semibold tracking-wider text-blue-800 uppercase"
+							>To Deliver</span
+						>
+						<span class="rounded-full bg-blue-200 px-1.5 py-0.5 text-[10px] font-bold text-blue-800"
+							>{deliverCases.length}</span
+						>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each deliverCases as record}
+							<div
+								class="block rounded border border-blue-100/50 bg-white p-2 transition-colors hover:bg-blue-50"
+							>
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+										>{record.patientName}</span
+									>
+									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+									>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a
+										href="/status/{record.recordId}"
+										class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
+										>Timeline</a
+									>
+									<a
+										href="/amount/{record.recordId}"
+										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										>Amount</a
+									>
+									<a
+										href="/details/{record.recordId}"
+										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										>Details</a
+									>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+								No cases to deliver
+							</div>
+						{/each}
+					</div>
+				</div>
+
+				<!-- Finished -->
+				<div class="flex h-64 flex-col rounded border border-gray-200 bg-white shadow-sm">
+					<div
+						class="flex items-center justify-between border-b border-gray-100 bg-green-50/50 px-3 py-2"
+					>
+						<span class="text-xs font-semibold tracking-wider text-green-800 uppercase"
+							>Finished</span
+						>
+						<span
+							class="rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-bold text-green-800"
+							>{finishedCases.length}</span
+						>
+					</div>
+					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+						{#each finishedCases as record}
+							<div
+								class="block rounded border border-green-100/50 bg-white p-2 transition-colors hover:bg-green-50"
+							>
+								<div class="mb-1 flex items-start justify-between">
+									<span class="truncate pr-2 text-xs font-medium text-gray-900"
+										>{record.patientName}</span
+									>
+									<span class="text-[10px] font-medium whitespace-nowrap text-red-600"
+										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+									>
+								</div>
+								<div class="mb-2 truncate text-[10px] text-gray-500">{record.clinicName}</div>
+								<div class="flex gap-1.5">
+									<a
+										href="/status/{record.recordId}"
+										class="rounded bg-pink-50 px-1.5 py-0.5 text-[9px] font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
+										>Timeline</a
+									>
+									<a
+										href="/amount/{record.recordId}"
+										class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
+										>Amount</a
+									>
+									<a
+										href="/details/{record.recordId}"
+										class="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
+										>Details</a
+									>
+								</div>
+							</div>
+						{:else}
+							<div class="flex h-full items-center justify-center text-[10px] text-gray-400">
+								No finished cases
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Filter Form -->
+<div class="w-full border-b border-gray-200 bg-gray-50 p-2 pb-1 print:hidden">
+	<form method="GET" class="mx-auto max-w-7xl">
+		<div class="rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-semibold text-gray-700">Quick Filters</h3>
+				<div class="flex gap-2">
+					<button
+						type="reset"
+						class="rounded bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50"
+						onclick={() => (window.location.href = '/')}
+					>
+						Clear
+					</button>
+					<button
+						type="submit"
+						class="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-500"
+					>
+						Apply Filters
+					</button>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
+				<div class="relative">
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Clinic</label
+					>
+					<input
+						type="text"
+						bind:value={clinicSearch}
+						placeholder="Search clinic..."
+						autocomplete="off"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						onfocus={() => {
+							showAllClinics = true;
+						}}
+						onblur={() => {
+							setTimeout(() => (showAllClinics = false), 200);
+						}}
+						oninput={() => {
+							selectedClinicId = null;
+						}}
+					/>
+					<input type="hidden" name="clinic_id" value={selectedClinicId || ''} />
+					{#if showAllClinics && filteredClinics && filteredClinics.length > 0}
+						<div
+							class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white shadow-lg"
+						>
+							{#each filteredClinics as clinic}
+								<button
+									type="button"
+									class="w-full p-2 text-left text-xs hover:bg-gray-50"
+									onclick={() => {
+										handleClinicSelect(clinic);
+										showAllClinics = false;
+									}}
+								>
+									{clinic.clinicName}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case Type</label
+					>
+					<select
+						name="case_type_id"
+						bind:value={caseTypeId}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Types</option>
+						{#each data.caseTypes as type}
+							<option value={String(type.caseTypeId)}>{type.caseTypeName}</option>
+						{/each}
+					</select>
+				</div>
+
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Case No</label
+					>
+					<input
+						type="text"
+						name="case_no"
+						bind:value={caseNo}
+						placeholder="Case #"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					/>
+				</div>
+
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Patient</label
+					>
+					<input
+						type="text"
+						name="patient_name"
+						bind:value={patientName}
+						placeholder="Patient Name"
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					/>
+				</div>
+
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Payment</label
+					>
+					<select
+						name="payment_status"
+						bind:value={paymentStatus}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Status</option>
+						<option value="paid">Paid</option>
+						<option value="unpaid">Unpaid</option>
+					</select>
+				</div>
+
+				<div>
+					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+						>Status</label
+					>
+					<select
+						name="case_status"
+						bind:value={caseStatus}
+						class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+					>
+						<option value="">All Status</option>
+						<option value="pending">Pending</option>
+						<option value="finished">Finished</option>
+						<option value="to be reviewed">To Be Reviewed</option>
+						<option value="to be deliver">To Be Delivered</option>
+						<option value="to be reviewed by dentist">Reviewed by Dentist</option>
+					</select>
+				</div>
+			</div>
+
+			<div
+				class="mt-3 grid grid-cols-1 gap-4 border-t border-gray-100 pt-3 md:grid-cols-3 md:items-end md:gap-3"
+			>
+				<div class="flex flex-col items-center gap-2 sm:flex-row">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Start Date</label
+						>
+						<input
+							type="date"
+							name="start_date"
+							bind:value={startDate}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>End Date</label
+						>
+						<input
+							type="date"
+							name="end_date"
+							bind:value={endDate}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+				</div>
+
+				<div class="flex flex-col items-center gap-2 sm:flex-row">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Filter by Month</label
+						>
+						<select
+							bind:value={selectedMonth}
+							onchange={handleMonthFilter}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						>
+							<option value="">Select Month</option>
+							{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
+								<option value={month}>
+									{new Date(2000, month - 1).toLocaleString('default', { month: 'short' })}
+								</option>
+							{/each}
+						</select>
+					</div>
+					<div class="w-full sm:w-24">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Year</label
+						>
+						<select
+							bind:value={selectedYear}
+							onchange={handleMonthFilter}
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						>
+							{#each Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i) as year}
+								<option value={year}>{year}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+
+				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+					<div class="w-full sm:flex-1">
+						<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
+							>Record ID</label
+						>
+						<input
+							type="number"
+							name="record_id"
+							bind:value={recordId}
+							placeholder="Record #"
+							class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+						/>
+					</div>
+					<div class="flex items-center sm:pt-[18px]">
+						{#if data.user && (data.user.role === 'admin' || data.user.role === 'dentist')}
+							<label
+								class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border border-red-100 bg-red-50/50 px-2.5 py-1.5 transition-colors hover:bg-red-50 sm:w-auto"
+							>
+								<input
+									type="checkbox"
+									bind:checked={showDelete}
+									class="h-3.5 w-3.5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+								/>
+								<span class="text-[10px] font-bold tracking-wider text-red-600 uppercase"
+									>Show Delete</span
+								>
+							</label>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
 <!-- Records Section -->
 <div class="min-h-[400px] bg-white">
 	{#if data.records && data.records.length > 0}
@@ -789,15 +980,15 @@
 		>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-green-300 bg-green-200"></div>
-				<span>Paid & Finished</span>
+				<span>Paid & Delivered</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-red-400 bg-red-300"></div>
-				<span>Unpaid & Finished</span>
+				<span>Unpaid & Delivered</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-violet-400 bg-violet-300"></div>
-				<span>Other / Partial</span>
+				<span>In Progress / Other</span>
 			</div>
 			<div class="flex items-center gap-1.5">
 				<div class="inline-block h-3 w-3 rounded-full border border-gray-300 bg-white"></div>
@@ -821,6 +1012,12 @@
 							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
 						>
 							Date Dropoff
+						</th>
+						<th
+							scope="col"
+							class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase"
+						>
+							Deadline
 						</th>
 						{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 							<th
@@ -884,7 +1081,7 @@
 						>
 							History
 						</th>
-						{#if showDelete}
+						{#if showDelete && data.user && data.user.role === 'admin'}
 							<th
 								scope="col"
 								class="bg-gray-50/50 px-3 py-2.5 text-left text-[10px] font-semibold tracking-wider text-gray-500 uppercase print:hidden"
@@ -900,41 +1097,58 @@
 							class={`
 							border-b border-gray-100 transition-colors hover:bg-black/5
 							${
-								record.paymentStatus === 'paid' && record.remarks === 'finished'
+								record.paymentStatus === 'paid' && record.caseStatus === 'delivered'
 									? 'bg-green-200'
-									: record.paymentStatus === 'unpaid' && record.remarks === 'finished'
+									: record.paymentStatus === 'unpaid' && record.caseStatus === 'delivered'
 										? 'bg-red-300'
-										: record.paymentStatus === 'unpaid' && record.remarks === 'pending'
+										: record.paymentStatus === 'unpaid' && record.caseStatus === 'pending'
 											? 'bg-white'
 											: 'bg-violet-300'
 							}
 						`}
 						>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.datePickup}
+								{formatDateTime(record.datePickup)}
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.dateDropoff ? record.dateDropoff : '-'}
+								{formatDateTime(record.dateDropoff)}
+							</td>
+							<td
+								class="px-3 py-2 text-xs font-medium tracking-tight whitespace-nowrap text-red-600"
+							>
+								{record.finishBy ? formatDateTime(record.finishBy) : 'None'}
 							</td>
 							{#if Object.keys(data.filters).length === 0 || customerNames.length > 1}
 								<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-									{record.clinicName}
+									<span class="font-medium">{record.clinicName}</span>
 								</td>
 							{/if}
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								{record.patientName}
+								<span class="font-medium">{record.patientName}</span>
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								<div class="flex flex-col gap-1">
+								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
-										<span>{item.caseTypeName} - {item.caseNo}</span>
+										<div class="leading-none">
+											<span class="font-bold text-gray-900">{item.caseTypeName}</span>
+											{#if item.caseTypeAbbrv}
+												<span class="ml-0.5 text-[10px] font-medium text-gray-500"
+													>({item.caseTypeAbbrv})</span
+												>
+											{/if}
+											<div class="mt-1 text-[10px] font-medium text-gray-700">{item.caseNo}</div>
+										</div>
 									{/each}
 								</div>
 							</td>
-							<td class="px-3 py-2 text-xs whitespace-nowrap text-black">
-								<div class="flex flex-col gap-1">
+							<td class="min-w-[150px] px-3 py-2 text-xs text-black">
+								<div class="flex flex-col gap-2">
 									{#each record.orderItems as item}
-										<span>{item.orderDescription || '-'}</span>
+										<div
+											class="rounded-r-sm border-l-[3px] border-indigo-200 bg-gray-50/50 py-0.5 pl-2 text-[11px] leading-tight break-words whitespace-normal text-gray-700"
+										>
+											{item.orderDescription || '-'}
+										</div>
 									{/each}
 								</div>
 							</td>
@@ -953,7 +1167,13 @@
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">
 								<span class="flex flex-col gap-0.5">
-									<span class="font-medium">{record.remarks || 'No remarks'}</span>
+									<span class="font-medium capitalize">{record.caseStatus || 'No status'}</span>
+									{#if record.caseNotes}
+										<span
+											class="max-w-[150px] truncate text-[10px] text-gray-500"
+											title={record.caseNotes}>{record.caseNotes}</span
+										>
+									{/if}
 									<span
 										class={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium 
 										${record.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
@@ -962,8 +1182,8 @@
 									</span>
 								</span>
 							</td>
-							<td class="px-3 py-2 text-xs whitespace-nowrap print:hidden">
-								<div class="flex gap-1.5">
+							<td class="px-3 py-2 text-xs print:hidden">
+								<div class="flex max-w-[280px] min-w-[150px] flex-wrap gap-1.5">
 									<a
 										href={`/details/${record.recordId}`}
 										class="inline-flex items-center rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 hover:bg-blue-100"
@@ -977,25 +1197,19 @@
 										Invoice
 									</a>
 									<a
-										href={`/IN/${record.recordId}`}
-										class="inline-flex items-center rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-700/10 hover:bg-green-100"
+										href={`/status/${record.recordId}`}
+										class="inline-flex items-center rounded bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-pink-700/10 hover:bg-pink-100"
 									>
-										In
+										Timeline
 									</a>
 									<a
-										href={`/OUT/${record.recordId}`}
-										class="inline-flex items-center rounded bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-yellow-700/10 hover:bg-yellow-100"
-									>
-										Out
-									</a>
-									<a
-										href={`/EDIT/${record.recordId}`}
+										href={`/edit/${record.recordId}`}
 										class="inline-flex items-center rounded bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-700/10 hover:bg-purple-100"
 									>
 										Edit
 									</a>
 									<a
-										href={`/AMOUNT/${record.recordId}`}
+										href={`/amount/${record.recordId}`}
 										class="inline-flex items-center rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-700/10 hover:bg-indigo-100"
 									>
 										Amount
@@ -1010,7 +1224,7 @@
 									History
 								</a>
 							</td>
-							{#if showDelete}
+							{#if showDelete && data.user && data.user.role === 'admin'}
 								<td class="px-3 py-2 text-sm font-medium whitespace-nowrap print:hidden">
 									<button
 										type="button"
@@ -1027,7 +1241,7 @@
 				{#if Object.keys(data.filters).length > 0}
 					<tfoot>
 						<tr class="border-t-2 border-gray-300 bg-gray-50 font-medium">
-							<td colspan={showDelete ? 6 : 5} class="px-3 py-2 text-right text-xs"> Total: </td>
+							<td colspan={showDelete ? 7 : 6} class="px-3 py-2 text-right text-xs"> Total: </td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalOrderAmount()}</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">₱{totalPaidAmount()}</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">
@@ -1209,7 +1423,7 @@
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 print:hidden">
 		<div class="mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg">
 			<div class="p-4">
-				<h3 class="text-lg font-medium text-gray-900">Confirm delete</h3>
+				<h3 class="text-lg font-medium text-red-600">Confirm Deletion</h3>
 				<div class="mt-3 rounded-md bg-gray-50 p-3 text-sm">
 					<p class="mb-2 font-semibold text-gray-900">Record Information:</p>
 					<div class="space-y-1.5 text-gray-700">
@@ -1254,14 +1468,14 @@
 									{modalDeleteRecord.paymentStatus}
 								</span>
 								<span class="text-xs text-gray-600"
-									>({modalDeleteRecord.remarks || 'No remarks'})</span
+									>({modalDeleteRecord.caseStatus || 'No status'})</span
 								>
 							</span>
 						</div>
 					</div>
 				</div>
 				<p class="mt-3 text-sm text-gray-600">
-					Enter your password to confirm deletion of this record.
+					Enter your <strong>Account Password</strong> to confirm deletion.
 				</p>
 				<form
 					bind:this={deleteForm}
@@ -1273,7 +1487,7 @@
 							if (result.type === 'failure') {
 								cancel();
 								closeDeleteModal();
-								alert('Wrong password');
+								alert('Incorrect account password');
 								return;
 							}
 							if (result.type === 'redirect') {

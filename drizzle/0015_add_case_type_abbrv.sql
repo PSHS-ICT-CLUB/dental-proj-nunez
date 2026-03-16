@@ -1,0 +1,1 @@
+ALTER TABLE "case_types" ADD COLUMN "case_type_abbrv" varchar(50);
