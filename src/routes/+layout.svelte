@@ -107,14 +107,14 @@
 						href="/"
 						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-white/80"
 					>
-						Nunez Dental
+						Nunez Dental Laboratory
 					</a>
 				{:else}
 					<button
 						onclick={() => window.location.reload()}
 						class="text-lg font-bold tracking-tight transition-colors duration-200 hover:text-white/80"
 					>
-						Nunez Dental
+						Nunez Dental Laboratory
 					</button>
 				{/if}
 
