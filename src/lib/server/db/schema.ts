@@ -60,9 +60,7 @@ export const orderItems = pgTable(
 			columns: [table.caseTypeId],
 			foreignColumns: [caseTypes.caseTypeId],
 			name: 'order_items_case_type_id_fkey'
-		}),
-		index('idx_orderItems_order_id').using('btree', table.orderId),
-		index('idx_orderItems_case_type_id').using('btree', table.caseTypeId)
+		})
 	]
 );
 
@@ -73,11 +71,7 @@ export const supply = pgTable('supply', {
 	supplyDescription: text('supply_description'),
 	createdBy: integer('created_by').references(() => users.id),
 	updatedBy: integer('updated_by').references(() => users.id)
-},
-	(table) => [
-		index('idx_supply_created_by').using('btree', table.createdBy),
-		index('idx_supply_updated_by').using('btree', table.updatedBy)
-	]);
+});
 
 export const clinics = pgTable(
 	'clinics',
@@ -105,8 +99,7 @@ export const doctors = pgTable(
 			columns: [table.clinicId],
 			foreignColumns: [clinics.clinicId],
 			name: 'doctors_clinic_id_fkey'
-		}),
-		index('idx_doctors_clinic_id').using('btree', table.clinicId)
+		})
 	]
 );
 
@@ -143,7 +136,6 @@ export const caseTypes = pgTable(
 	{
 		caseTypeId: serial('case_type_id').primaryKey().notNull(),
 		caseTypeName: varchar('case_type_name', { length: 255 }).notNull(),
-		caseTypeAbbrv: varchar('case_type_abbrv', { length: 50 }).notNull().default(''), // Added for abbreviations
 		numberOfCases: integer('number_of_cases').notNull(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 			sql`CURRENT_TIMESTAMP`
@@ -217,7 +209,7 @@ export const records = pgTable(
 		),
 		index('idx_records_created_at').using(
 			'btree',
-			table.createdAt.desc().nullsLast()
+			table.createdAt.desc().nullsLast().op('timestamp_ops')
 		),
 		foreignKey({
 			columns: [table.orderId],
@@ -253,8 +245,7 @@ export const history = pgTable(
 			columns: [table.recordId],
 			foreignColumns: [records.recordId],
 			name: 'history_record_id_fkey'
-		}),
-		index('idx_history_record_id').using('btree', table.recordId)
+		})
 	]
 );
 
