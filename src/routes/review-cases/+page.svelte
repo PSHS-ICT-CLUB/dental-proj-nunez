@@ -283,7 +283,7 @@
 							<div class="flex items-center gap-2">
 								<span class="text-base font-bold text-text-primary">#{caseItem.recordId}</span>
 								<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase {statusConfig.bgColor} {statusConfig.color}">
-									{statusConfig.icon} {statusConfig.label}
+									{statusConfig.label}
 								</span>
 							</div>
 							<a
@@ -361,8 +361,9 @@
 						<!-- Images Gallery -->
 						{#if caseItem.images && caseItem.images.length > 0}
 							<div class="mb-3">
-								<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-									📷 Attached Images ({caseItem.images.length})
+								<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted flex items-center gap-1">
+									<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+									Attached Images ({caseItem.images.length})
 								</p>
 								<div class="grid grid-cols-3 gap-1.5">
 									{#each caseItem.images as img}
@@ -405,8 +406,11 @@
 					<div class="border-t border-surface-alt bg-surface/30 px-4 py-3">
 						<!-- Proof Image Upload Area -->
 						<div class="mb-3">
-							<p class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-								📎 Attach Review Proof Image(s)
+							<p class="mb-1.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+								<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13" />
+								</svg>
+								Attach Review Proof Image(s)
 							</p>
 
 							<!-- Upload Drop Zone -->
@@ -472,12 +476,15 @@
 										Processing...
 									</span>
 								{:else}
-									✓ Approve for Delivery
-									{#if proofPreviews[caseItem.recordId]?.length > 0}
-										<span class="ml-1 rounded bg-emerald-500 px-1.5 py-0.5 text-[10px]">
-											{proofPreviews[caseItem.recordId].length} image{proofPreviews[caseItem.recordId].length !== 1 ? 's' : ''}
-										</span>
-									{/if}
+									<span class="flex items-center justify-center gap-2">
+										<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+										Approve for Delivery
+										{#if proofPreviews[caseItem.recordId]?.length > 0}
+											<span class="rounded bg-emerald-500 px-1.5 py-0.5 text-[10px]">
+												{proofPreviews[caseItem.recordId].length} image{proofPreviews[caseItem.recordId].length !== 1 ? 's' : ''}
+											</span>
+										{/if}
+									</span>
 								{/if}
 							</button>
 

@@ -206,13 +206,13 @@
 				filteredClinics = allClinics;
 				selectClinic(newClinic);
 			} else if (result.type === 'failure' && result.data?.error) {
-				alert(result.data.error.toString());
+				stepError = result.data.error.toString();
 			} else {
-				alert('Failed to register clinic');
+				stepError = 'Failed to register clinic';
 			}
 		} catch (err) {
 			console.error(err);
-			alert('An error occurred while registering the clinic.');
+			stepError = 'An error occurred while registering the clinic.';
 		} finally {
 			isRegisteringClinic = false;
 		}
@@ -249,13 +249,13 @@
 				filteredDoctors = allDoctors.filter((d) => d.clinicId === selectedClinic!.clinicId);
 				selectDoctor(newDoctor);
 			} else if (result.type === 'failure' && result.data?.error) {
-				alert(result.data.error.toString());
+				stepError = result.data.error.toString();
 			} else {
-				alert('Failed to register doctor');
+				stepError = 'Failed to register doctor';
 			}
 		} catch (err) {
 			console.error(err);
-			alert('An error occurred while registering the doctor.');
+			stepError = 'An error occurred while registering the doctor.';
 		} finally {
 			isRegisteringDoctor = false;
 		}
@@ -409,7 +409,7 @@
 					result.type === 'failure' ||
 					(result.type === 'success' && result.data?.success === false)
 				) {
-					alert(result.data?.error || 'An error occurred during submission.');
+					stepError = result.data?.error || 'An error occurred during submission.';
 					await update({ reset: false });
 				} else {
 					await update();
@@ -626,7 +626,7 @@
 					disabled={isSubmitting}
 					class="w-full sm:w-auto rounded-lg bg-primary px-10 py-3 text-sm font-bold tracking-wide text-white shadow-md transition-all hover:bg-indigo-700 hover:shadow-lg focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-indigo-400 disabled:opacity-70 active:scale-[0.98]"
 				>
-					{isSubmitting ? 'Submitting...' : '✓ Add Record'}
+					{isSubmitting ? 'Submitting...' : 'Add Record'}
 				</button>
 			</div>
 		</div>

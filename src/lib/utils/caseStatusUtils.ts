@@ -68,21 +68,21 @@ export function getStatusConfig(status: string): {
       label: 'Pending',
       color: 'text-yellow-700',
       bgColor: 'bg-yellow-100',
-      icon: '⏳',
+      icon: '',
       description: 'Case is pending - awaiting review or action'
     },
     [CASE_STATUSES.IN_PROGRESS]: {
       label: 'In Progress',
       color: 'text-purple-700',
       bgColor: 'bg-purple-100',
-      icon: '⚙️',
+      icon: '',
       description: 'Case is currently being worked on by technicians'
     },
     [CASE_STATUSES.TO_BE_REVIEWED_BY_DENTIST]: {
       label: 'To Be Reviewed By Dentist',
       color: 'text-blue-700',
       bgColor: 'bg-blue-100',
-      icon: '👨‍⚕️',
+      icon: '',
       description: 'Case awaiting dentist review before delivery'
     },
     [CASE_STATUSES.TO_BE_DELIVER]: {
@@ -96,7 +96,7 @@ export function getStatusConfig(status: string): {
       label: 'Delivered',
       color: 'text-indigo-700',
       bgColor: 'bg-indigo-100',
-      icon: '📦',
+      icon: '',
       description: 'Case has been physically delivered to the clinic'
     }
   };

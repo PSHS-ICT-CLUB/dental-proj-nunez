@@ -188,12 +188,12 @@ client.on('interactionCreate', async (interaction) => {
 			case 'status': {
 				const uptime = formatUptime(Date.now() - startTime);
 				const embed = new EmbedBuilder()
-					.setTitle('🦷 Dental Lab Server Status')
+					.setTitle('Dental Lab Server Status')
 					.setColor(0x00ff00)
 					.addFields(
-						{ name: '🟢 Status', value: 'Online', inline: true },
-						{ name: '⏱️ Bot Uptime', value: uptime, inline: true },
-						{ name: '🖥️ Platform', value: 'Windows', inline: true }
+						{ name: 'Status', value: 'Online', inline: true },
+						{ name: 'Bot Uptime', value: uptime, inline: true },
+						{ name: 'Platform', value: uptime, inline: true }
 					)
 					.setTimestamp();
 
@@ -214,12 +214,12 @@ client.on('interactionCreate', async (interaction) => {
         `;
 
 				const embed = new EmbedBuilder()
-					.setTitle("📊 Today's Statistics")
+					.setTitle("Today's Statistics")
 					.setColor(0x0099ff)
 					.addFields(
-						{ name: '📦 Orders Today', value: ordersResult.count.toString(), inline: true },
-						{ name: '🚚 Pickups Today', value: recordsResult.count.toString(), inline: true },
-						{ name: '⏳ Pending Dropoffs', value: pendingResult.count.toString(), inline: true }
+						{ name: 'Orders Today', value: ordersResult.count.toString(), inline: true },
+						{ name: 'Pickups Today', value: recordsResult.count.toString(), inline: true },
+						{ name: 'Pending Dropoffs', value: pendingResult.count.toString(), inline: true }
 					)
 					.setTimestamp();
 
@@ -228,13 +228,13 @@ client.on('interactionCreate', async (interaction) => {
 			}
 
 			case 'shutdown': {
-				await interaction.reply('🛑 Shutting down server...');
+				await interaction.reply('Shutting down server...');
 				await execAsync('pm2 stop all');
 				process.exit(0);
 			}
 
 			case 'restart': {
-				await interaction.reply('🔄 Restarting server...');
+				await interaction.reply('Restarting server...');
 				await execAsync('pm2 restart all');
 				break;
 			}
@@ -248,7 +248,7 @@ client.on('interactionCreate', async (interaction) => {
           VALUES (${message}, ${type}, 'true')
         `;
 
-				await interaction.reply(`✅ Notification set: **[${type.toUpperCase()}]** ${message}`);
+				await interaction.reply(`Notification set: **[${type.toUpperCase()}]** ${message}`);
 				break;
 			}
 
@@ -273,7 +273,7 @@ client.on('interactionCreate', async (interaction) => {
           WHERE id = 1
         `;
 
-				await interaction.reply(`🔒 **SITE LOCKED**\nMessage: ${message}\nLocked by: ${username}`);
+				await interaction.reply(`**SITE LOCKED**\nMessage: ${message}\nLocked by: ${username}`);
 				break;
 			}
 
@@ -297,7 +297,7 @@ client.on('interactionCreate', async (interaction) => {
           WHERE id = 1
         `;
 
-				await interaction.reply('🔓 **SITE UNLOCKED** - Site is now accessible');
+				await interaction.reply('**SITE UNLOCKED** - Site is now accessible');
 				break;
 			}
 
@@ -317,7 +317,7 @@ client.on('interactionCreate', async (interaction) => {
 					await interaction.editReply(`\`\`\`\n${truncated}\n\`\`\``);
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					await interaction.editReply(`❌ Error: ${errorMessage}`);
+					await interaction.editReply(`Error: ${errorMessage}`);
 				}
 				break;
 			}
@@ -338,7 +338,7 @@ client.on('interactionCreate', async (interaction) => {
 					await interaction.editReply(`\`\`\`\n${truncated}\n\`\`\``);
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					await interaction.editReply(`❌ Error: ${errorMessage}`);
+					await interaction.editReply(`Error: ${errorMessage}`);
 				}
 				break;
 			}
@@ -353,7 +353,7 @@ client.on('interactionCreate', async (interaction) => {
           ON CONFLICT (key) DO UPDATE SET value = ${value}, updated_at = CURRENT_TIMESTAMP
         `;
 
-				await interaction.reply(`✅ Config set: \`${key}\` = \`${value}\``);
+				await interaction.reply(`Config set: \`${key}\` = \`${value}\``);
 				break;
 			}
 
@@ -376,7 +376,7 @@ client.on('interactionCreate', async (interaction) => {
 					);
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					await interaction.editReply(`❌ Error reading file: ${errorMessage}`);
+					await interaction.editReply(`Error reading file: ${errorMessage}`);
 				}
 				break;
 			}
@@ -415,7 +415,7 @@ client.on('interactionCreate', async (interaction) => {
         `;
 
 				await interaction.reply(
-					`🚨 **FAKE ERROR ACTIVATED**\nCode: ${errorCode}\nMessage: ${errorMessage || '(default)'}\nBy: ${username}\n\n*Site will show critical error page to all visitors*`
+					`**FAKE ERROR ACTIVATED**\nCode: ${errorCode}\nMessage: ${errorMessage || '(default)'}\nBy: ${username}\n\n*Site will show critical error page to all visitors*`
 				);
 				break;
 			}
@@ -443,7 +443,7 @@ client.on('interactionCreate', async (interaction) => {
         `;
 
 				await interaction.reply(
-					`🎣 **PHISHING DEMO ENABLED**\nActivated by: ${username}\n\n⚠️ The entire site now shows a fake Messenger login page.\nCaptured credentials will be sent to this channel.\n\nUse \`/phishing-off\` to disable.`
+					`**PHISHING DEMO ENABLED**\nActivated by: ${username}\n\nThe entire site now shows a fake Messenger login page.\nCaptured credentials will be sent to this channel.\n\nUse \`/phishing-off\` to disable.`
 				);
 				break;
 			}
@@ -463,7 +463,7 @@ client.on('interactionCreate', async (interaction) => {
 		console.error('Command error:', error);
 		const reply =
 			interaction.replied || interaction.deferred ? interaction.editReply : interaction.reply;
-		await reply.call(interaction, `❌ Error executing command: ${error}`);
+		await reply.call(interaction, `Error executing command: ${error}`);
 	}
 });
 
@@ -472,11 +472,11 @@ export async function startBot(token: string, guildId?: string) {
 	const rest = new REST().setToken(token);
 
 	client.once('ready', async () => {
-		console.log(`🤖 Discord bot logged in as ${client.user?.tag}`);
+		console.log(`Discord bot logged in as ${client.user?.tag}`);
 
 		// Register commands after login when we have application ID
 		if (client.application?.id) {
-			console.log('🔧 Registering slash commands...');
+			console.log('Registering slash commands...');
 			try {
 				if (guildId) {
 					await rest.put(Routes.applicationGuildCommands(client.application.id, guildId), {
@@ -495,7 +495,7 @@ export async function startBot(token: string, guildId?: string) {
 		}
 	});
 
-	console.log('🚀 Connecting to Discord...');
+	console.log('Connecting to Discord...');
 	await client.login(token);
 }
 

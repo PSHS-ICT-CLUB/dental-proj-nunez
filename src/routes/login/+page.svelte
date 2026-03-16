@@ -30,7 +30,6 @@
 
 <div class="bg-surface flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8">
 	<div class="sm:mx-auto sm:w-full sm:max-w-md">
-		<div class="flex justify-center text-4xl">🦷</div>
 		<h2 class="text-text-primary mt-6 text-center text-3xl font-extrabold">
 			Sign in to Dental Lab
 		</h2>

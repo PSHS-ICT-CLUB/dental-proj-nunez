@@ -549,7 +549,7 @@
 							>{pendingCases.length}</span
 						>
 					</div>
-					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+					<div class="custom-scrollbar flex-1 space-y-1.5 overflow-y-auto p-2">
 						{#each pendingCases as record}
 							<div
 								class="hover:bg-surface border-border block rounded border bg-white p-2 transition-colors"
@@ -559,7 +559,7 @@
 										>{record.patientName}</span
 									>
 									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
-										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+										>{record.finishBy ? formatDate(record.finishBy) : 'No Date'}</span
 									>
 								</div>
 								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>
@@ -602,7 +602,7 @@
 							>{deliverCases.length}</span
 						>
 					</div>
-					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+					<div class="custom-scrollbar flex-1 space-y-1.5 overflow-y-auto p-2">
 						{#each deliverCases as record}
 							<div
 								class="hover:bg-info-light block rounded border border-blue-100/50 bg-white p-2 transition-colors"
@@ -612,7 +612,7 @@
 										>{record.patientName}</span
 									>
 									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
-										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+										>{record.finishBy ? formatDate(record.finishBy) : 'No Date'}</span
 									>
 								</div>
 								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>
@@ -655,7 +655,7 @@
 							>{finishedCases.length}</span
 						>
 					</div>
-					<div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+					<div class="custom-scrollbar flex-1 space-y-1.5 overflow-y-auto p-2">
 						{#each finishedCases as record}
 							<div
 								class="block rounded border border-green-100/50 bg-white p-2 transition-colors hover:bg-green-50"

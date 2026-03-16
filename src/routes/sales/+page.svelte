@@ -795,7 +795,13 @@
 											>
 												Drop-off Date
 												{#if incomeSort.column === 'date'}
-													<span>{incomeSort.direction === 'asc' ? ' ▲' : ' ▼'}</span>
+													<svg class="inline-block w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+														{#if incomeSort.direction === 'asc'}
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+														{:else}
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+														{/if}
+													</svg>
 												{/if}
 											</th>
 											<th
@@ -990,7 +996,13 @@
 											>
 												Date
 												{#if expensesSort.column === 'date'}
-													<span>{expensesSort.direction === 'asc' ? ' ▲' : ' ▼'}</span>
+													<svg class="inline-block w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+														{#if expensesSort.direction === 'asc'}
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+														{:else}
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+														{/if}
+													</svg>
 												{/if}
 											</th>
 											<th
