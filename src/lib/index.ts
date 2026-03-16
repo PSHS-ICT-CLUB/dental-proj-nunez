@@ -156,7 +156,10 @@ export function getRecordDateRange(records: RecordItem[]): DateRangeResult {
 	return { startingDate: minDate, recentDate: maxDate };
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(dateInput: Date | string): string {
+	const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+	if (isNaN(date.getTime())) return String(dateInput);
+
 	const month = (date.getMonth() + 1).toString().padStart(2, '0');
 	const day = date.getDate().toString().padStart(2, '0');
 	const year = date.getFullYear();

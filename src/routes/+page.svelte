@@ -665,7 +665,7 @@
 										>{record.patientName}</span
 									>
 									<span class="text-error-dark text-[10px] font-medium whitespace-nowrap"
-										>{record.finishBy ? record.finishBy.split('T')[0] : 'No Date'}</span
+										>{record.finishBy ? formatDate(record.finishBy) : 'No Date'}</span
 									>
 								</div>
 								<div class="text-text-muted mb-2 truncate text-[10px]">{record.clinicName}</div>

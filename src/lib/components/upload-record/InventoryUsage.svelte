@@ -107,7 +107,7 @@
 								</div>
 							</div>
 
-							{#if usage.showDropdown}
+							{#snippet dropdownList(usage: any, i: number)}
 								{@const filteredItems = (data?.inventoryTableItems || []).filter(item => 
 									!usage.searchTerm || 
 									item.name.toLowerCase().includes(usage.searchTerm.toLowerCase())
@@ -137,6 +137,10 @@
 										<li class="px-3 py-2 text-xs text-text-muted italic">No materials found</li>
 									{/if}
 								</ul>
+							{/snippet}
+
+							{#if usage.showDropdown}
+								{@render dropdownList(usage, i)}
 							{/if}
 						</div>
 						<div class="w-full flex items-center gap-2">
