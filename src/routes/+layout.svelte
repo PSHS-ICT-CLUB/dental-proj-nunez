@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { beforeNavigate, afterNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { signOut } from '@auth/sveltekit/client';
 	import '../app.css';
@@ -8,6 +8,15 @@
 
 	let isMenuOpen = $state(false);
 	let isUserMenuOpen = $state(false);
+	let isNavigating = $state(false);
+
+	beforeNavigate(() => {
+		isNavigating = true;
+	});
+
+	afterNavigate(() => {
+		isNavigating = false;
+	});
 
 	// Primary navigation - most used items
 	const primaryNavLinks = [
@@ -78,6 +87,15 @@
 </svelte:head>
 
 <NotificationBanner />
+
+{#if isNavigating}
+	<div class="fixed top-0 left-0 z-[60] h-1 w-full overflow-hidden bg-transparent">
+		<div class="absolute top-0 left-0 h-full w-full bg-emerald-400 opacity-20"></div>
+		<div
+			class="absolute top-0 left-0 h-full w-1/3 animate-[loading_1s_ease-in-out_infinite] rounded-full bg-emerald-400"
+		></div>
+	</div>
+{/if}
 
 {#if isAuthenticated}
 	<nav class="sticky top-0 left-0 z-50 w-full bg-[#164154] text-white shadow-md print:hidden">
@@ -376,7 +394,7 @@
 										: 'text-[#A1AEB3] hover:bg-white/5 hover:text-white'
 								}`}
 								href={link.href}
-								onclick={() => (isMenuMenuOpen = false)}
+								onclick={() => (isMenuOpen = false)}
 							>
 								{link.label}
 							</a>
@@ -454,6 +472,21 @@
 	</nav>
 {/if}
 
-<div class="pt-2">
+<div
+	class="pt-2 transition-opacity duration-200 {isNavigating
+		? 'pointer-events-none opacity-50'
+		: 'opacity-100'}"
+>
 	{@render children()}
 </div>
+
+<style>
+	@keyframes loading {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(300%);
+		}
+	}
+</style>
