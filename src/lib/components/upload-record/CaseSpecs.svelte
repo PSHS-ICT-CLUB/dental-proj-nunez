@@ -34,7 +34,7 @@
 <div class="flex flex-col gap-4">
 	<!-- Upper Section -->
 	{#if selected_jaw === 'U/L' || selected_jaw === 'upper'}
-		<div class="overflow-hidden rounded-md border border-border">
+		<div class="rounded-md border border-border">
 			<button
 				type="button"
 				onclick={() => (showUpper = !showUpper)}
@@ -70,7 +70,7 @@
 								name="case_type_upper"
 								bind:value={case_type_upper}
 								required
-								class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
+								class="mt-1 block w-full appearance-none rounded-md border border-border bg-white px-3 py-2 text-text-primary shadow-sm ring-1 ring-border/5 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none sm:text-sm transition-all hover:border-primary/50"
 							>
 								{#each data?.caseTypes as caseType}
 									<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>
@@ -162,7 +162,7 @@
 
 	<!-- Lower Section -->
 	{#if selected_jaw === 'U/L' || selected_jaw === 'lower'}
-		<div class="overflow-hidden rounded-md border border-border">
+		<div class="rounded-md border border-border">
 			<button
 				type="button"
 				onclick={() => (showLower = !showLower)}
@@ -198,7 +198,7 @@
 								name="case_type_lower"
 								bind:value={case_type_lower}
 								required
-								class="mt-1 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
+								class="mt-1 block w-full appearance-none rounded-md border border-border bg-white px-3 py-2 text-text-primary shadow-sm ring-1 ring-border/5 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none sm:text-sm transition-all hover:border-primary/50"
 							>
 								{#each data?.caseTypes as caseType}
 									<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>

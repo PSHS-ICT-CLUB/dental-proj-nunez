@@ -75,68 +75,52 @@
 		</label>
 		{#if showClinicDropdown}
 			<ul
-				class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
+				class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white p-1 shadow-2xl ring-1 ring-black/5 focus:outline-none"
 				tabindex="-1"
 				role="listbox"
 				aria-labelledby="clinic_name"
 			>
-				{#each filteredClinics as clinic}
-					<li class="role-none relative" id={`clinic-option-${clinic.clinicId}`}>
-						<button
-							type="button"
-							class="w-full cursor-pointer border-none bg-transparent py-2 pr-9 pl-3 text-left text-text-primary hover:bg-primary hover:text-white"
-							onclick={() => selectClinic(clinic)}
-						>
-							<span class="block truncate">{clinic.clinicName}</span>
-						</button>
-						{#if selectedClinic?.clinicId === clinic.clinicId}
-							<span
-								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-primary"
+				{#if filteredClinics.length > 0}
+					<div class="px-2 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Select Clinic</div>
+					{#each filteredClinics as clinic}
+						<li class="relative p-0.5" id={`clinic-option-${clinic.clinicId}`}>
+							<button
+								type="button"
+								class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-all hover:bg-primary/10 {selectedClinic?.clinicId === clinic.clinicId ? 'bg-primary/5 text-primary font-semibold' : 'text-text-primary'}"
+								onclick={() => selectClinic(clinic)}
 							>
-								<svg
-									class="h-5 w-5"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-									aria-hidden="true"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									></path>
-								</svg>
-							</span>
-						{/if}
-					</li>
-				{/each}
-				{#if clinicInputValue.length > 0 && !allClinics.some((c) => c.clinicName.toLowerCase() === clinicInputValue
-								.trim()
-								.toLowerCase())}
-					<li class="role-none relative text-text-primary">
+								<span class="block truncate">{clinic.clinicName}</span>
+								{#if selectedClinic?.clinicId === clinic.clinicId}
+									<svg class="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+									</svg>
+								{/if}
+							</button>
+						</li>
+					{/each}
+				{:else if clinicInputValue.trim()}
+					<div class="px-3 py-4 text-center">
+						<p class="text-sm text-text-muted">No clinics found matching "{clinicInputValue}"</p>
+					</div>
+				{/if}
+
+				{#if clinicInputValue.length > 0 && !allClinics.some((c) => c.clinicName.toLowerCase() === clinicInputValue.trim().toLowerCase())}
+					<div class="border-t border-border/50 my-1"></div>
+					<li class="p-1">
 						<button
 							type="button"
-							class="flex w-full cursor-pointer items-center gap-2 border-none bg-transparent py-2 pr-9 pl-3 text-left font-medium hover:bg-primary hover:text-white"
+							class="flex w-full items-center gap-3 rounded-lg bg-primary/5 px-3 py-2.5 text-left text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
 							onclick={registerClinic}
 							disabled={isRegisteringClinic}
 						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 4v16m8-8H4"
-								/>
-							</svg>
-							{isRegisteringClinic
-								? 'Registering...'
-								: `Register "${clinicInputValue}" as New Clinic`}
+							<div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 group-hover:bg-white/20">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+								</svg>
+							</div>
+							<span class="truncate">
+								{isRegisteringClinic ? 'Registering...' : `Register "${clinicInputValue}"`}
+							</span>
 						</button>
 					</li>
 				{/if}
@@ -173,76 +157,54 @@
 		</label>
 		{#if showDoctorDropdown}
 			<ul
-				class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none"
+				class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white p-1 shadow-2xl ring-1 ring-black/5 focus:outline-none"
 				tabindex="-1"
 				role="listbox"
 				aria-labelledby="doctor_name"
 			>
-				{#each filteredDoctors as doctor}
-					<li class="role-none relative" id={`doctor-option-${doctor.doctorId}`}>
-						<button
-							type="button"
-							class="w-full cursor-pointer border-none bg-transparent py-2 pr-9 pl-3 text-left text-text-primary hover:bg-primary hover:text-white"
-							onclick={() => selectDoctor(doctor)}
-						>
-							<span class="block truncate">{doctor.doctorName}</span>
-						</button>
-						{#if selectedDoctor?.doctorId === doctor.doctorId}
-							<span
-								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-primary"
-							>
-								<svg
-									class="h-5 w-5"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-									aria-hidden="true"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									></path>
-								</svg>
-							</span>
-						{/if}
-					</li>
-				{/each}
-				{#if doctorInputValue.length > 0 && !allDoctors.some((d) => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue
-									.trim()
-									.toLowerCase())}
-					{#if selectedClinic}
-						<li class="role-none relative text-text-primary">
+				{#if filteredDoctors.length > 0}
+					<div class="px-2 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Select Doctor</div>
+					{#each filteredDoctors as doctor}
+						<li class="relative p-0.5" id={`doctor-option-${doctor.doctorId}`}>
 							<button
 								type="button"
-								class="flex w-full cursor-pointer items-center gap-2 border-none bg-transparent py-2 pr-9 pl-3 text-left font-medium hover:bg-primary hover:text-white"
-								onclick={registerDoctor}
-								disabled={isRegisteringDoctor}
+								class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-all hover:bg-primary/10 {selectedDoctor?.doctorId === doctor.doctorId ? 'bg-primary/5 text-primary font-semibold' : 'text-text-primary'}"
+								onclick={() => selectDoctor(doctor)}
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-4 w-4"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 4v16m8-8H4"
-									/>
-								</svg>
-								{isRegisteringDoctor
-									? 'Registering...'
-									: `Register "${doctorInputValue}" as New Doctor`}
+								<span class="block truncate">{doctor.doctorName}</span>
+								{#if selectedDoctor?.doctorId === doctor.doctorId}
+									<svg class="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+									</svg>
+								{/if}
 							</button>
 						</li>
-					{:else}
-						<li class="relative cursor-default py-2 pr-9 pl-3 text-text-muted select-none">
-							Select a clinic first to register.
-						</li>
-					{/if}
+					{/each}
+				{:else if doctorInputValue.trim()}
+					<div class="px-3 py-4 text-center">
+						<p class="text-sm text-text-muted">No doctors found matching "{doctorInputValue}"</p>
+					</div>
+				{/if}
+
+				{#if doctorInputValue.length > 0 && !allDoctors.some((d) => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue.trim().toLowerCase())}
+					<div class="border-t border-border/50 my-1"></div>
+					<li class="p-1">
+						<button
+							type="button"
+							class="flex w-full items-center gap-3 rounded-lg bg-primary/5 px-3 py-2.5 text-left text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
+							onclick={registerDoctor}
+							disabled={isRegisteringDoctor}
+						>
+							<div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 group-hover:bg-white/20">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+								</svg>
+							</div>
+							<span class="truncate">
+								{isRegisteringDoctor ? 'Registering...' : `Register "${doctorInputValue}"`}
+							</span>
+						</button>
+					</li>
 				{/if}
 			</ul>
 		{/if}

@@ -36,7 +36,7 @@
 	let technicianContainer = $state<HTMLDivElement>();
 </script>
 
-<div class="overflow-hidden rounded-md border border-border">
+<div class="rounded-md border border-border">
 	<!-- Header with toggle -->
 	<button
 		type="button"
@@ -245,38 +245,60 @@
 								}
 							}}
 							onkeydown={handleTechnicianInputKeydown}
-							class="block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-							placeholder="Type to search technicians or press Enter to add new"
+							class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm transition-all"
+							placeholder="Search technician..."
 						/>
 
 						{#if showTechnicianDropdown && (filteredTechnicians.length > 0 || technicianInputValue.trim())}
-							<div
-								class="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border border-border bg-white shadow-lg"
+							<ul
+								class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white p-1 shadow-2xl ring-1 ring-black/5 focus:outline-none"
+								role="listbox"
 							>
 								{#if filteredTechnicians.length > 0}
+									<div class="px-2 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Select Technician</div>
 									{#each filteredTechnicians as tech}
-										<button
-											type="button"
-											class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-indigo-50"
-											onclick={() => addTechnician(tech.name)}
-										>
-											<span class="font-medium">{tech.name}</span>
-											{#if tech.role}
-												<span class="text-xs text-text-muted">({tech.role})</span>
-											{/if}
-										</button>
+										<li class="p-0.5">
+											<button
+												type="button"
+												class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-all hover:bg-primary/10 text-text-primary"
+												onclick={() => addTechnician(tech.name)}
+											>
+												<div class="flex items-center gap-2">
+													<div class="flex h-7 w-7 items-center justify-center rounded-full bg-surface text-[10px] font-bold text-primary border border-border group-hover:bg-white group-hover:border-primary/30">
+														{tech.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+													</div>
+													<div class="flex flex-col">
+														<span class="font-medium">{tech.name}</span>
+														{#if tech.role}
+															<span class="text-[10px] text-text-muted">{tech.role}</span>
+														{/if}
+													</div>
+												</div>
+												<svg class="h-4 w-4 text-primary opacity-0 transition-opacity group-hover:opacity-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+													<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+												</svg>
+											</button>
+										</li>
 									{/each}
 								{/if}
 								{#if technicianInputValue.trim() && !filteredTechnicians.some((t) => t.name.toLowerCase() === technicianInputValue.toLowerCase())}
-									<button
-										type="button"
-										class="w-full px-3 py-2 text-left text-sm text-primary italic hover:bg-indigo-50"
-										onclick={() => addTechnician(technicianInputValue.trim())}
-									>
-										+ Add "{technicianInputValue}" as new technician
-									</button>
+									<div class="border-t border-border/50 my-1"></div>
+									<li class="p-1">
+										<button
+											type="button"
+											class="flex w-full items-center gap-3 rounded-lg bg-primary/5 px-3 py-2.5 text-left text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white"
+											onclick={() => addTechnician(technicianInputValue.trim())}
+										>
+											<div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 group-hover:bg-white/20">
+												<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+												</svg>
+											</div>
+											<span class="truncate">Add "{technicianInputValue}"</span>
+										</button>
+									</li>
 								{/if}
-							</div>
+							</ul>
 						{/if}
 					</div>
 

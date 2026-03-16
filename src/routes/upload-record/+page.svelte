@@ -448,7 +448,7 @@
 			<!-- Column 1: Client, Case, & Payment Data -->
 			<div class="flex flex-col gap-6">
 				<!-- Client Info Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -483,7 +483,7 @@
 				</section>
 				
 				<!-- Case Details Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -510,7 +510,7 @@
 				</section>
 
 				<!-- Payment Details Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -535,7 +535,7 @@
 			<div class="flex flex-col gap-6">
 
 				<!-- Documentation In Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -559,7 +559,7 @@
 				</section>
 
 				<!-- Materials Usage Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -580,7 +580,7 @@
 				</section>
 				
 				<!-- Delivery & Work Details Card -->
-				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden flex-1 flex flex-col transition-all hover:shadow-lg">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md flex-1 flex flex-col transition-all hover:shadow-lg">
 					<div class="border-b-2 border-border bg-surface px-4 py-3">
 						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
