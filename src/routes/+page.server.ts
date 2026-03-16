@@ -14,15 +14,16 @@ import { fail, redirect } from '@sveltejs/kit';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ params, url }) => {
+	// Get current month/year for calendar data (needed for catch block)
+	const now = new Date();
+	const currentMonth = now.getMonth() + 1;
+	const currentYear = now.getFullYear();
+	const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
+	const endOfMonth = new Date(currentYear, currentMonth, 0);
+	const startDateStr = startOfMonth.toISOString().split('T')[0];
+	const endDateStr = endOfMonth.toISOString().split('T')[0];
+
 	try {
-		// Get current month/year for calendar data
-		const now = new Date();
-		const currentMonth = now.getMonth() + 1;
-		const currentYear = now.getFullYear();
-		const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
-		const endOfMonth = new Date(currentYear, currentMonth, 0);
-		const startDateStr = startOfMonth.toISOString().split('T')[0];
-		const endDateStr = endOfMonth.toISOString().split('T')[0];
 		let whereConditions = [];
 
 		// Build where conditions from URL params
@@ -58,7 +59,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			whereConditions.push(sql`orders.payment_status = ${url.searchParams.get('payment_status')}`);
 		}
 		if (url.searchParams.get('remarks')) {
-			whereConditions.push(eq(records.remarks, url.searchParams.get('remarks')));
+			whereConditions.push(eq(records.caseStatus, url.searchParams.get('remarks')));
 		}
 		let baseQuery;
 		if (whereConditions.length > 0) {
@@ -68,7 +69,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					remarks: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -81,14 +82,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`
-          array_agg(
-            json_build_object(
-              'caseTypeName', ${caseTypes.caseTypeName},
-              'caseNo', ${orderItems.caseNo},
-              'orderDescription', ${orderItems.orderDescription},
-              'upOrDown', ${orderItems.upOrDown}
-            )
+					>`COALESCE(
+            array_agg(
+              json_build_object(
+                'caseTypeName', ${caseTypes.caseTypeName},
+                'caseNo', ${orderItems.caseNo},
+                'orderDescription', ${orderItems.orderDescription},
+                'upOrDown', ${orderItems.upOrDown}
+              )
+            ),
+            ARRAY[]::json[]
           )`
 				})
 				.from(records)
@@ -99,6 +102,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.groupBy(
 					records.recordId,
+					records.caseStatus,
 					doctors.doctorName,
 					clinics.clinicName,
 					orders.orderTotal,
@@ -114,7 +118,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					datePickup: records.datePickup,
 					dateDropoff: records.actualDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					remarks: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderTotal: orders.orderTotal,
@@ -127,14 +131,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`
-          array_agg(
-            json_build_object(
-              'caseTypeName', ${caseTypes.caseTypeName},
-              'caseNo', ${orderItems.caseNo},
-              'orderDescription', ${orderItems.orderDescription},
-              'upOrDown', ${orderItems.upOrDown}
-            )
+					>`COALESCE(
+            array_agg(
+              json_build_object(
+                'caseTypeName', ${caseTypes.caseTypeName},
+                'caseNo', ${orderItems.caseNo},
+                'orderDescription', ${orderItems.orderDescription},
+                'upOrDown', ${orderItems.upOrDown}
+              )
+            ),
+            ARRAY[]::json[]
           )`
 				})
 				.from(records)
@@ -145,6 +151,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.groupBy(
 					records.recordId,
+					records.caseStatus,
 					doctors.doctorName,
 					clinics.clinicName,
 					orders.orderTotal,
@@ -175,7 +182,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					dateDropoff: records.dateDropoff,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					remarks: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
@@ -186,13 +193,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							upOrDown: string;
 						}>
 					>`
-						array_agg(
-							json_build_object(
-								'caseTypeName', ${caseTypes.caseTypeName},
-								'caseNo', ${orderItems.caseNo},
-								'orderDescription', ${orderItems.orderDescription},
-								'upOrDown', ${orderItems.upOrDown}
-							)
+						COALESCE(
+							array_agg(
+								json_build_object(
+									'caseTypeName', ${caseTypes.caseTypeName},
+									'caseNo', ${orderItems.caseNo},
+									'orderDescription', ${orderItems.orderDescription},
+									'upOrDown', ${orderItems.upOrDown}
+								)
+							),
+							ARRAY[]::json[]
 						)`
 				})
 				.from(records)
@@ -207,7 +217,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 						sql`records.date_dropoff BETWEEN ${startDateStr} AND ${endDateStr}`
 					)
 				)
-				.groupBy(records.recordId, doctors.doctorName, clinics.clinicName)
+				.groupBy(records.recordId, records.caseStatus, doctors.doctorName, clinics.clinicName)
 				.orderBy(desc(records.dateDropoff)),
 			// Calendar finishBy records
 			db
@@ -215,7 +225,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 					recordId: records.recordId,
 					finishBy: records.finishBy,
 					patientName: records.patientName,
-					remarks: records.remarks,
+					remarks: records.caseStatus,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
@@ -226,13 +236,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
 							upOrDown: string;
 						}>
 					>`
-						array_agg(
-							json_build_object(
-								'caseTypeName', ${caseTypes.caseTypeName},
-								'caseNo', ${orderItems.caseNo},
-								'orderDescription', ${orderItems.orderDescription},
-								'upOrDown', ${orderItems.upOrDown}
-							)
+						COALESCE(
+							array_agg(
+								json_build_object(
+									'caseTypeName', ${caseTypes.caseTypeName},
+									'caseNo', ${orderItems.caseNo},
+									'orderDescription', ${orderItems.orderDescription},
+									'upOrDown', ${orderItems.upOrDown}
+								)
+							),
+							ARRAY[]::json[]
 						)`
 				})
 				.from(records)
@@ -247,7 +260,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 						sql`DATE(records.finish_by) BETWEEN ${startDateStr} AND ${endDateStr}`
 					)
 				)
-				.groupBy(records.recordId, doctors.doctorName, clinics.clinicName)
+				.groupBy(records.recordId, records.caseStatus, doctors.doctorName, clinics.clinicName)
 				.orderBy(desc(records.finishBy))
 		]);
 		console.log({
@@ -277,7 +290,22 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		};
 	} catch (error) {
 		console.error('Error:', error);
-		return { success: false, error: 'Failed to fetch record data' };
+		return {
+			records: [],
+			caseTypes: [],
+			doctors: [],
+			clinics: [],
+			filters: {},
+			passwordIsSet: false,
+			calendarData: {
+				deliveryRecords: [],
+				finishByRecords: [],
+				month: currentMonth,
+				year: currentYear
+			},
+			success: false,
+			error: 'Failed to fetch record data'
+		};
 	}
 };
 

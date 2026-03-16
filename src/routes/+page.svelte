@@ -32,7 +32,7 @@
 
 	// Synchronize filter states from URL parameters (data.filters) directly
 	$effect(() => {
-		const filtersData = data.filters;
+		const filtersData = data.filters as Record<string, string>;
 
 		if (!filtersData || Object.keys(filtersData).length === 0) {
 			// Clear filters
@@ -110,7 +110,7 @@
 	console.log(data);
 
 	let customerNames = $derived(
-		Object.keys(data.filters).length > 0
+		Object.keys(data.filters).length > 0 && data.records
 			? [...new Set(data.records.map((record) => record.clinicName))]
 			: []
 	);
@@ -130,6 +130,11 @@
 	let paginatedRecords = $derived(
 		data.records?.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage) || []
 	);
+
+	// Handle case where data.records is undefined
+	if (!data.records) {
+		data.records = [];
+	}
 
 	// Pagination controls
 	function nextPage() {
