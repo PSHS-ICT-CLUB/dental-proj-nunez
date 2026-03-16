@@ -13,9 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			doctorName: doctors.doctorName,
 			clinicName: clinics.clinicName,
 			description: records.description,
-			caseStatus: records.caseStatus,
-			caseNotes: records.caseNotes,
-			remarksDeprecated: records.remarksDeprecated
+			remarks: records.remarks
 		})
 		.from(records)
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
@@ -34,9 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
-		const recordIdStr = data.get('recordId')?.toString();
-		if (!recordIdStr) return { success: false, error: 'Record ID is required' };
-		const recordId = parseInt(recordIdStr, 10);
+		const recordId = parseInt(data.get('recordId')?.toString() || '0');
 
 		try {
 			// Update record with actual dropoff information
@@ -44,7 +40,7 @@ export const actions = {
 				.update(records)
 				.set({
 					actualDropoff: data.get('date')?.toString(),
-					caseStatus: data.get('finished') ? 'delivered' : 'to be deliver'
+					remarks: data.get('finished') ? 'finished' : 'pending'
 				} as any)
 				.where(eq(records.recordId, recordId));
 
@@ -70,19 +66,15 @@ export const actions = {
 							imageUrl: publicUrlData.publicUrl,
 							historyDate: data.get('date')?.toString(),
 							historyTime: data.get('time')?.toString()
-						} as any);
+						});
 					} else {
 						console.error('Supabase upload error:', uploadError);
-						throw new Error(`Failed to upload image ${file.name}: ${uploadError.message}`);
 					}
 				}
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error processing OUT record:', error);
-			let errorMessage = error.message || 'An unknown error occurred';
-			if (error.code) errorMessage += ` (DB Error Code: ${error.code})`;
-			if (error.detail) errorMessage += ` - ${error.detail}`;
-			return { success: false, error: `Failed to process OUT record: ${errorMessage}` };
+			return { success: false, error: 'Failed to process OUT record' };
 		}
 
 		const isFinished = data.get('finished');

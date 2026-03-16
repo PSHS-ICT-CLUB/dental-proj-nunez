@@ -6,19 +6,14 @@ import {
 	history,
 	records,
 	orders,
-	orderItems,
-	recordInventoryUsages,
-	inventoryItems,
-	inventoryLogs
+	orderItems
 } from '$lib/server/db/schema';
 import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { verifyAdminPassword, isPasswordSet, verifyUserPassword } from '$lib/server/auth';
-import { canDelete } from '$lib/server/roles';
+import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
 
-export const load: PageServerLoad = async ({ params, url, locals }) => {
-	const session = await locals.auth();
+export const load: PageServerLoad = async ({ params, url }) => {
 	try {
 		// Get current month/year for calendar data
 		const now = new Date();
@@ -62,79 +57,100 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		if (url.searchParams.get('payment_status')) {
 			whereConditions.push(sql`orders.payment_status = ${url.searchParams.get('payment_status')}`);
 		}
-		if (url.searchParams.get('case_status')) {
-			whereConditions.push(eq(records.caseStatus, url.searchParams.get('case_status')!));
+		if (url.searchParams.get('remarks')) {
+			whereConditions.push(eq(records.remarks, url.searchParams.get('remarks')));
 		}
-		if (url.searchParams.get('case_notes')) {
-			whereConditions.push(sql`case_notes ILIKE ${`%${url.searchParams.get('case_notes')}%`}`);
-		}
-
-		const orderItemsAgg = sql<
-			Array<{
-				caseTypeName: string;
-				caseTypeAbbrv: string;
-				caseNo: number;
-				orderDescription: string | null;
-				upOrDown: string;
-			}>
-		>`array_agg(
-			json_build_object(
-				'caseTypeName', ${caseTypes.caseTypeName},
-				'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
-				'caseNo', ${orderItems.caseNo},
-				'orderDescription', ${orderItems.orderDescription},
-				'upOrDown', ${orderItems.upOrDown}
-			)
-		) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`;
-
-		const baseSelect = {
-			recordId: records.recordId,
-			datePickup: records.datePickup,
-			dateDropoff: records.actualDropoff,
-			finishBy: records.finishBy,
-			patientName: records.patientName,
-			caseStatus: records.caseStatus,
-			caseNotes: records.caseNotes,
-			remarksDeprecated: records.remarksDeprecated,
-			doctorName: doctors.doctorName,
-			clinicName: clinics.clinicName,
-			orderTotal: orders.orderTotal,
-			paidAmount: orders.paidAmount,
-			paymentStatus: orders.paymentStatus,
-			orderItems: orderItemsAgg
-		};
-
-		const baseGroupBy = [
-			records.recordId,
-			doctors.doctorName,
-			clinics.clinicName,
-			orders.orderTotal,
-			orders.paidAmount,
-			orders.paymentStatus
-		] as const;
-
 		let baseQuery;
 		if (whereConditions.length > 0) {
 			baseQuery = db
-				.select(baseSelect)
+				.select({
+					recordId: records.recordId,
+					datePickup: records.datePickup,
+					dateDropoff: records.actualDropoff,
+					patientName: records.patientName,
+					remarks: records.remarks,
+					doctorName: doctors.doctorName,
+					clinicName: clinics.clinicName,
+					orderTotal: orders.orderTotal,
+					paidAmount: orders.paidAmount,
+					paymentStatus: orders.paymentStatus,
+					orderItems: sql<
+						Array<{
+							caseTypeName: string;
+							caseNo: number;
+							orderDescription: string | null;
+							upOrDown: string;
+						}>
+					>`
+          array_agg(
+            json_build_object(
+              'caseTypeName', ${caseTypes.caseTypeName},
+              'caseNo', ${orderItems.caseNo},
+              'orderDescription', ${orderItems.orderDescription},
+              'upOrDown', ${orderItems.upOrDown}
+            )
+          )`
+				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
-				.groupBy(...baseGroupBy)
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.groupBy(
+					records.recordId,
+					doctors.doctorName,
+					clinics.clinicName,
+					orders.orderTotal,
+					orders.paidAmount,
+					orders.paymentStatus
+				)
+
 				.where(and(...whereConditions));
 		} else {
 			baseQuery = db
-				.select(baseSelect)
+				.select({
+					recordId: records.recordId,
+					datePickup: records.datePickup,
+					dateDropoff: records.actualDropoff,
+					patientName: records.patientName,
+					remarks: records.remarks,
+					doctorName: doctors.doctorName,
+					clinicName: clinics.clinicName,
+					orderTotal: orders.orderTotal,
+					paidAmount: orders.paidAmount,
+					paymentStatus: orders.paymentStatus,
+					orderItems: sql<
+						Array<{
+							caseTypeName: string;
+							caseNo: number;
+							orderDescription: string | null;
+							upOrDown: string;
+						}>
+					>`
+          array_agg(
+            json_build_object(
+              'caseTypeName', ${caseTypes.caseTypeName},
+              'caseNo', ${orderItems.caseNo},
+              'orderDescription', ${orderItems.orderDescription},
+              'upOrDown', ${orderItems.upOrDown}
+            )
+          )`
+				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
-				.groupBy(...baseGroupBy);
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.groupBy(
+					records.recordId,
+					doctors.doctorName,
+					clinics.clinicName,
+					orders.orderTotal,
+					orders.paidAmount,
+					orders.paymentStatus
+				);
 		}
 
 		const page = parseInt(url.searchParams.get('page') || '1');
@@ -150,53 +166,41 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			calendarFinishByRecords
 		] = await Promise.all([
 			baseQuery.orderBy(desc(records.datePickup)).limit(limit).offset(offset),
-			db.select({
-				caseTypeId: caseTypes.caseTypeId,
-				caseTypeName: caseTypes.caseTypeName
-			}).from(caseTypes),
-			db.select({
-				doctorId: doctors.doctorId,
-				doctorName: doctors.doctorName
-			}).from(doctors).orderBy(desc(doctors.doctorName)),
-			db.select({
-				clinicId: clinics.clinicId,
-				clinicName: clinics.clinicName
-			}).from(clinics).orderBy(desc(clinics.clinicName)),
+			db.select().from(caseTypes),
+			db.select().from(doctors).orderBy(desc(doctors.doctorName)),
+			db.select().from(clinics).orderBy(desc(clinics.clinicName)),
 			// Calendar delivery records
 			db
 				.select({
 					recordId: records.recordId,
 					dateDropoff: records.dateDropoff,
 					patientName: records.patientName,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes,
-					remarksDeprecated: records.remarksDeprecated,
+					remarks: records.remarks,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
 						Array<{
 							caseTypeName: string;
-							caseTypeAbbrv: string;
 							caseNo: string;
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`array_agg(
-						json_build_object(
-							'caseTypeName', ${caseTypes.caseTypeName},
-							'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
-							'caseNo', ${orderItems.caseNo},
-							'orderDescription', ${orderItems.orderDescription},
-							'upOrDown', ${orderItems.upOrDown}
-						)
-					) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`
+					>`
+						array_agg(
+							json_build_object(
+								'caseTypeName', ${caseTypes.caseTypeName},
+								'caseNo', ${orderItems.caseNo},
+								'orderDescription', ${orderItems.orderDescription},
+								'upOrDown', ${orderItems.upOrDown}
+							)
+						)`
 				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.where(
 					and(
 						isNotNull(records.dateDropoff),
@@ -211,35 +215,32 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 					recordId: records.recordId,
 					finishBy: records.finishBy,
 					patientName: records.patientName,
-					caseStatus: records.caseStatus,
-					caseNotes: records.caseNotes,
-					remarksDeprecated: records.remarksDeprecated,
+					remarks: records.remarks,
 					doctorName: doctors.doctorName,
 					clinicName: clinics.clinicName,
 					orderItems: sql<
 						Array<{
 							caseTypeName: string;
-							caseTypeAbbrv: string;
 							caseNo: string;
 							orderDescription: string | null;
 							upOrDown: string;
 						}>
-					>`array_agg(
-						json_build_object(
-							'caseTypeName', ${caseTypes.caseTypeName},
-							'caseTypeAbbrv', ${caseTypes.caseTypeAbbrv},
-							'caseNo', ${orderItems.caseNo},
-							'orderDescription', ${orderItems.orderDescription},
-							'upOrDown', ${orderItems.upOrDown}
-						)
-					) FILTER (WHERE ${orderItems.orderItemId} IS NOT NULL)`
+					>`
+						array_agg(
+							json_build_object(
+								'caseTypeName', ${caseTypes.caseTypeName},
+								'caseNo', ${orderItems.caseNo},
+								'orderDescription', ${orderItems.orderDescription},
+								'upOrDown', ${orderItems.upOrDown}
+							)
+						)`
 				})
 				.from(records)
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
-				.leftJoin(orderItems, eq(orders.orderId, orderItems.orderId))
+				.innerJoin(orderItems, eq(orders.orderId, orderItems.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.leftJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
+				.innerJoin(caseTypes, eq(orderItems.caseTypeId, caseTypes.caseTypeId))
 				.where(
 					and(
 						isNotNull(records.finishBy),
@@ -267,7 +268,6 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 			clinics: clinicData,
 			filters: Object.fromEntries(url.searchParams),
 			passwordIsSet,
-			user: session?.user,
 			calendarData: {
 				deliveryRecords: calendarDeliveryRecords,
 				finishByRecords: calendarFinishByRecords,
@@ -282,18 +282,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 };
 
 export const actions = {
-	deleteRecord: async ({ request, locals }) => {
-		const session = await locals.auth();
-
-		if (!session?.user) {
-			return fail(401, { error: 'You must be logged in to delete records' });
-		}
-
-		// @ts-ignore
-		if (!canDelete(session.user.role)) {
-			return fail(403, { error: 'Unauthorized: Only admins and dentists can delete records' });
-		}
-
+	deleteRecord: async ({ request }) => {
 		const data = await request.formData();
 		const recordId = data.get('record_id')?.toString();
 		const confirmPassword = data.get('confirm_password')?.toString() ?? '';
@@ -302,9 +291,17 @@ export const actions = {
 			return { success: false, error: 'Record ID for deletion is required' };
 		}
 
-		const ok = await verifyUserPassword(parseInt(session.user.id), confirmPassword);
+		// Check if password is set
+		const passwordIsSet = await isPasswordSet();
+		if (!passwordIsSet) {
+			return fail(400, {
+				error: 'No password is set. Please set a password first in the Change Password page.'
+			});
+		}
+
+		const ok = await verifyAdminPassword(confirmPassword);
 		if (!ok) {
-			return fail(400, { error: 'Incorrect account password' });
+			return fail(400, { error: 'Wrong password' });
 		}
 
 		try {
@@ -316,35 +313,6 @@ export const actions = {
 					.limit(1);
 
 				if (record.length > 0) {
-					// 1. Manage Inventory Refunds
-					const usages = await tx
-						.select()
-						.from(recordInventoryUsages)
-						.where(eq(recordInventoryUsages.recordId, parseInt(recordId)));
-
-					for (const usage of usages) {
-						// Refund the stock
-						await tx
-							.update(inventoryItems)
-							.set({
-								currentStock: sql`${inventoryItems.currentStock} + ${usage.quantityUsed}`
-							} as any)
-							.where(eq(inventoryItems.id, usage.itemId));
-
-						// Log the refund
-						await tx.insert(inventoryLogs).values({
-							itemId: usage.itemId,
-							actionType: 'IN',
-							quantity: usage.quantityUsed,
-							remarks: `Refund from deleted record #${recordId}`,
-							createdBy: parseInt(session.user.id)
-						} as any);
-					}
-
-					// 2. Delete the record usages so foreign key constraint is satisfied
-					await tx.delete(recordInventoryUsages).where(eq(recordInventoryUsages.recordId, parseInt(recordId)));
-
-					// 3. Delete normal record relationships
 					await tx.delete(history).where(eq(history.recordId, parseInt(recordId)));
 					await tx.delete(orderItems).where(eq(orderItems.orderId, record[0].orderId!));
 					await tx.delete(records).where(eq(records.recordId, parseInt(recordId)));
