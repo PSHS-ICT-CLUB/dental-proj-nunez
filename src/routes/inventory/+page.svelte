@@ -24,7 +24,7 @@
 
 <div class="mx-auto max-w-6xl px-4 py-8">
 	<div class="mb-6 flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Inventory items Dashboard</h1>
+		<h1 class="text-2xl font-bold">Inventory Dashboard</h1>
 		<div class="flex gap-2">
             <a href="/inventory/suppliers" class="rounded border border-border bg-white px-4 py-2 text-sm font-medium text-text-secondary shadow-sm transition-colors hover:bg-surface">Manage Suppliers</a>
             <a href="/inventory/logs" class="rounded border border-border bg-white px-4 py-2 text-sm font-medium text-text-secondary shadow-sm transition-colors hover:bg-surface">View History Logs</a>
@@ -158,7 +158,7 @@
 		<div class="w-full max-w-md rounded-lg bg-white shadow-xl">
 			<div class="flex items-center justify-between border-b border-border p-4">
 				<h3 class="text-lg font-semibold text-text-primary">Add New Inventory Item</h3>
-				<button onclick={() => (isAddItemModalOpen = false)} class="text-text-muted hover:text-text-muted">
+				<button onclick={() => (isAddItemModalOpen = false)} class="text-text-muted hover:text-text-muted" aria-label="Close">
 					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -189,17 +189,17 @@
 					</div>
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label for="cost" class="mb-1 block text-sm font-medium text-text-secondary">Cost per Unit (PHP)</label>
+							<label for="cost" class="mb-1 block text-sm font-medium text-text-secondary">Unit Price (PHP)</label>
 							<input type="number" id="cost" name="cost" value="0.00" min="0" step="0.01" class="w-full rounded border border-border p-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
 						</div>
 						<div>
-							<label for="current_stock" class="mb-1 block text-sm font-medium text-text-secondary">Initial Stock</label>
+							<label for="current_stock" class="mb-1 block text-sm font-medium text-text-secondary">Starting Stock</label>
 							<input type="number" id="current_stock" name="current_stock" value="0" min="0" class="w-full rounded border border-border p-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label for="minimum_stock_level" class="mb-1 block text-sm font-medium text-text-secondary">Min. Alert Level</label>
+							<label for="minimum_stock_level" class="mb-1 block text-sm font-medium text-text-secondary">Minimum Stock Level</label>
 							<input type="number" id="minimum_stock_level" name="minimum_stock_level" value="10" min="0" class="w-full rounded border border-border p-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
 						</div>
 					</div>
@@ -230,7 +230,7 @@
 		<div class="w-full max-w-md rounded-lg bg-white shadow-xl">
 			<div class="flex items-center justify-between border-b border-border bg-surface p-4 rounded-t-lg">
 				<h3 class="text-lg font-bold text-text-primary">Adjust Stock</h3>
-				<button onclick={() => (isAdjustStockModalOpen = false)} class="text-text-muted hover:text-text-muted">
+				<button onclick={() => (isAdjustStockModalOpen = false)} class="text-text-muted hover:text-text-muted" aria-label="Close">
 					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -254,14 +254,14 @@
 					<div>
 						<label for="action_type" class="mb-1 block text-sm font-medium text-text-secondary">Action Type</label>
 						<select id="action_type" name="action_type" required class="w-full rounded border border-border p-2 text-sm font-medium focus:border-primary focus:ring-1 focus:ring-primary">
-							<option value="OUT">USE STOCK (OUT)</option>
-							<option value="IN">RESTOCK (IN)</option>
+							<option value="OUT">Use Stock</option>
+							<option value="IN">Restock</option>
 						</select>
 					</div>
 
 					<div>
-						<label for="quantity" class="mb-1 block text-sm font-medium text-text-secondary">Amount / Quantity</label>
-						<input type="number" id="quantity" name="quantity" required min="1" placeholder="How many pieces?" class="w-full rounded border border-border p-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
+						<label for="quantity" class="mb-1 block text-sm font-medium text-text-secondary">Adjustment Quantity</label>
+						<input type="number" id="quantity" name="quantity" required min="1" placeholder="Enter quantity" class="w-full rounded border border-border p-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
 					</div>
 
 					<div>

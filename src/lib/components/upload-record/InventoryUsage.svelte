@@ -76,11 +76,9 @@
 							>
 								<option value="" disabled selected={usage.itemId === 0}>Select material...</option>
 								{#each data?.inventoryTableItems || [] as item}
-									{#if item.currentStock > 0 || usage.itemId === item.id}
-										<option value={item.id} selected={usage.itemId === item.id}>
-											{item.name} ({item.currentStock} {item.unit || ''} left)
-										</option>
-									{/if}
+									<option value={item.id} selected={usage.itemId === item.id}>
+										{item.name} ({item.currentStock} {item.unit || ''} left)
+									</option>
 								{/each}
 							</select>
 						</div>
@@ -89,7 +87,6 @@
 								<input
 									type="number"
 									min="1"
-									max={usage.maxStock > 0 ? usage.maxStock : undefined}
 									bind:value={usage.quantity}
 									disabled={usage.itemId === 0}
 									class="block w-full py-1.5 px-2 text-sm text-center focus:outline-none disabled:bg-surface-alt disabled:text-text-muted"

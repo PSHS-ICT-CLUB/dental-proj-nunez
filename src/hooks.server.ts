@@ -5,8 +5,18 @@ import { siteStatus } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { handle as authHandle } from './auth';
 
+// Simple in-memory cache for site status
+let cachedStatus: any = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 5000; // 5 seconds
+
 // Get site status from database using Drizzle
 async function getSiteStatus() {
+  const now = Date.now();
+  if (cachedStatus && now - cacheTimestamp < CACHE_TTL) {
+    return cachedStatus;
+  }
+
   try {
     const [status] = await db.select({
       id: siteStatus.id,
@@ -19,6 +29,9 @@ async function getSiteStatus() {
       errorMessage: siteStatus.errorMessage,
       phishingMode: siteStatus.phishingMode
     }).from(siteStatus).where(eq(siteStatus.id, 1));
+    
+    cachedStatus = status;
+    cacheTimestamp = now;
     return status;
   } catch (error) {
     console.error('Failed to get site status:', error);
@@ -161,8 +174,8 @@ const fakeErrorPage = (errorCode: string, message: string) => `
 <body>
   <div class="error-container">
     <div class="error-code">${errorCode}</div>
-    <div class="error-title">Something went wrong</div>
-    <div class="error-message">${message || 'An unexpected error has occurred. The server encountered a problem and could not complete your request.'}</div>
+    <div class="error-title">System Error</div>
+    <div class="error-message">${message || 'The system encountered an unexpected problem. Please try again or contact your administrator if the issue persists.'}</div>
     <button class="retry-btn" onclick="location.reload()">Try Again</button>
     <div class="contact-info">
       If this problem persists, please contact the administrator.

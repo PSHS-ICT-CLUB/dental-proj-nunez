@@ -605,10 +605,19 @@
 			}
 		}
 	}
+
+	// Status mapping for human-readable labels
+	const statusLabels: Record<string, string> = {
+		'pending': 'Pending',
+		'finished': 'Finished',
+		'to be deliver': 'Ready for Delivery',
+		'to be reviewed': 'Pending Review',
+		'to be reviewed by dentist': 'Reviewed by Dentist'
+	};
 </script>
 
 <div class="mx-auto max-w-6xl px-4 py-8">
-	<div class="mb-6 flex items-center justify-between">
+	<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 		<h1 class="text-2xl font-bold">Financial Summary</h1>
 		<div class="text-sm text-text-muted">
 			Showing data for: <span class="font-semibold text-text-secondary">{new Date(selectedYear, selectedMonth - 1).toLocaleString('default', {
@@ -666,7 +675,7 @@
 
 			<div class="col-span-1 flex flex-col justify-end">
 				<!-- Case Status filter -->
-				<label for="case-status-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Status</label>
+				<label for="case-status-filter" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Case Status</label>
 				<select
 					id="case-status-filter"
 					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -829,7 +838,7 @@
 												class="cursor-pointer px-6 py-3 text-center text-xs font-medium tracking-wider text-text-muted uppercase select-none"
 												onclick={() => toggleIncomeSort('case_status')}
 											>
-												Status / Remarks
+												Status
 												{#if incomeSort.column === 'case_status'}
 													<span>{incomeSort.direction === 'asc' ? ' ▲' : ' ▼'}</span>
 												{/if}
@@ -885,7 +894,7 @@
 														class:bg-yellow-100={transaction.record?.caseStatus === 'pending'}
 														class:text-yellow-800={transaction.record?.caseStatus === 'pending'}
 													>
-														{transaction.record?.caseStatus || 'pending'}
+														{statusLabels[transaction.record?.caseStatus] || transaction.record?.caseStatus || 'pending'}
 													</span>
 												</td>
 											</tr>

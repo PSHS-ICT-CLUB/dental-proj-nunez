@@ -119,7 +119,7 @@
 				{/if}
 
 				<!-- Desktop Primary Navigation -->
-				<div class="hidden items-center gap-1 lg:flex">
+				<div class="hidden items-center gap-1 xl:flex">
 					{#each primaryNavLinks as link}
 						<a
 							href={link.href}
@@ -147,7 +147,7 @@
 			<!-- Right Side Actions -->
 			<div class="flex items-center gap-2">
 				<!-- Desktop Actions -->
-				<div class="hidden items-center gap-2 lg:flex">
+				<div class="hidden items-center gap-2 xl:flex">
 					<!-- Print Button -->
 					<button
 						onclick={() => window.print()}
@@ -295,7 +295,7 @@
 
 				<!-- Mobile Menu Button -->
 				<button
-					class="flex items-center justify-center rounded-lg bg-[#1F3A4D] p-2 text-white transition-colors hover:bg-[#233B48] lg:hidden"
+					class="flex items-center justify-center rounded-lg bg-[#1F3A4D] p-2 text-white transition-colors hover:bg-[#233B48] xl:hidden"
 					aria-label="Toggle menu"
 					onclick={() => (isMenuOpen = !isMenuOpen)}
 				>
@@ -320,7 +320,7 @@
 		<!-- Mobile Navigation -->
 		{#if isMenuOpen}
 			<div
-				class="bg-primary max-h-[calc(100vh-80px)] overflow-y-auto border-t border-white/10 px-4 py-4 text-white shadow-xl lg:hidden"
+				class="bg-primary max-h-[calc(100vh-80px)] overflow-y-auto border-t border-white/10 px-4 py-4 text-white shadow-xl xl:hidden"
 			>
 				<div class="flex flex-col gap-1">
 					<!-- Primary Links -->
@@ -378,6 +378,8 @@
 						</p>
 						{#each settingsLinks as link}
 							<a
+								href={link.href}
+								onclick={() => (isMenuOpen = false)}
 								class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-all hover:bg-white/5 hover:text-white"
 							>
 								{link.label}

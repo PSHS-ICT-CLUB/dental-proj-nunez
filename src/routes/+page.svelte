@@ -124,7 +124,7 @@
 
 	// Pagination states
 	let currentPage = $state(1);
-	let recordsPerPage = $state(10);
+	let recordsPerPage = $state(20);
 
 	// Calculate pagination values
 	let totalPages = $derived(Math.ceil((data.records?.length || 0) / recordsPerPage));
@@ -340,7 +340,15 @@
 	);
 	let selectedDateTotal = $derived(selectedDateDeliveries.length + selectedDateFinishBys.length);
 
-	// Case Status Lists
+	// Status mapping for human-readable labels
+	const statusLabels: Record<string, string> = {
+		'pending': 'Pending',
+		'finished': 'Finished',
+		'to be deliver': 'Ready for Delivery',
+		'to be reviewed': 'Pending Review',
+		'to be reviewed by dentist': 'Reviewed by Dentist'
+	};
+
 	let pendingCases = $derived(data.records?.filter((r) => r.caseStatus === 'pending') || []);
 	let deliverCases = $derived(data.records?.filter((r) => r.caseStatus === 'to be deliver') || []);
 	let finishedCases = $derived(data.records?.filter((r) => r.caseStatus === 'finished') || []);
@@ -587,7 +595,7 @@
 						class="bg-info-light/50 border-border flex items-center justify-between border-b px-3 py-2"
 					>
 						<span class="text-info-dark text-xs font-semibold tracking-wider uppercase"
-							>To Deliver</span
+							>Ready to Deliver</span
 						>
 						<span
 							class="text-info-dark bg-info-light rounded-full px-1.5 py-0.5 text-[10px] font-bold"
@@ -777,7 +785,7 @@
 
 				<div>
 					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
-						>Case No</label
+						>Case Number</label
 					>
 					<input
 						type="text"
@@ -790,7 +798,7 @@
 
 				<div>
 					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
-						>Patient</label
+						>Patient Name</label
 					>
 					<input
 						type="text"
@@ -1187,7 +1195,7 @@
 							</td>
 							<td class="px-3 py-2 text-xs whitespace-nowrap">
 								<span class="flex flex-col gap-0.5">
-									<span class="font-medium capitalize">{record.caseStatus || 'No status'}</span>
+									<span class="font-medium">{statusLabels[record.caseStatus] || record.caseStatus || 'No status'}</span>
 									{#if record.caseNotes}
 										<span
 											class="text-text-muted max-w-[150px] truncate text-[10px]"

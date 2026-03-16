@@ -358,9 +358,6 @@
 		if (item) {
 			inventoryUsages[index].itemId = id;
 			inventoryUsages[index].maxStock = item.currentStock;
-			if (inventoryUsages[index].quantity > item.currentStock) {
-				inventoryUsages[index].quantity = item.currentStock;
-			}
 		}
 	}
 
@@ -424,8 +421,8 @@
 		<!-- Header -->
 		<div class="mb-6 mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div>
-				<h2 class="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Add New Record</h2>
-				<p class="mt-1 text-sm text-text-muted">
+				<h2 class="text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">Add New Record</h2>
+				<p class="mt-2 text-base font-medium text-text-muted">
 					Create a new case record for processing. All required fields are across the dashboard.
 				</p>
 			</div>
@@ -434,8 +431,7 @@
 				<div class="rounded-md bg-error-light p-3 text-sm text-error-dark border border-red-200">
 					{stepError}
 				</div>
-			{/if}
-			{#if form?.success}
+			{:else if form?.success}
 				<div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200 font-medium">
 					{form.success}
 				</div>
@@ -447,14 +443,14 @@
 		</div>
 
 		<!-- Main Grid Layout -->
-		<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 			
 			<!-- Column 1: Client, Case, & Payment Data -->
 			<div class="flex flex-col gap-6">
 				<!-- Client Info Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
 							</svg>
@@ -487,9 +483,9 @@
 				</section>
 				
 				<!-- Case Details Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
 							</svg>
@@ -514,9 +510,9 @@
 				</section>
 
 				<!-- Payment Details Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
 							</svg>
@@ -539,9 +535,9 @@
 			<div class="flex flex-col gap-6">
 
 				<!-- Documentation In Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -563,9 +559,9 @@
 				</section>
 
 				<!-- Materials Usage Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
 							</svg>
@@ -584,9 +580,9 @@
 				</section>
 				
 				<!-- Delivery & Work Details Card -->
-				<section class="rounded-xl border border-border bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
-					<div class="border-b border-surface-alt bg-surface/50 px-4 py-3">
-						<h3 class="font-semibold text-text-primary flex items-center gap-2">
+				<section class="rounded-xl border-2 border-border bg-white shadow-md overflow-hidden flex-1 flex flex-col transition-all hover:shadow-lg">
+					<div class="border-b-2 border-border bg-surface px-4 py-3">
+						<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
 							<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 							</svg>

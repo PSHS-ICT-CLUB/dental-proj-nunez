@@ -50,7 +50,7 @@
 	<div class="relative" bind:this={clinicContainer}>
 		<label
 			for="clinic_name"
-			class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase"
+			class="mb-2 block text-xs font-bold tracking-wider text-text-secondary uppercase"
 		>
 			Clinic
 			<input
@@ -149,7 +149,7 @@
 	<div class="relative" bind:this={doctorContainer}>
 		<label
 			for="doctor_name"
-			class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase"
+			class="mb-2 block text-xs font-bold tracking-wider text-text-secondary uppercase"
 		>
 			Doctor
 			<input
@@ -167,9 +167,7 @@
 				}}
 				required
 				disabled={!selectedClinic}
-				class="block w-full appearance-none rounded-md border {selectedClinic
-					? 'border-border'
-					: 'cursor-not-allowed border-dashed border-border bg-surface-alt'} px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
+				class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-md focus:border-primary focus:ring-primary focus:outline-none sm:text-sm transition-all"
 				placeholder="Doctor name"
 			/>
 		</label>
@@ -255,7 +253,7 @@
 	<div>
 		<label
 			for="patient_name"
-			class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase"
+			class="mb-2 block text-xs font-bold tracking-wider text-text-secondary uppercase"
 		>
 			Patient Name
 			<input
@@ -264,6 +262,7 @@
 				placeholder="Patient name"
 				autocomplete="off"
 				required
+				maxlength="100"
 				class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
 			/>
 		</label>

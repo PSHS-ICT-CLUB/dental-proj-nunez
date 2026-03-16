@@ -297,20 +297,22 @@
 
 					<!-- Case Info -->
 					<div class="flex-1 p-4">
-						<div class="mb-3">
-							<h3 class="text-lg font-semibold text-text-primary">{caseItem.patientName}</h3>
+						<div class="mb-3 min-w-0 flex-1">
+							<h3 class="truncate text-lg font-semibold text-text-primary" title={caseItem.patientName}>
+								{caseItem.patientName}
+							</h3>
 							<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
-								<span class="flex items-center gap-1">
-									<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<span class="flex min-w-0 flex-1 items-center gap-1 truncate" title={caseItem.doctorName}>
+									<svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
 									</svg>
-									{caseItem.doctorName}
+									<span class="truncate">{caseItem.doctorName}</span>
 								</span>
-								<span class="flex items-center gap-1">
-									<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<span class="flex min-w-0 flex-1 items-center gap-1 truncate" title={caseItem.clinicName}>
+									<svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
 									</svg>
-									{caseItem.clinicName}
+									<span class="truncate">{caseItem.clinicName}</span>
 								</span>
 							</div>
 						</div>
@@ -336,7 +338,9 @@
 								<p class="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
 									Notes
 								</p>
-								{caseItem.caseNotes || caseItem.description}
+								<p class="line-clamp-3 overflow-hidden whitespace-normal break-words">
+									{caseItem.caseNotes || caseItem.description}
+								</p>
 							</div>
 						{/if}
 

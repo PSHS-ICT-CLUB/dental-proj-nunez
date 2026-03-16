@@ -203,6 +203,14 @@ export const records = pgTable(
 			'btree',
 			table.createdAt.desc().nullsLast().op('timestamp_ops')
 		),
+		index('idx_records_date_dropoff').using(
+			'btree',
+			table.dateDropoff.asc().nullsLast().op('date_ops')
+		),
+		index('idx_records_finish_by').using(
+			'btree',
+			table.finishBy.asc().nullsLast().op('timestamp_ops')
+		),
 		foreignKey({
 			columns: [table.orderId],
 			foreignColumns: [orders.orderId],

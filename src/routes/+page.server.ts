@@ -276,15 +276,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				.groupBy(records.recordId, records.caseStatus, doctors.doctorName, clinics.clinicName)
 				.orderBy(desc(records.finishBy))
 		]);
-		console.log({
-			records: recordData,
-			caseTypes: caseTypeData,
-			doctors: doctorData,
-			clinics: clinicData,
-			calendarDelivery: calendarDeliveryRecords,
-			calendarFinishBy: calendarFinishByRecords,
-			filters: Object.fromEntries(url.searchParams)
-		});
+		// Removed large recordData log for performance
 		const passwordIsSet = await isPasswordSet();
 
 		return {

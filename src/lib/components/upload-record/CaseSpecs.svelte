@@ -40,7 +40,7 @@
 				onclick={() => (showUpper = !showUpper)}
 				class="flex w-full items-center justify-between bg-surface p-3 transition-colors hover:bg-surface-alt"
 			>
-				<h3 class="text-[10px] font-bold tracking-wider text-text-secondary uppercase">Upper</h3>
+				<h3 class="text-xs font-extrabold tracking-widest text-text-primary uppercase">Upper Case details</h3>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-4 w-4 text-text-muted transition-transform {showUpper ? 'rotate-180' : ''}"
@@ -63,7 +63,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_type_upper"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Case type
 							<select
@@ -83,7 +83,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_number_upper"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Case number
 							<input
@@ -101,13 +101,14 @@
 					<div class="sm:col-span-2">
 						<label
 							for="upper_description"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Description
 							<textarea
 								name="upper_description"
 								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								rows="1"
+								maxlength="1000"
 							></textarea>
 						</label>
 					</div>
@@ -116,7 +117,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="upper_unit"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Unit
 							<input
@@ -135,7 +136,7 @@
 					<!-- Cost -->
 					<div class="sm:col-span-1">
 						<label
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 							for="upper_cost">Cost</label
 						>
 						<div class="relative mt-1">
@@ -190,7 +191,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_type_lower"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Case type
 							<select
@@ -210,7 +211,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="case_number_lower"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Case number
 							<input
@@ -228,13 +229,14 @@
 					<div class="sm:col-span-2">
 						<label
 							for="lower_description"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Description
 							<textarea
 								name="lower_description"
 								class="mt-1 block w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
 								rows="1"
+								maxlength="1000"
 							></textarea>
 						</label>
 					</div>
@@ -243,7 +245,7 @@
 					<div class="sm:col-span-1">
 						<label
 							for="lower_unit"
-							class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+							class="block text-xs font-bold tracking-wider text-text-secondary uppercase"
 						>
 							Unit
 							<input
