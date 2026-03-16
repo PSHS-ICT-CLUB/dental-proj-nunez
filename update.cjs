@@ -2,7 +2,8 @@ const fs = require('fs');
 const filepath = 'c:/Users/Adrian/projects/dental-proj-nunez/src/routes/+page.svelte';
 let content = fs.readFileSync(filepath, 'utf8');
 
-const regexScript = /\/\/ Filter states[\s\S]*?function handleClinicSelect\(clinic: \{ clinicId: number; clinicName: string \}\) \{[\s\S]*?selectedClinicId = clinic\.clinicId;\s*\}/;
+const regexScript =
+	/\/\/ Filter states[\s\S]*?function handleClinicSelect\(clinic: \{ clinicId: number; clinicName: string \}\) \{[\s\S]*?selectedClinicId = clinic\.clinicId;\s*\}/;
 
 const newScript = `// Search states
 	let clinicSearch = $state('');
@@ -19,6 +20,7 @@ const newScript = `// Search states
 	// Add state for selected clinic
 	let showAllClinics = $state(false);
 	let selectedClinicId = $state<number | null>(null);
+	let clinicContainer = $state<HTMLDivElement>();
 
 	// Filter input values
 	let caseTypeId = $state('');
@@ -164,7 +166,7 @@ const newForm = `<!-- Filter Form -->
             </div>
 
 			<div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 items-end">
-                <div class="relative">
+                <div class="relative" bind:this={clinicContainer}>
 					<label class="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
                     <input
                         type="text"
@@ -173,7 +175,12 @@ const newForm = `<!-- Filter Form -->
                         autocomplete="off"
                         class="w-full rounded border border-gray-200 p-1.5 text-xs shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                         onfocus={() => { showAllClinics = true; }}
-                        onblur={() => { setTimeout(() => showAllClinics = false, 200); }}
+                        onblur={(e) => {
+                            const relatedTarget = e.relatedTarget as Node;
+                            if (!relatedTarget || !clinicContainer.contains(relatedTarget)) {
+                                showAllClinics = false;
+                            }
+                        }}
                         oninput={() => { selectedClinicId = null; }}
                     />
                     <input type="hidden" name="clinic_id" value={selectedClinicId || ''} />

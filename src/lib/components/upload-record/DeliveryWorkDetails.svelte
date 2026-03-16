@@ -32,6 +32,8 @@
 		handleTechnicianInputKeydown: (event: KeyboardEvent) => void;
 		assignedTechnicians: string;
 	} = $props();
+
+	let technicianContainer = $state<HTMLDivElement>();
 </script>
 
 <div class="overflow-hidden rounded-md border border-gray-200">
@@ -231,12 +233,17 @@
 						</div>
 					{/if}
 
-					<div class="relative">
+					<div class="relative" bind:this={technicianContainer}>
 						<input
 							type="text"
 							bind:value={technicianInputValue}
 							onfocus={() => (showTechnicianDropdown = true)}
-							onblur={() => setTimeout(() => (showTechnicianDropdown = false), 200)}
+							onblur={(e) => {
+								const relatedTarget = e.relatedTarget as Node;
+								if (!relatedTarget || !technicianContainer.contains(relatedTarget)) {
+									showTechnicianDropdown = false;
+								}
+							}}
 							onkeydown={handleTechnicianInputKeydown}
 							class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Type to search technicians or press Enter to add new"

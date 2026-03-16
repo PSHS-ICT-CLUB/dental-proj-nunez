@@ -40,12 +40,18 @@
 		selectedDoctor: any;
 		selected_jaw: string;
 	} = $props();
+
+	let clinicContainer = $state<HTMLDivElement>();
+	let doctorContainer = $state<HTMLDivElement>();
 </script>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 	<!-- Clinic Selection -->
-	<div class="relative">
-		<label for="clinic_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+	<div class="relative" bind:this={clinicContainer}>
+		<label
+			for="clinic_name"
+			class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase"
+		>
 			Clinic
 			<input
 				type="text"
@@ -56,7 +62,12 @@
 				onfocus={() => {
 					showClinicDropdown = true;
 				}}
-				onblur={() => setTimeout(() => (showClinicDropdown = false), 200)}
+				onblur={(e) => {
+					const relatedTarget = e.relatedTarget as Node;
+					if (!relatedTarget || !clinicContainer.contains(relatedTarget)) {
+						showClinicDropdown = false;
+					}
+				}}
 				required
 				class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 				placeholder="Clinic name"
@@ -73,13 +84,15 @@
 					<li class="role-none relative" id={`clinic-option-${clinic.clinicId}`}>
 						<button
 							type="button"
-							class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
+							class="w-full cursor-pointer border-none bg-transparent py-2 pr-9 pl-3 text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
 							onclick={() => selectClinic(clinic)}
 						>
 							<span class="block truncate">{clinic.clinicName}</span>
 						</button>
 						{#if selectedClinic?.clinicId === clinic.clinicId}
-							<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
+							<span
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+							>
 								<svg
 									class="h-5 w-5"
 									xmlns="http://www.w3.org/2000/svg"
@@ -97,18 +110,33 @@
 						{/if}
 					</li>
 				{/each}
-				{#if clinicInputValue.length > 0 && !allClinics.some((c) => c.clinicName.toLowerCase() === clinicInputValue.trim().toLowerCase())}
+				{#if clinicInputValue.length > 0 && !allClinics.some((c) => c.clinicName.toLowerCase() === clinicInputValue
+								.trim()
+								.toLowerCase())}
 					<li class="role-none relative text-gray-900">
 						<button
 							type="button"
-							class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
+							class="flex w-full cursor-pointer items-center gap-2 border-none bg-transparent py-2 pr-9 pl-3 text-left font-medium hover:bg-indigo-600 hover:text-white"
 							onclick={registerClinic}
 							disabled={isRegisteringClinic}
 						>
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 4v16m8-8H4"
+								/>
 							</svg>
-							{isRegisteringClinic ? 'Registering...' : `Register "${clinicInputValue}" as New Clinic`}
+							{isRegisteringClinic
+								? 'Registering...'
+								: `Register "${clinicInputValue}" as New Clinic`}
 						</button>
 					</li>
 				{/if}
@@ -118,8 +146,11 @@
 	</div>
 
 	<!-- Doctor Selection -->
-	<div class="relative">
-		<label for="doctor_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+	<div class="relative" bind:this={doctorContainer}>
+		<label
+			for="doctor_name"
+			class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase"
+		>
 			Doctor
 			<input
 				type="text"
@@ -128,7 +159,12 @@
 				bind:value={doctorInputValue}
 				oninput={filterDoctors}
 				onfocus={() => (showDoctorDropdown = selectedClinic != null)}
-				onblur={() => setTimeout(() => (showDoctorDropdown = false), 200)}
+				onblur={(e) => {
+					const relatedTarget = e.relatedTarget as Node;
+					if (!relatedTarget || !doctorContainer.contains(relatedTarget)) {
+						showDoctorDropdown = false;
+					}
+				}}
 				required
 				disabled={!selectedClinic}
 				class="block w-full appearance-none rounded-md border {selectedClinic
@@ -148,13 +184,15 @@
 					<li class="role-none relative" id={`doctor-option-${doctor.doctorId}`}>
 						<button
 							type="button"
-							class="w-full cursor-pointer border-none bg-transparent text-left text-gray-900 hover:bg-indigo-600 hover:text-white py-2 pr-9 pl-3"
+							class="w-full cursor-pointer border-none bg-transparent py-2 pr-9 pl-3 text-left text-gray-900 hover:bg-indigo-600 hover:text-white"
 							onclick={() => selectDoctor(doctor)}
 						>
 							<span class="block truncate">{doctor.doctorName}</span>
 						</button>
 						{#if selectedDoctor?.doctorId === doctor.doctorId}
-							<span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-indigo-600">
+							<span
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-indigo-600"
+							>
 								<svg
 									class="h-5 w-5"
 									xmlns="http://www.w3.org/2000/svg"
@@ -172,19 +210,34 @@
 						{/if}
 					</li>
 				{/each}
-				{#if doctorInputValue.length > 0 && !allDoctors.some((d) => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue.trim().toLowerCase())}
+				{#if doctorInputValue.length > 0 && !allDoctors.some((d) => d.clinicId === selectedClinic?.clinicId && d.doctorName.toLowerCase() === doctorInputValue
+									.trim()
+									.toLowerCase())}
 					{#if selectedClinic}
 						<li class="role-none relative text-gray-900">
 							<button
 								type="button"
-								class="w-full text-left bg-transparent border-none cursor-pointer hover:bg-indigo-600 hover:text-white flex items-center gap-2 font-medium py-2 pr-9 pl-3"
+								class="flex w-full cursor-pointer items-center gap-2 border-none bg-transparent py-2 pr-9 pl-3 text-left font-medium hover:bg-indigo-600 hover:text-white"
 								onclick={registerDoctor}
 								disabled={isRegisteringDoctor}
 							>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-4 w-4"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M12 4v16m8-8H4"
+									/>
 								</svg>
-								{isRegisteringDoctor ? 'Registering...' : `Register "${doctorInputValue}" as New Doctor`}
+								{isRegisteringDoctor
+									? 'Registering...'
+									: `Register "${doctorInputValue}" as New Doctor`}
 							</button>
 						</li>
 					{:else}
@@ -200,7 +253,10 @@
 
 	<!-- Patient Name -->
 	<div>
-		<label for="patient_name" class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+		<label
+			for="patient_name"
+			class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase"
+		>
 			Patient Name
 			<input
 				type="text"
@@ -218,21 +274,22 @@
 		<label class="mb-2 block text-[10px] font-bold tracking-wider text-gray-500 uppercase">
 			Jaw Selection
 		</label>
-		<div class="flex rounded-md border border-gray-200 w-full" role="group">
+		<div class="flex w-full rounded-md border border-gray-200" role="group">
 			<button
 				type="button"
-				class="flex-1 rounded-l-md px-2 py-1.5 text-xs font-medium border-r {selected_jaw === 'upper'
-					? 'bg-indigo-600 text-white border-indigo-600'
-					: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'}"
+				class="flex-1 rounded-l-md border-r px-2 py-1.5 text-xs font-medium {selected_jaw ===
+				'upper'
+					? 'border-indigo-600 bg-indigo-600 text-white'
+					: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}"
 				onclick={() => (selected_jaw = 'upper')}
 			>
 				Upper
 			</button>
 			<button
 				type="button"
-				class="flex-1 px-2 py-1.5 text-xs font-medium border-r {selected_jaw === 'U/L'
-					? 'bg-indigo-600 text-white border-indigo-600'
-					: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'}"
+				class="flex-1 border-r px-2 py-1.5 text-xs font-medium {selected_jaw === 'U/L'
+					? 'border-indigo-600 bg-indigo-600 text-white'
+					: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}"
 				onclick={() => (selected_jaw = 'U/L')}
 			>
 				U / L
@@ -240,8 +297,8 @@
 			<button
 				type="button"
 				class="flex-1 rounded-r-md px-2 py-1.5 text-xs font-medium {selected_jaw === 'lower'
-					? 'bg-indigo-600 text-white border-indigo-600'
-					: 'bg-white text-gray-700 hover:bg-gray-50 border-transparent'}"
+					? 'border-indigo-600 bg-indigo-600 text-white'
+					: 'border-transparent bg-white text-gray-700 hover:bg-gray-50'}"
 				onclick={() => (selected_jaw = 'lower')}
 			>
 				Lower

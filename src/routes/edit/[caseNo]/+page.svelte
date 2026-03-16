@@ -14,8 +14,12 @@
 	// Simplify state management - remove dropdown visibility states
 	let selectedDoctor = $state(data.record.doctorId);
 	let selectedClinic = $state(data.record.clinicId);
-	let availableDoctors = $state((allDoctors as any).filter((d: any) => d.clinicId === record.clinicId));
-	let filteredDoctors = $state((allDoctors as any).filter((d: any) => d.clinicId === record.clinicId));
+	let availableDoctors = $state(
+		(allDoctors as any).filter((d: any) => d.clinicId === record.clinicId)
+	);
+	let filteredDoctors = $state(
+		(allDoctors as any).filter((d: any) => d.clinicId === record.clinicId)
+	);
 
 	// Additional state for searchable dropdowns
 	let doctorInputValue = $state(record.doctorName);
@@ -23,6 +27,8 @@
 	let showDoctorDropdown = $state(false);
 	let showClinicDropdown = $state(false);
 	let filteredClinics = $state(allClinics);
+	let clinicContainer = $state<HTMLDivElement>();
+	let doctorContainer = $state<HTMLDivElement>();
 
 	// State for form fields to preserve user input
 	let patientName = $state(record.patientName || '');
@@ -136,7 +142,9 @@
 		doctorInputValue = '';
 
 		// Update available doctors for this clinic
-		availableDoctors = (allDoctors as any).filter((doctor: any) => doctor.clinicId === clinic.clinicId);
+		availableDoctors = (allDoctors as any).filter(
+			(doctor: any) => doctor.clinicId === clinic.clinicId
+		);
 		filteredDoctors = availableDoctors;
 
 		// Auto-select if only one doctor
@@ -262,10 +270,16 @@
 			const original = originalItems[index];
 			if (original) {
 				if (item.caseTypeId !== original.caseTypeId) {
-					const oldCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === original.caseTypeId);
-					const oldCaseTypeText = oldCaseType ? `${oldCaseType.caseTypeName} (${oldCaseType.caseTypeAbbrv})` : '';
+					const oldCaseType = data.caseTypes.find(
+						(ct: any) => ct.caseTypeId === original.caseTypeId
+					);
+					const oldCaseTypeText = oldCaseType
+						? `${oldCaseType.caseTypeName} (${oldCaseType.caseTypeAbbrv})`
+						: '';
 					const newCaseType = data.caseTypes.find((ct: any) => ct.caseTypeId === item.caseTypeId);
-					const newCaseTypeText = newCaseType ? `${newCaseType.caseTypeName} (${newCaseType.caseTypeAbbrv})` : '';
+					const newCaseTypeText = newCaseType
+						? `${newCaseType.caseTypeName} (${newCaseType.caseTypeAbbrv})`
+						: '';
 					changesList.push({
 						field: `Item ${index + 1} Case Type`,
 						oldValue: oldCaseTypeText,
@@ -384,12 +398,12 @@
 
 		<div class="grid gap-6 md:grid-cols-2">
 			<!-- RECORD DETAILS SECTION -->
-			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2">
+			<div class="mb-2 border-b border-gray-200 pb-4 md:col-span-2">
 				<h2 class="text-lg font-semibold text-gray-900">Record Details</h2>
 			</div>
 
 			<!-- Clinic Name with Dropdown -->
-			<div class="relative">
+			<div class="relative" bind:this={clinicContainer}>
 				<label for="clinic_name" class="mb-2 block text-sm font-bold text-gray-700">
 					Clinic
 					<input
@@ -401,7 +415,12 @@
 						onfocus={() => {
 							showClinicDropdown = true;
 						}}
-						onblur={() => setTimeout(() => (showClinicDropdown = false), 200)}
+						onblur={(e) => {
+							const relatedTarget = e.relatedTarget as Node;
+							if (!relatedTarget || !clinicContainer.contains(relatedTarget)) {
+								showClinicDropdown = false;
+							}
+						}}
 						required
 						class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
 						placeholder="Clinic name"
@@ -433,7 +452,7 @@
 			</div>
 
 			<!-- Doctor Name with Dropdown -->
-			<div class="relative">
+			<div class="relative" bind:this={doctorContainer}>
 				<label for="doctor_name" class="mb-2 block text-sm font-bold text-gray-700">
 					Doctor
 					<input
@@ -443,7 +462,12 @@
 						bind:value={doctorInputValue}
 						oninput={filterDoctors}
 						onfocus={() => (showDoctorDropdown = selectedClinic != null)}
-						onblur={() => setTimeout(() => (showDoctorDropdown = false), 200)}
+						onblur={(e) => {
+							const relatedTarget = e.relatedTarget as Node;
+							if (!relatedTarget || !doctorContainer.contains(relatedTarget)) {
+								showDoctorDropdown = false;
+							}
+						}}
 						required
 						disabled={!selectedClinic}
 						class="block w-full appearance-none rounded-md border {selectedClinic
@@ -494,17 +518,31 @@
 			</div>
 
 			<!-- Timeline Redirect -->
-			<div class="md:col-span-2 rounded bg-indigo-50 p-4 border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+			<div
+				class="flex flex-col items-center justify-between gap-4 rounded border border-indigo-100 bg-indigo-50 p-4 sm:flex-row md:col-span-2"
+			>
 				<div>
 					<h3 class="text-sm font-bold text-indigo-900">Manage Workflow Status</h3>
-					<p class="text-xs text-indigo-700 mt-1">Status changes are now managed in the dedicated workflow timeline to enforce proper staging logic.</p>
+					<p class="mt-1 text-xs text-indigo-700">
+						Status changes are now managed in the dedicated workflow timeline to enforce proper
+						staging logic.
+					</p>
 				</div>
 				<a
 					href={`/status/${record.recordId}`}
-					class="whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus-visible:outline flex items-center gap-2"
+					class="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm hover:bg-indigo-500 focus-visible:outline"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-4 w-4"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+							clip-rule="evenodd"
+						/>
 					</svg>
 					Go to Timeline
 				</a>
@@ -524,39 +562,44 @@
 			</div>
 
 			<!-- ORDER ITEMS SECTION -->
-			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2 mt-4">
+			<div class="mt-4 mb-2 border-b border-gray-200 pb-4 md:col-span-2">
 				<h2 class="text-lg font-semibold text-gray-900">Order Items</h2>
 			</div>
-			
-			<div class="md:col-span-2 space-y-4">
+
+			<div class="space-y-4 md:col-span-2">
 				{#each orderItems as item, i}
 					<div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
 						<div class="mb-4 flex items-center justify-between">
-							<h4 class="text-sm font-bold text-indigo-600 tracking-wide uppercase">
+							<h4 class="text-sm font-bold tracking-wide text-indigo-600 uppercase">
 								{item.upOrDown === 'up' ? 'Upper Case' : 'Lower Case'}
 							</h4>
 							<div class="text-sm font-medium text-gray-500">
-								Subtotal: <span class="text-gray-900 font-bold ml-1">₱{((parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1)).toFixed(2)}</span>
+								Subtotal: <span class="ml-1 font-bold text-gray-900"
+									>₱{((parseFloat(item.itemCost) || 0) * (item.itemQuantity || 1)).toFixed(2)}</span
+								>
 							</div>
 						</div>
 
 						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
 							<!-- Case Type & No -->
-							<div class="sm:col-span-1 lg:col-span-4 flex gap-2">
+							<div class="flex gap-2 sm:col-span-1 lg:col-span-4">
 								<div class="flex-1">
-									<label class="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
+									<label class="mb-1 block text-xs font-semibold text-gray-600">Case Type</label>
 									<select
-										class="block w-full rounded-md border border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+										class="block w-full rounded-md border border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 										value={item.caseTypeId}
-										onchange={(e) => updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
+										onchange={(e) =>
+											updateOrderItem(i, 'caseTypeId', parseInt(e.currentTarget.value))}
 									>
 										{#each data.caseTypes as caseType}
-											<option value={caseType.caseTypeId}>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option>
+											<option value={caseType.caseTypeId}
+												>{caseType.caseTypeName} ({caseType.caseTypeAbbrv})</option
+											>
 										{/each}
 									</select>
 								</div>
 								<div class="w-16 shrink-0">
-									<label class="block text-xs font-semibold text-gray-600 mb-1">No.</label>
+									<label class="mb-1 block text-xs font-semibold text-gray-600">No.</label>
 									<input
 										type="text"
 										value={item.caseNo}
@@ -569,40 +612,45 @@
 
 							<!-- Description -->
 							<div class="sm:col-span-1 lg:col-span-4">
-								<label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+								<label class="mb-1 block text-xs font-semibold text-gray-600">Description</label>
 								<input
 									type="text"
 									value={item.orderDescription || ''}
 									oninput={(e) => updateOrderItem(i, 'orderDescription', e.currentTarget.value)}
-									class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+									class="block w-full rounded-md border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 									placeholder="Tooth details, shade, etc."
 								/>
 							</div>
 
 							<!-- Units & Cost -->
-							<div class="sm:col-span-2 lg:col-span-4 flex gap-3">
+							<div class="flex gap-3 sm:col-span-2 lg:col-span-4">
 								<div class="w-20 shrink-0">
-									<label class="block text-xs font-semibold text-gray-600 mb-1">Units</label>
+									<label class="mb-1 block text-xs font-semibold text-gray-600">Units</label>
 									<input
 										type="number"
 										value={item.itemQuantity}
 										min="1"
-										oninput={(e) => updateOrderItem(i, 'itemQuantity', parseInt(e.currentTarget.value))}
-										class="block w-full rounded-md border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+										oninput={(e) =>
+											updateOrderItem(i, 'itemQuantity', parseInt(e.currentTarget.value))}
+										class="block w-full rounded-md border-gray-300 bg-white py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 									/>
 								</div>
 								<div class="flex-1">
-									<label class="block text-xs font-semibold text-gray-600 mb-1">Cost per Unit</label>
+									<label class="mb-1 block text-xs font-semibold text-gray-600">Cost per Unit</label
+									>
 									<div class="relative">
-										<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+										<div
+											class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+										>
 											<span class="text-gray-500 sm:text-sm">₱</span>
 										</div>
 										<input
 											type="number"
 											value={item.itemCost}
 											step="0.01"
-											oninput={(e) => updateOrderItem(i, 'itemCost', parseFloat(e.currentTarget.value))}
-											class="block w-full rounded-md border-gray-300 py-2 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+											oninput={(e) =>
+												updateOrderItem(i, 'itemCost', parseFloat(e.currentTarget.value))}
+											class="block w-full rounded-md border-gray-300 bg-white py-2 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 										/>
 									</div>
 								</div>
@@ -612,19 +660,22 @@
 				{/each}
 				<div class="flex justify-end pt-2">
 					<div class="text-base font-medium text-gray-700">
-						Total Order Amount: <span class="text-xl font-bold tracking-tight text-gray-900 ml-2">₱{total_amount?.toFixed(2) || '0.00'}</span>
+						Total Order Amount: <span class="ml-2 text-xl font-bold tracking-tight text-gray-900"
+							>₱{total_amount?.toFixed(2) || '0.00'}</span
+						>
 					</div>
 				</div>
 			</div>
 
 			<!-- DELIVERY & SCHEDULING SECTION -->
-			<div class="md:col-span-2 border-b border-gray-200 pb-4 mb-2 mt-4">
+			<div class="mt-4 mb-2 border-b border-gray-200 pb-4 md:col-span-2">
 				<h2 class="text-lg font-semibold text-gray-900">Delivery & Scheduling</h2>
 			</div>
 
 			<!-- Delivery Details -->
 			<div class="md:col-span-2">
-				<label class="mb-3 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label>
+				<label class="mb-3 block text-sm font-bold text-gray-700">Delivery Details (Optional)</label
+				>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<div>
 						<label for="delivery_courier" class="block text-xs font-medium text-gray-600">

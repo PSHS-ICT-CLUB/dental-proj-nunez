@@ -29,6 +29,7 @@
 	);
 
 	let selectedOption = $derived(options.find((opt) => opt.value === value) || null);
+	let container = $state<HTMLDivElement>();
 
 	function selectOption(option: Option) {
 		value = option.value;
@@ -52,12 +53,12 @@
 		searchTerm = '';
 	}
 
-	function handleBlur() {
-		// Delay to allow click events to fire
-		setTimeout(() => {
+	function handleBlur(e: FocusEvent) {
+		const relatedTarget = e.relatedTarget as Node;
+		if (!relatedTarget || !container.contains(relatedTarget)) {
 			isOpen = false;
 			searchTerm = '';
-		}, 200);
+		}
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
@@ -72,7 +73,7 @@
 	{#if label}
 		<label for={id} class="text-sm text-gray-600">{label}</label>
 	{/if}
-	<div class="relative">
+	<div class="relative" bind:this={container}>
 		<input
 			type="text"
 			{id}

@@ -21,6 +21,7 @@
 	// Add state for selected clinic
 	let showAllClinics = $state(false);
 	let selectedClinicId = $state<number | null>(null);
+	let clinicContainer = $state<HTMLDivElement>();
 
 	// Filter input values
 	let caseTypeId = $state('');
@@ -709,7 +710,7 @@
 			</div>
 
 			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
-				<div class="relative">
+				<div class="relative" bind:this={clinicContainer}>
 					<label class="mb-1 block text-[10px] font-medium tracking-wider text-gray-500 uppercase"
 						>Clinic</label
 					>
@@ -722,8 +723,11 @@
 						onfocus={() => {
 							showAllClinics = true;
 						}}
-						onblur={() => {
-							setTimeout(() => (showAllClinics = false), 200);
+						onblur={(e) => {
+							const relatedTarget = e.relatedTarget as Node;
+							if (!relatedTarget || !clinicContainer.contains(relatedTarget)) {
+								showAllClinics = false;
+							}
 						}}
 						oninput={() => {
 							selectedClinicId = null;
