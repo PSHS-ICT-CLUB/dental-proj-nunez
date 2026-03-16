@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { signOut } from '@auth/sveltekit/client';
 	import '../app.css';
-	import NotificationBanner from '$lib/components/NotificationBanner.svelte';
+	
 	let { children, data } = $props();
 
 	let isMenuOpen = $state(false);
@@ -86,7 +86,7 @@
 	<title>{getPageTitle(page.url.pathname)} | Nunez Dental Records System</title>
 </svelte:head>
 
-<NotificationBanner />
+
 
 {#if isNavigating}
 	<div class="fixed top-0 left-0 z-[60] h-1 w-full overflow-hidden bg-transparent">

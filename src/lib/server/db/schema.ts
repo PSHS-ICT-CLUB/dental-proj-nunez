@@ -249,48 +249,7 @@ export const history = pgTable(
 	]
 );
 
-// Discord Bot & Site Management Tables
-export const siteNotifications = pgTable('site_notifications', {
-	id: serial('id').primaryKey().notNull(),
-	message: text('message').notNull(),
-	type: varchar('type', { length: 50 }).default('info').notNull(), // info, warning, error, maintenance
-	isActive: boolean('is_active').default(true).notNull(), // Native TypeScript boolean type
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
-		sql`CURRENT_TIMESTAMP`
-	),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
-		sql`CURRENT_TIMESTAMP`
-	)
-});
 
-export const siteStatus = pgTable('site_status', {
-	id: serial('id').primaryKey().notNull(),
-	isLocked: boolean('is_locked').default(false).notNull(), // Native TypeScript boolean type
-	lockTitle: varchar('lock_title', { length: 255 }).default('Site Under Maintenance'),
-	lockMessage: text('lock_message'),
-	lockHtml: text('lock_html'),
-	lockedAt: timestamp('locked_at', { withTimezone: true, mode: 'string' }),
-	lockedBy: varchar('locked_by', { length: 255 }),
-	fakeError: boolean('fake_error').default(false).notNull(), // Native TypeScript boolean type
-	errorCode: varchar('error_code', { length: 10 }).default('500'),
-	errorMessage: text('error_message'),
-	phishingMode: boolean('phishing_mode').default(false).notNull(), // Native TypeScript boolean type
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
-		sql`CURRENT_TIMESTAMP`
-	)
-});
-
-export const appConfig = pgTable('app_config', {
-	key: varchar('key', { length: 255 }).primaryKey().notNull(),
-	value: text('value').notNull(),
-	description: text('description'),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
-		sql`CURRENT_TIMESTAMP`
-	),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
-		sql`CURRENT_TIMESTAMP`
-	)
-});
 
 export const inventorySuppliers = pgTable('inventory_suppliers', {
 	id: serial('id').primaryKey().notNull(),
