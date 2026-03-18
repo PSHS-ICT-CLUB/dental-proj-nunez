@@ -21,8 +21,10 @@
 		}
 	});
 
-	function handleUserSelect() {
-		const user = data.users.find((u: any) => u.id.toString() === selectedUserId);
+	function handleUserSelect(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		const userId = target.value;
+		const user = data.users.find((u: any) => u.id.toString() === userId);
 		if (user) {
 			name = user.name;
 			email = user.email;
