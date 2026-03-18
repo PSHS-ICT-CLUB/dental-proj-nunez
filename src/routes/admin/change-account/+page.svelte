@@ -2,18 +2,29 @@
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 
-	let { data, form }: { data: any; form: ActionData } = $props();
+	let { data, form }: { data: any; form: any } = $props();
 	let loading = $state(false);
-	let selectedUserId = $state('');
+	let selectedUserId = $state(form?.userId ?? '');
 
-	let name = $state('');
-	let email = $state('');
-	let role = $state('');
+	let name = $state(form?.name ?? '');
+	let email = $state(form?.email ?? '');
+	let role = $state(form?.role ?? '');
 	let password = $state('');
 	let confirmPassword = $state('');
 
-	function handleUserSelect() {
-		const user = data.users.find((u: any) => u.id.toString() === selectedUserId);
+	$effect(() => {
+		if (form && !form.success) {
+			if (form.userId) selectedUserId = form.userId;
+			if (form.name) name = form.name;
+			if (form.email) email = form.email;
+			if (form.role) role = form.role;
+		}
+	});
+
+	function handleUserSelect(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		const userId = target.value;
+		const user = data.users.find((u: any) => u.id.toString() === userId);
 		if (user) {
 			name = user.name;
 			email = user.email;
@@ -53,9 +64,17 @@
 		action="?/update"
 		use:enhance={() => {
 			loading = true;
-			return async ({ update }) => {
+			return async ({ result, update }) => {
 				await update();
 				loading = false;
+				if (result.type === 'success') {
+					selectedUserId = '';
+					name = '';
+					email = '';
+					role = '';
+					password = '';
+					confirmPassword = '';
+				}
 			};
 		}}
 		class="space-y-6"
