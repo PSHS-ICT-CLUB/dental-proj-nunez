@@ -111,5 +111,44 @@ export const actions: Actions = {
 			console.error('Failed to update account:', e);
 			return fail(500, { message: 'An error occurred while updating the account.' });
 		}
+	},
+	delete: async (event) => {
+		const session = await event.locals.auth();
+
+		if (!session?.user || session.user.role !== 'admin') {
+			return fail(403, { message: 'Forbidden: Admin access required.' });
+		}
+
+		const formData = await event.request.formData();
+		const userId = formData.get('userId') as string;
+
+		if (!userId) {
+			return fail(400, { message: 'User ID is required.' });
+		}
+
+		const userIdNum = parseInt(userId);
+		if (isNaN(userIdNum)) {
+			return fail(400, { message: 'Invalid user selected.' });
+		}
+
+		// Prevent deleting yourself
+		if (userIdNum.toString() === session.user.id?.toString()) {
+			return fail(400, { message: 'You cannot delete your own account.' });
+		}
+
+		// Check if user exists
+		const [targetUser] = await db.select().from(users).where(eq(users.id, userIdNum));
+		if (!targetUser) {
+			return fail(400, { message: 'User not found.' });
+		}
+
+		try {
+			await db.delete(users).where(eq(users.id, userIdNum));
+
+			return { success: true, message: 'Account deleted successfully!' };
+		} catch (e) {
+			console.error('Failed to delete account:', e);
+			return fail(500, { message: 'An error occurred while deleting the account. The user may be tied to existing records.' });
+		}
 	}
 };
