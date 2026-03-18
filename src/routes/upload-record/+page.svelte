@@ -205,8 +205,8 @@
 				allClinics.push(newClinic);
 				filteredClinics = allClinics;
 				selectClinic(newClinic);
-			} else if (result.type === 'failure' && result.data?.error) {
-				stepError = result.data.error.toString();
+			} else if (result.type === 'failure' && (result.data as any)?.error) {
+				stepError = (result.data as any).error.toString();
 			} else {
 				stepError = 'Failed to register clinic';
 			}
@@ -248,8 +248,8 @@
 				allDoctors.push(newDoctor);
 				filteredDoctors = allDoctors.filter((d) => d.clinicId === selectedClinic!.clinicId);
 				selectDoctor(newDoctor);
-			} else if (result.type === 'failure' && result.data?.error) {
-				stepError = result.data.error.toString();
+			} else if (result.type === 'failure' && (result.data as any)?.error) {
+				stepError = (result.data as any).error.toString();
 			} else {
 				stepError = 'Failed to register doctor';
 			}
@@ -407,9 +407,9 @@
 			return async ({ update, result }) => {
 				if (
 					result.type === 'failure' ||
-					(result.type === 'success' && result.data?.success === false)
+					(result.type === 'success' && (result.data as any)?.success === false)
 				) {
-					stepError = result.data?.error || 'An error occurred during submission.';
+					stepError = ((result as any).data?.error as string) || 'An error occurred during submission.';
 					await update({ reset: false });
 				} else {
 					await update();

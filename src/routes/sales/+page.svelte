@@ -610,9 +610,9 @@
 	const statusLabels: Record<string, string> = {
 		'pending': 'Pending',
 		'finished': 'Finished',
-		'to be deliver': 'Ready for Delivery',
-		'to be reviewed': 'Pending Review',
-		'to be reviewed by dentist': 'Reviewed by Dentist'
+		'to be deliver': 'To Be Delivered',
+		'to be reviewed': 'To Be Reviewed',
+		'to be reviewed by dentist': 'To Be Reviewed by Dentist'
 	};
 </script>
 

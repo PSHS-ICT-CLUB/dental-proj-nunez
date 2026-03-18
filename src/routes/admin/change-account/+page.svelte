@@ -5,27 +5,27 @@
 	let { data, form }: { data: any; form: ActionData } = $props();
 	let loading = $state(false);
 	let selectedUserId = $state('');
-	let selectedUser = $derived.by(() => {
-		if (!selectedUserId) return null;
-		return data.users.find((u) => u.id.toString() === selectedUserId);
-	});
+
 	let name = $state('');
 	let email = $state('');
 	let role = $state('');
 	let password = $state('');
 	let confirmPassword = $state('');
 
-	$effect(() => {
-		if (selectedUser) {
-			name = selectedUser.name;
-			email = selectedUser.email;
-			role = selectedUser.role;
+	function handleUserSelect() {
+		const user = data.users.find((u: any) => u.id.toString() === selectedUserId);
+		if (user) {
+			name = user.name;
+			email = user.email;
+			role = user.role;
 		} else {
 			name = '';
 			email = '';
 			role = '';
 		}
-	});
+		password = '';
+		confirmPassword = '';
+	}
 </script>
 
 <svelte:head>
@@ -66,6 +66,7 @@
 				id="userId"
 				name="userId"
 				bind:value={selectedUserId}
+				onchange={handleUserSelect}
 				required
 				class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-[#164154] focus:ring-[#164154] sm:text-sm"
 			>
@@ -78,7 +79,7 @@
 			</select>
 		</div>
 
-		{#if selectedUser}
+		{#if selectedUserId}
 			<div>
 				<label for="name" class="block text-sm font-medium text-text-secondary">Full Name</label>
 				<input
@@ -157,13 +158,26 @@
 				</div>
 			</div>
 
-			<div class="pt-4">
+			<div class="flex gap-4 pt-4">
 				<button
 					type="submit"
 					disabled={loading}
 					class="flex w-full justify-center rounded-md border border-transparent bg-[#164154] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1f3a4d] focus:ring-2 focus:ring-[#164154] focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 				>
 					{loading ? 'Updating...' : 'Update Account'}
+				</button>
+				<button
+					type="submit"
+					formaction="?/delete"
+					disabled={loading}
+					onclick={(e) => {
+						if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+							e.preventDefault();
+						}
+					}}
+					class="flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+				>
+					{loading ? 'Processing...' : 'Delete Account'}
 				</button>
 			</div>
 		{:else}

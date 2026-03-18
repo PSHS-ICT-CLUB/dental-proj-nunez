@@ -344,9 +344,9 @@
 	const statusLabels: Record<string, string> = {
 		'pending': 'Pending',
 		'finished': 'Finished',
-		'to be deliver': 'Ready for Delivery',
-		'to be reviewed': 'Pending Review',
-		'to be reviewed by dentist': 'Reviewed by Dentist'
+		'to be deliver': 'To Be Delivered',
+		'to be reviewed': 'To Be Reviewed',
+		'to be reviewed by dentist': 'To Be Reviewed by Dentist'
 	};
 
 	let pendingCases = $derived(data.records?.filter((r) => r.caseStatus === 'pending') || []);
@@ -838,7 +838,7 @@
 						<option value="finished">Finished</option>
 						<option value="to be reviewed">To Be Reviewed</option>
 						<option value="to be deliver">To Be Delivered</option>
-						<option value="to be reviewed by dentist">Reviewed by Dentist</option>
+						<option value="to be reviewed by dentist">To Be Reviewed by Dentist</option>
 					</select>
 				</div>
 			</div>
