@@ -8,6 +8,7 @@
 	import ClientInfo from '$lib/components/upload-record/ClientInfo.svelte';
 	import CaseSpecs from '$lib/components/upload-record/CaseSpecs.svelte';
 	import DeliveryWorkDetails from '$lib/components/upload-record/DeliveryWorkDetails.svelte';
+	import DentalChart from '$lib/components/upload-record/DentalChart.svelte';
 	import { deserialize, enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
@@ -611,6 +612,24 @@
 				</section>
 			</div>
 		</div>
+
+		<!-- Dental Chart Card (full width) -->
+		<section class="mt-6 rounded-xl border-2 border-border bg-white shadow-md transition-all hover:shadow-lg">
+			<div class="border-b-2 border-border bg-surface px-4 py-3">
+				<h3 class="font-bold text-text-primary flex items-center gap-2 uppercase tracking-wide text-sm">
+					<svg class="w-4 h-4 text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+					</svg>
+					Dental Chart
+					<span class="ml-2 text-xs font-normal normal-case text-text-muted">
+						Click a tooth to mark it · Right-click to edit surfaces
+					</span>
+				</h3>
+			</div>
+			<div class="p-4">
+				<DentalChart />
+			</div>
+		</section>
 
 		<!-- Sticky Footer Bar -->
 		<div class="fixed bottom-0 left-0 right-0 border-t border-border bg-white/90 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md z-40">

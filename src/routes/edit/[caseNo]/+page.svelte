@@ -3,6 +3,7 @@
 	import type { PageData, PageProps } from './$types';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import DentalChart from '$lib/components/upload-record/DentalChart.svelte';
 
 	let { data, form }: PageProps = $props();
 
@@ -751,6 +752,15 @@
 				<p class="mt-1 text-xs text-text-muted">
 					You can assign multiple technicians by separating names with commas.
 				</p>
+			</div>
+
+			<!-- DENTAL CHART SECTION -->
+			<div class="mt-4 mb-2 border-b border-border pb-4 md:col-span-2">
+				<h2 class="text-lg font-semibold text-text-primary">Dental Chart</h2>
+				<p class="text-xs text-text-muted mt-1">Click a tooth to cycle its state. Right-click to select and edit surfaces.</p>
+			</div>
+			<div class="md:col-span-2">
+				<DentalChart initialState={record.dentalChart ?? null} />
 			</div>
 
 			<!-- Submit Button -->

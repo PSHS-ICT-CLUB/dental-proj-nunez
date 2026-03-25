@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import DentalChart from '$lib/components/upload-record/DentalChart.svelte';
 
 	let { data }: PageProps = $props();
 	const { record, orderItems, history } = data;
@@ -215,6 +216,18 @@
 					{record.caseStatus || 'No remarks provided.'}
 				</div>
 			</div>
+			<!-- Dental Chart (readonly) -->
+			{#if record.dentalChart}
+				<div class="border-t border-surface-alt pt-6 mt-4">
+					<h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+						</svg>
+						Dental Chart
+					</h3>
+					<DentalChart initialState={record.dentalChart} readonly={true} />
+				</div>
+			{/if}
 			<!-- Inventory Usage Section -->
 			{#if data.inventoryUsages && data.inventoryUsages.length > 0}
 			<div class="border-t border-surface-alt pt-6">

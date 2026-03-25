@@ -32,6 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 					deliveryNotes: records.deliveryNotes,
 					finishBy: records.finishBy,
 					assignedTechnicians: records.assignedTechnicians,
+					dentalChart: records.dentalChart,
 					doctorName: doctors.doctorName,
 					clinicId: doctors.clinicId,
 					clinicName: clinics.clinicName,
@@ -157,7 +158,8 @@ export const actions = {
 						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee.toString(),
 						deliveryNotes: deliveryNotes || null,
 						finishBy: finishBy || null,
-						assignedTechnicians: assignedTechnicians || null
+						assignedTechnicians: assignedTechnicians || null,
+						dentalChart: formData.get('dental_chart')?.toString() || null
 					} as any)
 					.where(eq(records.recordId, recordIdNum));
 

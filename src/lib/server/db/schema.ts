@@ -179,6 +179,7 @@ export const records = pgTable(
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
 			sql`CURRENT_TIMESTAMP`
 		),
+		dentalChart: text('dental_chart'),
 		createdBy: integer('created_by').references(() => users.id),
 		updatedBy: integer('updated_by').references(() => users.id)
 	},

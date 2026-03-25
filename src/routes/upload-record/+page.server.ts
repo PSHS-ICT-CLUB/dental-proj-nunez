@@ -217,6 +217,7 @@ export const actions = {
 						assignedTechnicians: data.get('assigned_technicians')?.toString() || null,
 						dateIn: data.get('date') as string,
 						timeIn: data.get('time') as string,
+						dentalChart: data.get('dental_chart')?.toString() || null,
 						createdBy: userId
 					} as typeof records.$inferInsert)
 					.returning({ id: records.recordId });

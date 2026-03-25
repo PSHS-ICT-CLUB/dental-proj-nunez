@@ -23,6 +23,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				deliveryNotes: records.deliveryNotes,
 				finishBy: records.finishBy,
 				assignedTechnicians: records.assignedTechnicians,
+				dentalChart: records.dentalChart,
 				createdAt: records.createdAt,
 				doctorId: doctors.doctorId,
 				doctorName: doctors.doctorName,
