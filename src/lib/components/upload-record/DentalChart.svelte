@@ -89,11 +89,11 @@
 		<span class="li"><span class="lx"></span> Missing</span>
 		<span class="lsep">|</span>
 		<span class="lsum">{affectedCount} affected · {missingCount} missing</span>
-		{#if !readonly}<span class="ltip">Click · Right-click surfaces</span>{/if}
+		{#if !readonly}<span class="ltip">Click to mark · Right-click for surfaces</span>{/if}
 	</div>
 
 	<!-- Upper jaw -->
-	<div class="jlabel">Upper (Maxillary)</div>
+	<div class="jlabel">Upper Jaw (Maxillary)</div>
 	<div class="jrow">
 		<div class="tgroup">
 			{#each upperRow as n}
@@ -117,8 +117,8 @@
 		<!-- Surface panel upper -->
 		<div class="spanel">
 			<div class="stitle">
-				{#if selectedUpperTooth}#{selectedUpperTooth}
-				{:else if !readonly}<span class="shint">Right-click<br/>for surfaces</span>{/if}
+				{#if selectedUpperTooth}Tooth {selectedUpperTooth} Surfaces
+				{:else if !readonly}<span class="shint">Right-click a<br/>tooth to edit<br/>surfaces</span>{/if}
 			</div>
 			{#if selectedUpperTooth}
 				<div class="sgrid">
@@ -133,16 +133,16 @@
 						>{#if active}<span class="sl">{surfaceLabels[i]}</span>{/if}</button>
 					{/each}
 				</div>
-				<div class="smini">B=Buccal M=Mesial<br/>O=Occlusal D=Distal L=Lingual</div>
+				<div class="smini">B=Buccal O=Occlusal<br/>M=Mesial D=Distal L=Lingual</div>
 			{/if}
 		</div>
 	</div>
 
 	<!-- Divider -->
-	<div class="jdiv"><span class="jdlbl">↑ Upper · Lower ↓</span></div>
+	<div class="jdiv"><span class="jdlbl">↑ Upper &nbsp;&nbsp; Lower ↓</span></div>
 
 	<!-- Lower jaw -->
-	<div class="jlabel">Lower (Mandibular)</div>
+	<div class="jlabel">Lower Jaw (Mandibular)</div>
 	<div class="jrow">
 		<div class="tgroup">
 			{#each lowerRow as n}
@@ -166,8 +166,8 @@
 		<!-- Surface panel lower -->
 		<div class="spanel">
 			<div class="stitle">
-				{#if selectedLowerTooth}#{selectedLowerTooth}
-				{:else if !readonly}<span class="shint">Right-click<br/>for surfaces</span>{/if}
+				{#if selectedLowerTooth}Tooth {selectedLowerTooth} Surfaces
+				{:else if !readonly}<span class="shint">Right-click a<br/>tooth to edit<br/>surfaces</span>{/if}
 			</div>
 			{#if selectedLowerTooth}
 				<div class="sgrid">
@@ -182,7 +182,7 @@
 						>{#if active}<span class="sl">{surfaceLabels[i]}</span>{/if}</button>
 					{/each}
 				</div>
-				<div class="smini">B=Buccal M=Mesial<br/>O=Occlusal D=Distal L=Lingual</div>
+				<div class="smini">B=Buccal O=Occlusal<br/>M=Mesial D=Distal L=Lingual</div>
 			{/if}
 		</div>
 	</div>
@@ -192,29 +192,27 @@
 	.dcw { width: 100%; overflow-x: auto; }
 
 	/* Legend */
-	.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.68rem; color: #6b7280; }
-	.li { display: flex; align-items: center; gap: 3px; font-weight: 500; }
-	.ld { display: inline-block; width: 9px; height: 9px; border-radius: 2px; border: 1px solid #d1d5db; }
+	.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 0.75rem; color: #6b7280; }
+	.li { display: flex; align-items: center; gap: 5px; font-weight: 500; }
+	.ld { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1.5px solid #d1d5db; }
 	.hd { background: #f9fafb; }
 	.ad { background: #3b82f6; border-color: #2563eb; }
-	.lx { display: inline-flex; align-items: center; justify-content: center; width: 11px; height: 11px; color: #ef4444; font-size: 0.6rem; font-weight: 700; }
+	.lx { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; color: #ef4444; font-size: 0.7rem; font-weight: 700; }
 	.lx::before { content: '✕'; }
 	.lsep { color: #d1d5db; }
 	.lsum { font-weight: 600; color: #374151; }
-	.ltip { margin-left: auto; font-style: italic; color: #9ca3af; font-size: 0.6rem; }
+	.ltip { margin-left: auto; font-style: italic; color: #9ca3af; }
 
 	/* Jaw labels */
-	.jlabel { font-size: 0.55rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+	.jlabel { font-size: 0.7rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 
-	/* Row */
-	.jrow { display: flex; align-items: flex-start; gap: 6px; min-width: 420px; }
-	.tgroup { display: flex; gap: 2px; flex: 1; }
+	/* Row — original sizes */
+	.jrow { display: flex; align-items: flex-start; gap: 10px; min-width: 600px; }
+	.tgroup { display: flex; gap: 4px; flex: 1; }
+	.tslot { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 28px; }
 
-	/* Tooth slot */
-	.tslot { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; min-width: 18px; }
-
-	/* Tooth button */
-	.tb { width: 100%; aspect-ratio: 1; min-width: 18px; min-height: 18px; border-radius: 3px; border: 1px solid #d1d5db; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.1s, border-color 0.1s; padding: 0; }
+	/* Tooth button — original sizes */
+	.tb { width: 100%; aspect-ratio: 1; min-width: 26px; min-height: 26px; border-radius: 4px; border: 1.5px solid #d1d5db; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; position: relative; padding: 0; }
 	.tro { cursor: default; }
 	.tooth-healthy { background: #f9fafb; border-color: #d1d5db; }
 	.tooth-healthy:not(.tro):hover { background: #eff6ff; border-color: #93c5fd; }
@@ -222,29 +220,31 @@
 	.tooth-affected:not(.tro):hover { background: #2563eb; }
 	.tooth-missing { background: #fef2f2; border-color: #fca5a5; }
 	.tooth-missing:not(.tro):hover { background: #fee2e2; }
-	.tsel { outline: 2px solid #f59e0b; outline-offset: 1px; }
-	.tni { font-size: 0.48rem; font-weight: 600; color: #374151; line-height: 1; }
+	.tsel { outline: 2px solid #f59e0b; outline-offset: 2px; }
+
+	/* Text */
+	.tni { font-size: 0.6rem; font-weight: 600; color: #374151; line-height: 1; }
 	.tooth-affected .tni { color: #fff; }
-	.xm { font-size: 0.55rem; font-weight: 700; color: #ef4444; }
-	.tnl { font-size: 0.46rem; color: #9ca3af; font-weight: 500; line-height: 1; }
-	.msp { height: 0.56rem; display: block; }
+	.xm { font-size: 0.75rem; font-weight: 700; color: #ef4444; line-height: 1; }
+	.tnl { font-size: 0.6rem; color: #6b7280; font-weight: 500; text-align: center; line-height: 1; }
+	.msp { height: 0.75rem; display: block; }
 
 	/* Divider */
-	.jdiv { display: flex; align-items: center; margin: 4px 0 3px; gap: 6px; }
+	.jdiv { display: flex; align-items: center; justify-content: center; margin: 10px 0 8px; gap: 8px; }
 	.jdiv::before, .jdiv::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
-	.jdlbl { font-size: 0.5rem; color: #9ca3af; font-weight: 600; white-space: nowrap; }
+	.jdlbl { font-size: 0.65rem; color: #9ca3af; font-weight: 600; white-space: nowrap; letter-spacing: 0.03em; }
 
-	/* Surface panel */
-	.spanel { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; width: 60px; }
-	.stitle { font-size: 0.52rem; font-weight: 600; color: #374151; text-align: center; line-height: 1.2; min-height: 1.1rem; display: flex; align-items: center; justify-content: center; }
-	.shint { font-size: 0.46rem; color: #9ca3af; font-style: italic; font-weight: 400; text-align: center; }
-	.sgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 55px; }
-	.sc { aspect-ratio: 1; border-radius: 2px; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: background 0.1s; }
+	/* Surface panel — original sizes */
+	.spanel { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; width: 90px; }
+	.stitle { font-size: 0.65rem; font-weight: 600; color: #374151; text-align: center; line-height: 1.3; min-height: 2.5rem; display: flex; align-items: center; justify-content: center; }
+	.shint { font-size: 0.6rem; color: #9ca3af; text-align: center; font-style: italic; font-weight: 400; }
+	.sgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 80px; }
+	.sc { aspect-ratio: 1; border-radius: 3px; border: 1.5px solid transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s ease; padding: 0; }
 	.sa { background: #f3f4f6; border-color: #d1d5db; }
 	.sa:not(:disabled):hover { background: #dbeafe; border-color: #93c5fd; }
 	.ss { background: #3b82f6 !important; border-color: #2563eb !important; }
 	.si { background: transparent; border-color: transparent; cursor: default; }
-	.sl { font-size: 0.46rem; font-weight: 700; color: #374151; line-height: 1; }
+	.sl { font-size: 0.6rem; font-weight: 700; color: #374151; line-height: 1; }
 	.ss .sl { color: #fff; }
-	.smini { font-size: 0.43rem; color: #9ca3af; text-align: center; line-height: 1.3; }
+	.smini { font-size: 0.55rem; color: #9ca3af; text-align: center; line-height: 1.4; }
 </style>
