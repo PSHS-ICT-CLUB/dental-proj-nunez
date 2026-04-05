@@ -160,6 +160,8 @@ export const records = pgTable(
 		timeDropoff: time('time_dropoff', { withTimezone: true }),
 		doctorId: integer('doctor_id').notNull(),
 		patientName: varchar('patient_name', { length: 255 }).notNull(),
+		patientContact: varchar('patient_contact', { length: 50 }),
+		patientSex: varchar('patient_sex', { length: 20 }),
 		description: text('description'),
 		// DEPRECATED: Use case_notes for actual case notes and caseStatus for workflow status
 		remarksDeprecated: text('remarks_deprecated'),

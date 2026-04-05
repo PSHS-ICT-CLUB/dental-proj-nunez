@@ -207,6 +207,8 @@ export const actions = {
 						timePickup: data.get('time') as string,
 						doctorId: doctorId,
 						patientName: patientName,
+						patientContact: data.get('patient_contact')?.toString() || null,
+						patientSex: data.get('patient_sex')?.toString() || null,
 						caseStatus: 'pending',
 						deliveryCourier: data.get('delivery_courier')?.toString() || null,
 						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee,

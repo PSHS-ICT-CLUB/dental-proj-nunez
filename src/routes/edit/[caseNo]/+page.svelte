@@ -33,6 +33,8 @@
 
 	// State for form fields to preserve user input
 	let patientName = $state(record.patientName || '');
+	let patientContact = $state(record.patientContact || '');
+	let patientSex = $state(record.patientSex || '');
 	let caseNotes = $state(record.caseNotes || '');
 
 	// Delivery & scheduling fields
@@ -192,6 +194,26 @@
 				field: 'Patient Name',
 				oldValue: originalPatientName,
 				newValue: patientName
+			});
+		}
+
+		// Check contact change
+		const originalPatientContact = record.patientContact || '';
+		if (patientContact !== originalPatientContact) {
+			changesList.push({
+				field: 'Patient Contact',
+				oldValue: originalPatientContact,
+				newValue: patientContact
+			});
+		}
+
+		// Check sex change
+		const originalPatientSex = record.patientSex || '';
+		if (patientSex !== originalPatientSex) {
+			changesList.push({
+				field: 'Patient Sex',
+				oldValue: originalPatientSex,
+				newValue: patientSex
 			});
 		}
 
@@ -502,20 +524,46 @@
 				<input type="hidden" name="doctorId" value={selectedDoctor} />
 			</div>
 
-			<!-- Patient Name -->
-			<div>
-				<label for="patient_name" class="mb-2 block text-sm font-bold text-text-secondary">
-					Patient Name
-					<input
-						type="text"
-						id="patient_name"
-						name="patientName"
-						bind:value={patientName}
-						required
-						class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
-						placeholder="Patient name"
-					/>
-				</label>
+			<!-- Patient Details -->
+			<div class="md:col-span-2">
+				<div class="grid grid-cols-[1fr_1fr_80px] gap-2">
+					<label for="patient_name" class="block text-sm font-bold text-text-secondary">
+						Patient Name
+						<input
+							type="text"
+							id="patient_name"
+							name="patientName"
+							bind:value={patientName}
+							required
+							class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
+							placeholder="Patient name"
+						/>
+					</label>
+					<label for="patient_contact" class="block text-sm font-bold text-text-secondary">
+						Contact No.
+						<input
+							type="text"
+							id="patient_contact"
+							name="patientContact"
+							bind:value={patientContact}
+							class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
+							placeholder="Contact Number"
+						/>
+					</label>
+					<label for="patient_sex" class="block text-sm font-bold text-text-secondary">
+						Sex
+						<select
+							id="patient_sex"
+							name="patientSex"
+							bind:value={patientSex}
+							class="mt-1 block w-full rounded-md border border-border px-2 py-2 shadow-sm focus:border-primary focus:ring-primary text-sm"
+						>
+							<option value="">-</option>
+							<option value="M">M</option>
+							<option value="F">F</option>
+						</select>
+					</label>
+				</div>
 			</div>
 
 			<!-- Timeline Redirect -->

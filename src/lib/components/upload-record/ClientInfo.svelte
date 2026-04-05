@@ -211,22 +211,23 @@
 		<input type="hidden" name="doctor_name" value={selectedDoctor?.doctorId} />
 	</div>
 
-	<!-- Patient Name -->
-	<div>
-		<label
-			for="patient_name"
-			class="mb-2 block text-xs font-bold tracking-wider text-text-secondary uppercase"
-		>
+	<!-- Patient Details -->
+	<div class="sm:col-span-2 grid grid-cols-[1fr_1fr_80px] sm:grid-cols-[1fr_1fr_100px] gap-2 sm:gap-4">
+		<label for="patient_name" class="block text-xs font-bold tracking-wider text-text-secondary uppercase">
 			Patient Name
-			<input
-				type="text"
-				name="patient_name"
-				placeholder="Patient name"
-				autocomplete="off"
-				required
-				maxlength="100"
-				class="block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm"
-			/>
+			<input type="text" id="patient_name" name="patient_name" placeholder="Patient name" autocomplete="off" required maxlength="100" class="mt-2 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm" />
+		</label>
+		<label for="patient_contact" class="block text-xs font-bold tracking-wider text-text-secondary uppercase">
+			Contact No.
+			<input type="text" id="patient_contact" name="patient_contact" placeholder="Contact number" maxlength="50" class="mt-2 block w-full appearance-none rounded-md border border-border px-3 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm" />
+		</label>
+		<label for="patient_sex" class="block text-xs font-bold tracking-wider text-text-secondary uppercase">
+			Sex
+			<select id="patient_sex" name="patient_sex" class="mt-2 block w-full appearance-none rounded-md border border-border px-2 py-2 text-text-primary shadow-sm focus:border-primary focus:ring-primary focus:outline-none sm:text-sm">
+				<option value="">-</option>
+				<option value="M">M</option>
+				<option value="F">F</option>
+			</select>
 		</label>
 	</div>
 

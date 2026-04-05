@@ -29,7 +29,7 @@
 			<img src="/logo.jpg" alt="Nunez Dental Laboratory Logo" />
 			<div class="company-details">
 				<h2 class="font-bold">NUNEZ DENTAL LABORATORY</h2>
-				<p>Camia St., Panghulo, 3021 Obando, Bulacan, Philippines</p>
+				<p>2nd Floor, Green Apple Building, No. 18 L. Bustamante corner Benin Street, Grace Park East, Caloocan City</p>
 				<p>Cell no. 0916-753-5300</p>
 				<p>Non-VAT Reg TIN: 341-948-594-00000</p>
 			</div>

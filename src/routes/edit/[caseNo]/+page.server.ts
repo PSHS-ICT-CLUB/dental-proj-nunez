@@ -23,6 +23,8 @@ export const load: PageServerLoad = async ({ params }) => {
 					timeDropoff: records.timeDropoff,
 					doctorId: records.doctorId,
 					patientName: records.patientName,
+					patientContact: records.patientContact,
+					patientSex: records.patientSex,
 					description: records.description,
 					caseStatus: records.caseStatus,
 					caseNotes: records.caseNotes,
@@ -102,6 +104,8 @@ export const actions = {
 		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
 		const patientName = formData.get('patientName')?.toString() ?? '';
+		const patientContact = formData.get('patientContact')?.toString() ?? '';
+		const patientSex = formData.get('patientSex')?.toString() ?? '';
 		const caseNotes = formData.get('caseNotes')?.toString() ?? '';
 
 		const deliveryCourier = formData.get('deliveryCourier')?.toString() ?? '';
@@ -153,6 +157,8 @@ export const actions = {
 					.set({
 						doctorId,
 						patientName,
+						patientContact: patientContact || null,
+						patientSex: patientSex || null,
 						caseNotes,
 						deliveryCourier: deliveryCourier || null,
 						deliveryFee: isNaN(deliveryFee) ? null : deliveryFee.toString(),
