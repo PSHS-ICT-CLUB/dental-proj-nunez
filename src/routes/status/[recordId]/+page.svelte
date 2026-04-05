@@ -133,8 +133,12 @@
 	<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 		<div>
 			<h1 class="text-2xl font-bold text-text-primary">Case Timeline #{record.recordId}</h1>
-			<p class="text-sm text-text-muted mt-1">
-				Patient: <span class="font-medium text-text-secondary">{record.patientName}</span> • 
+			<p class="text-sm text-text-muted mt-1 leading-relaxed">
+				Patient: <span class="font-medium text-text-secondary">{record.patientName}</span>
+				{#if record.patientSex} • Sex: <span class="font-medium text-text-secondary">{record.patientSex}</span>{/if}
+				{#if record.patientContact} • Contact: <span class="font-medium text-text-secondary">{record.patientContact}</span>{/if}
+				<br class="sm:hidden" />
+				<span class="hidden sm:inline"> • </span>
 				Clinic: <span class="font-medium text-text-secondary">{record.clinicName}</span>
 			</p>
 		</div>

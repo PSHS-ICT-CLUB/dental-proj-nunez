@@ -16,6 +16,8 @@ export const load: PageServerLoad = async ({ params }) => {
 				dateDropoff: records.dateDropoff,
 				timeDropoff: records.timeDropoff,
 				patientName: records.patientName,
+				patientContact: records.patientContact,
+				patientSex: records.patientSex,
 				description: records.description,
 				caseStatus: records.caseStatus,
 				deliveryCourier: records.deliveryCourier,

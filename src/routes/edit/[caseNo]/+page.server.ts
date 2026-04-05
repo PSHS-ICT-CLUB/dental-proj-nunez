@@ -104,8 +104,8 @@ export const actions = {
 		const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
 
 		const patientName = formData.get('patientName')?.toString() ?? '';
-		const patientContact = formData.get('patientContact')?.toString() ?? '';
-		const patientSex = formData.get('patientSex')?.toString() ?? '';
+		const patientContact = formData.get('patientContact')?.toString().trim() ?? '';
+		const patientSex = formData.get('patientSex')?.toString().trim() ?? '';
 		const caseNotes = formData.get('caseNotes')?.toString() ?? '';
 
 		const deliveryCourier = formData.get('deliveryCourier')?.toString() ?? '';

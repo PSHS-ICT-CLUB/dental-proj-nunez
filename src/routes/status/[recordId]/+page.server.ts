@@ -19,6 +19,8 @@ export const load: PageServerLoad = async (event) => {
       .select({
         recordId: records.recordId,
         patientName: records.patientName,
+        patientContact: records.patientContact,
+        patientSex: records.patientSex,
         caseStatus: records.caseStatus,
         createdAt: records.createdAt,
         doctorName: doctors.doctorName,

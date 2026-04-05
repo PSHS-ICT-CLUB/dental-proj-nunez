@@ -75,6 +75,14 @@
 						<p class="text-base text-text-primary">{record.patientName}</p>
 					</div>
 					<div>
+						<p class="text-[11px] font-medium text-text-muted uppercase tracking-wide">Sex</p>
+						<p class="text-base text-text-primary">{record.patientSex || '-'}</p>
+					</div>
+					<div>
+						<p class="text-[11px] font-medium text-text-muted uppercase tracking-wide">Contact No.</p>
+						<p class="text-base text-text-primary">{record.patientContact || '-'}</p>
+					</div>
+					<div>
 						<p class="text-[11px] font-medium text-text-muted uppercase tracking-wide">Clinic</p>
 						<p class="text-base text-text-primary">{record.clinicName}</p>
 					</div>
