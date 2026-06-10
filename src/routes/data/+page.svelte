@@ -1,19 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import Chart from 'chart.js/auto';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let dailyChartCanvas: HTMLCanvasElement;
-	let clinicChartCanvas: HTMLCanvasElement;
-	let caseTypeChartCanvas: HTMLCanvasElement;
-	let paymentChartCanvas: HTMLCanvasElement;
-	let dailyChart: Chart<'line', number[], string>;
-	let clinicChart: Chart<'bar', number[], string>;
-	let caseTypeChart: Chart<'bar', number[], string>;
-	let paymentChart: Chart<'doughnut', number[], string>;
+	let dailyChartCanvas: HTMLCanvasElement | undefined = $state();
+	let clinicChartCanvas: HTMLCanvasElement | undefined = $state();
+	let caseTypeChartCanvas: HTMLCanvasElement | undefined = $state();
+	let paymentChartCanvas: HTMLCanvasElement | undefined = $state();
 
     const colors = [
         { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.2)' }, // Indigo
@@ -91,292 +86,222 @@
 		return dateString || getMonthStart(new Date());
 	};
 
-	$effect(() => {
-		if (dailyChart) {
-			dailyChart.data.labels = data.chartData.labels;
-			dailyChart.data.datasets = data.chartData.datasets.map((dataset, i) => {
-                const color = colors[i % colors.length];
-                return {
-                    label: dataset.label,
-                    data: dataset.data,
-                    backgroundColor: color.bg,
-                    borderColor: color.border,
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: color.border,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                };
-            });
-			dailyChart.update();
-		}
-	});
+	// --- Unified reactive chart effects ---
+	// Each $effect reads data directly so Svelte tracks the dependency.
+	// The chart is destroyed and recreated on every data change to avoid
+	// Chart.js stale-state issues with partial updates.
 
 	$effect(() => {
-		if (caseTypeChart) {
-			caseTypeChart.data.labels = Object.keys(data.summary.caseTypeTotals);
-			caseTypeChart.data.datasets[0].data = Object.values(data.summary.caseTypeTotals) as number[];
-			caseTypeChart.update();
-		}
-	});
+		if (!dailyChartCanvas) return;
 
-	$effect(() => {
-		if (paymentChart) {
-			paymentChart.data.datasets[0].data = [data.summary.paymentStatusData.paid, data.summary.paymentStatusData.unpaid];
-			paymentChart.update();
-		}
-	});
+		// Read all reactive data first so Svelte tracks them as dependencies
+		const labels = data.chartData.labels;
+		const datasets = data.chartData.datasets.map((dataset, i) => {
+			const color = colors[i % colors.length];
+			return {
+				label: dataset.label,
+				data: dataset.data,
+				backgroundColor: color.bg,
+				borderColor: color.border,
+				borderWidth: 2,
+				tension: 0.4,
+				fill: true,
+				pointBackgroundColor: color.border,
+				pointRadius: 4,
+				pointHoverRadius: 6
+			};
+		});
 
-	$effect(() => {
-		if (clinicChart) {
-			clinicChart.data.labels = Object.keys(data.clinicChartData);
-			clinicChart.data.datasets[0].data = Object.values(data.clinicChartData) as number[];
-			clinicChart.update();
-		}
-	});
+		Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+		Chart.defaults.color = '#64748b';
 
-	onMount(() => {
-        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
-        Chart.defaults.color = '#64748b';
-
-		dailyChart = new Chart(dailyChartCanvas, {
+		const chart = new Chart(dailyChartCanvas, {
 			type: 'line',
-			data: {
-				labels: data.chartData.labels,
-				datasets: data.chartData.datasets.map((dataset, i) => {
-                    const color = colors[i % colors.length];
-                    return {
-                        label: dataset.label,
-                        data: dataset.data,
-                        backgroundColor: color.bg,
-                        borderColor: color.border,
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: color.border,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    };
-                })
-			},
+			data: { labels, datasets },
 			options: {
 				responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+				maintainAspectRatio: false,
+				interaction: { mode: 'index', intersect: false },
 				plugins: {
 					tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#0f172a',
-                        bodyColor: '#334155',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        padding: 12,
-                        boxPadding: 4,
-                        usePointStyle: true,
+						backgroundColor: 'rgba(255, 255, 255, 0.95)',
+						titleColor: '#0f172a',
+						bodyColor: '#334155',
+						borderColor: '#e2e8f0',
+						borderWidth: 1,
+						padding: 12,
+						boxPadding: 4,
+						usePointStyle: true,
 						callbacks: {
 							label: (context) => `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`
 						}
 					},
-					title: {
-						display: false
-					},
-                    legend: {
-                        position: 'top',
-                        align: 'end',
-                        labels: {
-                            usePointStyle: true,
-                            boxWidth: 8,
-                            padding: 20
-                        }
-                    }
+					title: { display: false },
+					legend: {
+						position: 'top',
+						align: 'end',
+						labels: { usePointStyle: true, boxWidth: 8, padding: 20 }
+					}
 				},
 				scales: {
 					y: {
 						beginAtZero: true,
-                        grid: {
-                            color: '#f1f5f9',
-                        },
-                        border: { display: false },
-						ticks: {
-							callback: (value) => formatCurrency(value as number),
-                            padding: 8
-						}
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { callback: (value) => formatCurrency(value as number), padding: 8 }
 					},
 					x: {
 						type: 'category',
-                        grid: {
-                            display: false
-                        },
-                        border: { display: false },
-						ticks: {
-							maxRotation: 45,
-							minRotation: 45,
-                            padding: 8
-						}
+						grid: { display: false },
+						border: { display: false },
+						ticks: { maxRotation: 45, minRotation: 45, padding: 8 }
 					}
 				}
 			}
 		});
 
-		clinicChart = new Chart(clinicChartCanvas, {
-			type: 'bar',
-			data: {
-				labels: Object.keys(data.clinicChartData),
-				datasets: [
-					{
-						label: 'Total Revenue',
-						data: Object.values(data.clinicChartData) as number[],
-						backgroundColor: colors.map(c => c.bg),
-						borderColor: colors.map(c => c.border),
-                        borderWidth: 1,
-                        borderRadius: 6,
-                        barPercentage: 0.6
-					}
-				]
-			},
-			options: {
-				responsive: true,
-                maintainAspectRatio: false,
-				plugins: {
-					tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#0f172a',
-                        bodyColor: '#334155',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        padding: 12,
-						callbacks: {
-							label: (context) => formatCurrency(context.parsed.y)
-						}
-					},
-                    legend: {
-                        display: false
-                    }
-				},
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
-                        border: { display: false },
-                        ticks: {
-                            callback: (value) => formatCurrency(value as number)
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        border: { display: false }
-                    }
-                }
-			}
-		});
+		return () => chart.destroy();
+	});
 
-		caseTypeChart = new Chart(caseTypeChartCanvas, {
+	$effect(() => {
+		if (!clinicChartCanvas) return;
+
+		const labels = Object.keys(data.clinicChartData);
+		const values = Object.values(data.clinicChartData) as number[];
+
+		const chart = new Chart(clinicChartCanvas, {
 			type: 'bar',
 			data: {
-				labels: Object.keys(data.summary.caseTypeTotals),
-				datasets: [
-					{
-						label: 'Units',
-						data: Object.values(data.summary.caseTypeTotals) as number[],
-						backgroundColor: colors.map(c => c.bg),
-						borderColor: colors.map(c => c.border),
-						borderWidth: 1,
-                        borderRadius: 6,
-                        barPercentage: 0.7
-					}
-				]
+				labels,
+				datasets: [{
+					label: 'Total Revenue',
+					data: values,
+					backgroundColor: colors.map(c => c.bg),
+					borderColor: colors.map(c => c.border),
+					borderWidth: 1,
+					borderRadius: 6,
+					barPercentage: 0.6
+				}]
 			},
 			options: {
 				responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y', // Makes it a horizontal bar chart for better readability
+				maintainAspectRatio: false,
 				plugins: {
-					title: { display: false },
 					tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#0f172a',
-                        bodyColor: '#334155',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        padding: 12,
-						callbacks: {
-							label: (context) => `${context.parsed.x} units`
-						}
+						backgroundColor: 'rgba(255, 255, 255, 0.95)',
+						titleColor: '#0f172a',
+						bodyColor: '#334155',
+						borderColor: '#e2e8f0',
+						borderWidth: 1,
+						padding: 12,
+						callbacks: { label: (context) => formatCurrency(context.parsed.y) }
 					},
-                    legend: { display: false }
+					legend: { display: false }
 				},
 				scales: {
 					y: {
-                        grid: { display: false },
-                        border: { display: false }
+						beginAtZero: true,
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { callback: (value) => formatCurrency(value as number) }
 					},
-                    x: {
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
-                        border: { display: false }
-                    }
+					x: { grid: { display: false }, border: { display: false } }
 				}
 			}
 		});
 
-		paymentChart = new Chart(paymentChartCanvas, {
-			type: 'doughnut',
+		return () => chart.destroy();
+	});
+
+	$effect(() => {
+		if (!caseTypeChartCanvas) return;
+
+		const labels = Object.keys(data.summary.caseTypeTotals);
+		const values = Object.values(data.summary.caseTypeTotals) as number[];
+
+		const chart = new Chart(caseTypeChartCanvas, {
+			type: 'bar',
 			data: {
-				labels: ['Paid', 'Unpaid'],
-				datasets: [
-					{
-						data: [data.summary.paymentStatusData.paid, data.summary.paymentStatusData.unpaid],
-						backgroundColor: [
-							'rgba(16, 185, 129, 0.8)', // Emerald
-							'rgba(244, 63, 94, 0.8)'   // Rose
-						],
-						borderColor: [
-							'#ffffff',
-							'#ffffff'
-						],
-						borderWidth: 2,
-                        hoverOffset: 4
-					}
-				]
+				labels,
+				datasets: [{
+					label: 'Units',
+					data: values,
+					backgroundColor: colors.map(c => c.bg),
+					borderColor: colors.map(c => c.border),
+					borderWidth: 1,
+					borderRadius: 6,
+					barPercentage: 0.7
+				}]
 			},
 			options: {
 				responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
+				maintainAspectRatio: false,
+				indexAxis: 'y',
 				plugins: {
 					title: { display: false },
 					tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#0f172a',
-                        bodyColor: '#334155',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        padding: 12,
-						callbacks: {
-							label: (context) => ` ${formatCurrency(context.parsed)}`
-						}
+						backgroundColor: 'rgba(255, 255, 255, 0.95)',
+						titleColor: '#0f172a',
+						bodyColor: '#334155',
+						borderColor: '#e2e8f0',
+						borderWidth: 1,
+						padding: 12,
+						callbacks: { label: (context) => `${context.parsed.x} units` }
 					},
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
+					legend: { display: false }
+				},
+				scales: {
+					y: { grid: { display: false }, border: { display: false } },
+					x: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } }
 				}
 			}
 		});
 
-		return () => {
-			dailyChart.destroy();
-			clinicChart.destroy();
-			caseTypeChart.destroy();
-			paymentChart.destroy();
-		};
+		return () => chart.destroy();
+	});
+
+	$effect(() => {
+		if (!paymentChartCanvas) return;
+
+		const paid = data.summary.paymentStatusData.paid;
+		const unpaid = data.summary.paymentStatusData.unpaid;
+
+		const chart = new Chart(paymentChartCanvas, {
+			type: 'doughnut',
+			data: {
+				labels: ['Paid', 'Unpaid'],
+				datasets: [{
+					data: [paid, unpaid],
+					backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(244, 63, 94, 0.8)'],
+					borderColor: ['#ffffff', '#ffffff'],
+					borderWidth: 2,
+					hoverOffset: 4
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				cutout: '70%',
+				plugins: {
+					title: { display: false },
+					tooltip: {
+						backgroundColor: 'rgba(255, 255, 255, 0.95)',
+						titleColor: '#0f172a',
+						bodyColor: '#334155',
+						borderColor: '#e2e8f0',
+						borderWidth: 1,
+						padding: 12,
+						callbacks: { label: (context) => ` ${formatCurrency(context.parsed)}` }
+					},
+					legend: {
+						position: 'bottom',
+						labels: { usePointStyle: true, padding: 20 }
+					}
+				}
+			}
+		});
+
+		return () => chart.destroy();
 	});
 
 	function updateFilters(updates: Record<string, string>) {
