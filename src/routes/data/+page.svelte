@@ -128,6 +128,14 @@
 		}
 	});
 
+	$effect(() => {
+		if (clinicChart) {
+			clinicChart.data.labels = Object.keys(data.clinicChartData);
+			clinicChart.data.datasets[0].data = Object.values(data.clinicChartData) as number[];
+			clinicChart.update();
+		}
+	});
+
 	onMount(() => {
         Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
         Chart.defaults.color = '#64748b';
@@ -374,9 +382,13 @@
 	function updateFilters(updates: Record<string, string>) {
 		const url = new URL(window.location.href);
 		Object.entries(updates).forEach(([key, value]) => {
-			url.searchParams.set(key, value);
+			if (value) {
+				url.searchParams.set(key, value);
+			} else {
+				url.searchParams.delete(key);
+			}
 		});
-		goto(url.toString(), { replaceState: true });
+		goto(url.toString(), { replaceState: true, invalidateAll: true });
 	}
 </script>
 
