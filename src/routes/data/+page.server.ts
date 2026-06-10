@@ -145,9 +145,35 @@ export const load: PageServerLoad = async ({ url }) => {
 		totals: sortedChartLabels.map(label => chartDataRaw[label].total || 0)
 	};
 
-	// --- Revenue Trend: calculate % change vs previous period ---
+	// --- Collection Rate per period (for trend line chart) ---
+	// Build a parallel per-period paid/total map from ordersWithItems
+	const collRateRaw: Record<string, { paid: number; total: number }> = {};
+	for (const order of ordersWithItems) {
+		const date = new Date(order.orderDate);
+		let key = format(date, 'yyyy-MM-dd');
+		if (period === 'month') key = format(date, 'MMMM yyyy');
+		else if (period === 'year') key = format(date, 'yyyy');
+		if (!collRateRaw[key]) collRateRaw[key] = { paid: 0, total: 0 };
+		collRateRaw[key].total += Number(order.orderTotal || 0);
+		collRateRaw[key].paid  += Number(order.paidAmount || 0);
+	}
+	const collectionRateTrend = {
+		labels: sortedChartLabels,
+		rates:  sortedChartLabels.map(l => {
+			const { paid, total } = collRateRaw[l] ?? { paid: 0, total: 0 };
+			return total > 0 ? Math.round((paid / total) * 1000) / 10 : 0;
+		})
+	};
+
+	// --- Avg Order Value per clinic ---
+	const avgOrderValuePerClinic = clinicBreakdown.map(c => ({
+		name: c.name,
+		avg:  c.cases > 0 ? c.total / c.cases : 0
+	})).sort((a, b) => b.avg - a.avg);
+
+	// --- Revenue Trend: % change vs previous period ---
 	const midpoint = Math.floor(sortedChartLabels.length / 2);
-	const firstHalfTotal = sortedChartLabels.slice(0, midpoint).reduce((s, l) => s + (chartDataRaw[l]?.total || 0), 0);
+	const firstHalfTotal  = sortedChartLabels.slice(0, midpoint).reduce((s, l) => s + (chartDataRaw[l]?.total || 0), 0);
 	const secondHalfTotal = sortedChartLabels.slice(midpoint).reduce((s, l) => s + (chartDataRaw[l]?.total || 0), 0);
 	const revenueTrendPct = firstHalfTotal > 0
 		? ((secondHalfTotal - firstHalfTotal) / firstHalfTotal) * 100
@@ -173,6 +199,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		dateRange: { start: startDate, end: endDate },
 		chartData,
 		clinicChartData: sortedClinicChartData,
-		clinicBreakdown
+		clinicBreakdown,
+		collectionRateTrend,
+		avgOrderValuePerClinic
 	} as const;
 };

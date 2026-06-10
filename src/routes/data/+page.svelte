@@ -9,6 +9,9 @@
 	let clinicChartCanvas: HTMLCanvasElement | undefined = $state();
 	let caseTypeChartCanvas: HTMLCanvasElement | undefined = $state();
 	let paymentChartCanvas: HTMLCanvasElement | undefined = $state();
+	let collRateTrendCanvas: HTMLCanvasElement | undefined = $state();
+	let caseTypeRevenueCanvas: HTMLCanvasElement | undefined = $state();
+	let avgOrderValueCanvas: HTMLCanvasElement | undefined = $state();
 
 	let showClinicDropdown = $state(false);
 
@@ -105,73 +108,86 @@
 	});
 
 	// ── Charts ────────────────────────────────────────────────
-	// Revenue Flow — stacked area
+	// Revenue Flow — stacked vertical bar (per clinic, per period)
 	$effect(() => {
 		if (!revenueChartCanvas) return;
 
 		Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 		Chart.defaults.color = '#64748b';
 
-		const labels  = data.chartData.labels;
-		const totals  = data.chartData.totals;
+		const labels   = data.chartData.labels;
+		const totals   = data.chartData.totals;
+		const numDS    = data.chartData.datasets.length;
+
 		const datasets = data.chartData.datasets.map((ds, i) => {
-			const c = palette[i % palette.length];
+			const c       = palette[i % palette.length];
+			const isTop   = i === numDS - 1; // only the topmost segment gets rounded top
 			return {
 				label: ds.label,
 				data: ds.data,
-				backgroundColor: c.soft,
-				borderColor: c.solid,
-				borderWidth: 2.5,
-				tension: 0.4,
-				fill: true,
-				pointBackgroundColor: '#fff',
-				pointBorderColor: c.solid,
-				pointBorderWidth: 2,
-				pointRadius: labels.length > 20 ? 2 : 4,
-				pointHoverRadius: 6,
-				pointHoverBackgroundColor: c.solid,
+				backgroundColor: c.mid,
+				borderColor: 'transparent',
+				borderWidth: 0,
+				borderRadius: isTop ? { topLeft: 5, topRight: 5, bottomLeft: 0, bottomRight: 0 } : 0,
+				borderSkipped: false,
+				stack: 'revenue',
+				hoverBackgroundColor: c.solid,
 			};
 		});
 
 		const chart = new Chart(revenueChartCanvas, {
-			type: 'line',
+			type: 'bar',
 			data: { labels, datasets },
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
 				interaction: { mode: 'index', intersect: false },
-				animation: { duration: 600, easing: 'easeInOutQuart' },
+				animation: { duration: 700, easing: 'easeInOutQuart' },
 				plugins: {
 					tooltip: {
 						...tooltipBase,
 						callbacks: {
 							title: ([ctx]) => ctx.label,
-							label: ctx => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`,
+							label: ctx => {
+								if (ctx.parsed.y === 0) return '';
+								return ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
+							},
 							afterBody: (items) => {
-								const total = totals[items[0].dataIndex];
-								return total != null ? [`\nTotal: ${formatCurrency(total)}`] : [];
+								const total = totals[items[0]?.dataIndex ?? 0];
+								return total != null && total > 0
+									? [``, `   Combined Total: ${formatCurrency(total)}`]
+									: [];
 							}
-						}
+						},
+						filter: item => item.parsed.y > 0,
 					},
 					legend: {
 						position: 'top',
 						align: 'end',
-						labels: { usePointStyle: true, pointStyleWidth: 10, boxWidth: 8, padding: 18, font: { size: 12 } }
+						labels: {
+							usePointStyle: true,
+							pointStyle: 'rectRounded',
+							pointStyleWidth: 14,
+							boxWidth: 10,
+							padding: 18,
+							font: { size: 12 }
+						}
 					}
 				},
 				scales: {
 					y: {
-						stacked: false,
+						stacked: true,
 						beginAtZero: true,
-						grid: { color: '#f1f5f9' },
+						grid: { color: '#f1f5f9', lineWidth: 1 },
 						border: { display: false },
 						ticks: {
-							callback: v => formatCompact(v as number),
+							callback: v => formatCurrency(v as number),
 							padding: 10,
 							maxTicksLimit: 6
 						}
 					},
 					x: {
+						stacked: true,
 						grid: { display: false },
 						border: { display: false },
 						ticks: {
@@ -271,7 +287,7 @@
 						grid: { color: '#f1f5f9', lineWidth: 1 },
 						border: { display: false },
 						ticks: {
-							callback: v => formatCompact(v as number),
+							callback: v => formatCurrency(v as number),
 							maxTicksLimit: 5,
 							font: { size: 11 }
 						}
@@ -378,6 +394,175 @@
 						position: 'bottom',
 						labels: { usePointStyle: true, pointStyleWidth: 10, padding: 20, font: { size: 12 } }
 					}
+				}
+			}
+		});
+		return () => chart.destroy();
+	});
+
+	// ── Collection Rate Trend — line chart showing % collected per period
+	$effect(() => {
+		if (!collRateTrendCanvas) return;
+		const labels = data.collectionRateTrend.labels;
+		const rates  = data.collectionRateTrend.rates;
+		const chart = new Chart(collRateTrendCanvas, {
+			type: 'line',
+			data: {
+				labels,
+				datasets: [
+					{
+						label: 'Collection Rate %',
+						data: rates,
+						borderColor: '#6366f1',
+						backgroundColor: 'rgba(99,102,241,0.08)',
+						borderWidth: 2.5,
+						tension: 0.4,
+						fill: true,
+						pointBackgroundColor: '#fff',
+						pointBorderColor: '#6366f1',
+						pointBorderWidth: 2,
+						pointRadius: labels.length > 20 ? 2 : 4,
+						pointHoverRadius: 6,
+					},
+					{
+						label: 'Full Collection (100%)',
+						data: labels.map(() => 100),
+						borderColor: 'rgba(16,185,129,0.45)',
+						borderWidth: 1.5,
+						borderDash: [6, 4],
+						pointRadius: 0,
+						fill: false,
+						tension: 0,
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				interaction: { mode: 'index', intersect: false },
+				animation: { duration: 700, easing: 'easeInOutQuart' },
+				plugins: {
+					tooltip: {
+						...tooltipBase,
+						filter: item => item.datasetIndex === 0,
+						callbacks: {
+							label: ctx => ` Collection Rate: ${ctx.parsed.y.toFixed(1)}%`
+						}
+					},
+					legend: {
+						position: 'top',
+						align: 'end',
+						labels: { usePointStyle: true, pointStyleWidth: 12, padding: 16, font: { size: 12 } }
+					}
+				},
+				scales: {
+					y: {
+						min: 0, max: 110,
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { callback: v => `${v}%`, maxTicksLimit: 6, padding: 8 }
+					},
+					x: {
+						grid: { display: false },
+						border: { display: false },
+						ticks: {
+							maxRotation: labels.length > 12 ? 45 : 0,
+							minRotation: labels.length > 12 ? 45 : 0,
+							maxTicksLimit: 16, padding: 8, font: { size: 11 }
+						}
+					}
+				}
+			}
+		});
+		return () => chart.destroy();
+	});
+
+	// ── Case Type Revenue — horizontal bar (PHP earned per type)
+	$effect(() => {
+		if (!caseTypeRevenueCanvas) return;
+		const sorted = Object.entries(data.summary.caseTypeRevenue).sort(([, a], [, b]) => a - b);
+		const labels = sorted.map(([k]) => k);
+		const values = sorted.map(([, v]) => v);
+		const chart = new Chart(caseTypeRevenueCanvas, {
+			type: 'bar',
+			data: {
+				labels,
+				datasets: [{
+					label: 'Revenue',
+					data: values,
+					backgroundColor: labels.map((_, i) => palette[i % palette.length].mid),
+					borderWidth: 0,
+					borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 5, bottomRight: 5 },
+					borderSkipped: false,
+					hoverBackgroundColor: labels.map((_, i) => palette[i % palette.length].solid),
+				}]
+			},
+			options: {
+				indexAxis: 'y',
+				responsive: true,
+				maintainAspectRatio: false,
+				animation: { duration: 700 },
+				plugins: {
+					tooltip: {
+						...tooltipBase,
+						callbacks: { label: ctx => ` Revenue: ${formatCurrency(ctx.parsed.x)}` }
+					},
+					legend: { display: false }
+				},
+				scales: {
+					x: {
+						beginAtZero: true,
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { callback: v => formatCurrency(v as number), maxTicksLimit: 5, font: { size: 11 } }
+					},
+					y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 12 }, padding: 4 } }
+				}
+			}
+		});
+		return () => chart.destroy();
+	});
+
+	// ── Avg Order Value per Clinic — vertical bar
+	$effect(() => {
+		if (!avgOrderValueCanvas) return;
+		const clinics = data.avgOrderValuePerClinic;
+		const labels  = clinics.map(c => c.name);
+		const values  = clinics.map(c => c.avg);
+		const chart = new Chart(avgOrderValueCanvas, {
+			type: 'bar',
+			data: {
+				labels,
+				datasets: [{
+					label: 'Avg Order Value',
+					data: values,
+					backgroundColor: palette.map(p => p.mid),
+					borderWidth: 0,
+					borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 0, bottomRight: 0 },
+					borderSkipped: false,
+					hoverBackgroundColor: palette.map(p => p.solid),
+					barPercentage: 0.55,
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				animation: { duration: 700, easing: 'easeInOutQuart' },
+				plugins: {
+					tooltip: {
+						...tooltipBase,
+						callbacks: { label: ctx => ` Avg per case: ${formatCurrency(ctx.parsed.y)}` }
+					},
+					legend: { display: false }
+				},
+				scales: {
+					y: {
+						beginAtZero: true,
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { callback: v => formatCurrency(v as number), maxTicksLimit: 5, padding: 8 }
+					},
+					x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 12 } } }
 				}
 			}
 		});
@@ -710,6 +895,84 @@
 					No case type data available.
 				</div>
 			{/if}
+		</div>
+
+		<!-- ── Collection Rate Trend ──────────────────────────────────────────── -->
+		<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+			<div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+				<div>
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Collection Rate Trend</h2>
+					<p class="text-sm text-slate-500">% of billed revenue collected each period — rising means improving cash flow</p>
+				</div>
+				<span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
+					{data.summary.collectionRate >= 80 ? 'bg-emerald-50 text-emerald-700' :
+					 data.summary.collectionRate >= 50 ? 'bg-amber-50 text-amber-700' :
+					 'bg-red-50 text-red-600'}">
+					Overall {data.summary.collectionRate.toFixed(1)}%
+				</span>
+			</div>
+			{#if data.collectionRateTrend.labels.length > 0}
+				<div class="h-[280px] w-full">
+					<canvas bind:this={collRateTrendCanvas}></canvas>
+				</div>
+			{:else}
+				<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+					No data for this period.
+				</div>
+			{/if}
+		</div>
+
+		<!-- ── Case Type Revenue + Avg Order Value (side by side) ───────────── -->
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+			<!-- Case Type Revenue -->
+			<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+				<div class="mb-5">
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Revenue by Case Type</h2>
+					<p class="text-sm text-slate-500">Total PHP earned per dental case category</p>
+				</div>
+				{#if Object.keys(data.summary.caseTypeRevenue).length > 0}
+					<div class="h-[300px] w-full">
+						<canvas bind:this={caseTypeRevenueCanvas}></canvas>
+					</div>
+				{:else}
+					<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+						No data available.
+					</div>
+				{/if}
+			</div>
+
+			<!-- Avg Order Value per Clinic -->
+			<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+				<div class="mb-5">
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Average Order Value per Clinic</h2>
+					<p class="text-sm text-slate-500">Revenue ÷ cases — reveals high-value vs. volume clinics</p>
+				</div>
+				{#if data.avgOrderValuePerClinic.length > 0}
+					<div class="h-[300px] w-full">
+						<canvas bind:this={avgOrderValueCanvas}></canvas>
+					</div>
+					<!-- Mini ranked list below -->
+					<div class="mt-4 space-y-2">
+						{#each data.avgOrderValuePerClinic as c, i}
+							{@const best = data.avgOrderValuePerClinic[0]?.avg ?? 1}
+							{@const pct = best > 0 ? (c.avg / best) * 100 : 0}
+							<div class="flex items-center gap-3">
+								<span class="w-5 shrink-0 text-right text-xs font-bold text-slate-400">#{i+1}</span>
+								<span class="w-28 shrink-0 truncate text-xs font-medium text-slate-700">{c.name}</span>
+								<div class="flex-1 overflow-hidden rounded-full bg-slate-100" style="height:6px">
+									<div class="h-full rounded-full transition-all duration-500" style="width:{pct}%; background:{palette[i % palette.length].solid}"></div>
+								</div>
+								<span class="w-24 shrink-0 text-right text-xs font-semibold text-slate-700">{formatCurrency(c.avg)}</span>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+						No clinic data available.
+					</div>
+				{/if}
+			</div>
 		</div>
 
 	</div>
