@@ -10,10 +10,19 @@
 	let clinicChartCanvas: HTMLCanvasElement;
 	let caseTypeChartCanvas: HTMLCanvasElement;
 	let paymentChartCanvas: HTMLCanvasElement;
-	let dailyChart: Chart<'bar', number[], string>;
+	let dailyChart: Chart<'line', number[], string>;
 	let clinicChart: Chart<'bar', number[], string>;
 	let caseTypeChart: Chart<'bar', number[], string>;
 	let paymentChart: Chart<'doughnut', number[], string>;
+
+    const colors = [
+        { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.2)' }, // Indigo
+        { border: '#0ea5e9', bg: 'rgba(14, 165, 233, 0.2)' }, // Sky
+        { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)' }, // Amber
+        { border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' }, // Emerald
+        { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.2)' }, // Pink
+        { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)' }, // Violet
+    ];
 
 	// Handle period change
 	function handlePeriodChange(event: Event) {
@@ -26,10 +35,10 @@
 		const input = event.target as HTMLInputElement;
 		const value =
 			data.selectedPeriod === 'month'
-				? input.value + '-01' // Add day for month view
+				? input.value + '-01'
 				: data.selectedPeriod === 'year'
-				? input.value + '-01-01' // Add month and day for year view
-				: input.value; // Use full date for daily view
+				? input.value + '-01-01'
+				: input.value;
 		updateFilters({ [field]: value });
 	}
 
@@ -52,7 +61,6 @@
 	}
 
 	function getMonthEnd(date: Date): string {
-		// Get last day of current month
 		const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 		return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
 	}
@@ -66,16 +74,27 @@
 		if (data.selectedPeriod === 'year') {
 			return `${date.getFullYear()}`;
 		}
-		return dateString || getMonthStart(new Date()); // Provide default if empty
+		return dateString || getMonthStart(new Date());
 	};
 
-	// Add reactive statement to update charts when data changes
 	$effect(() => {
 		if (dailyChart) {
-			dailyChart.data.labels = Object.keys(data.chartData);
-			dailyChart.data.datasets[0].label = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Total Amount`;
-			dailyChart.data.datasets[0].data = Object.values(data.chartData) as number[];
-			dailyChart.options.plugins.title!.text = `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue`;
+			dailyChart.data.labels = data.chartData.labels;
+			dailyChart.data.datasets = data.chartData.datasets.map((dataset, i) => {
+                const color = colors[i % colors.length];
+                return {
+                    label: dataset.label,
+                    data: dataset.data,
+                    backgroundColor: color.bg,
+                    borderColor: color.border,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: color.border,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                };
+            });
 			dailyChart.update();
 		}
 	});
@@ -96,39 +115,73 @@
 	});
 
 	onMount(() => {
-		// Main chart
+        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+        Chart.defaults.color = '#64748b';
+
 		dailyChart = new Chart(dailyChartCanvas, {
-			type: 'bar',
+			type: 'line',
 			data: {
-				labels: Object.keys(data.chartData),
-				datasets: [
-					{
-						label: `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Total Amount`,
-						data: Object.values(data.chartData) as number[],
-						backgroundColor: 'rgba(75, 192, 192, 0.5)',
-						borderColor: 'rgb(75, 192, 192)',
-						borderWidth: 1
-					}
-				]
+				labels: data.chartData.labels,
+				datasets: data.chartData.datasets.map((dataset, i) => {
+                    const color = colors[i % colors.length];
+                    return {
+                        label: dataset.label,
+                        data: dataset.data,
+                        backgroundColor: color.bg,
+                        borderColor: color.border,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: color.border,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    };
+                })
 			},
 			options: {
 				responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
 				plugins: {
 					tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#0f172a',
+                        bodyColor: '#334155',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 4,
+                        usePointStyle: true,
 						callbacks: {
-							label: (context) => formatCurrency(context.parsed.y)
+							label: (context) => `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`
 						}
 					},
 					title: {
-						display: true,
-						text: `${data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue`
-					}
+						display: false
+					},
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 20
+                        }
+                    }
 				},
 				scales: {
 					y: {
 						beginAtZero: true,
+                        grid: {
+                            color: '#f1f5f9',
+                        },
+                        border: { display: false },
 						ticks: {
-							callback: (value) => formatCurrency(value as number)
+							callback: (value) => formatCurrency(value as number),
+                            padding: 8
 						}
 					},
 					x: {
@@ -141,98 +194,121 @@
 								year: 'yyyy'
 							}
 						},
+                        grid: {
+                            display: false
+                        },
+                        border: { display: false },
 						ticks: {
 							maxRotation: 45,
-							minRotation: 45
+							minRotation: 45,
+                            padding: 8
 						}
 					}
 				}
 			}
 		});
 
-		// Clinic chart
 		clinicChart = new Chart(clinicChartCanvas, {
 			type: 'bar',
 			data: {
 				labels: Object.keys(data.clinicChartData),
 				datasets: [
 					{
-						label: 'Total Amount per Clinic',
+						label: 'Total Revenue',
 						data: Object.values(data.clinicChartData) as number[],
-						backgroundColor: [
-							'rgba(255, 99, 132, 0.5)',
-							'rgba(54, 162, 235, 0.5)',
-							'rgba(255, 206, 86, 0.5)',
-							'rgba(75, 192, 192, 0.5)'
-						]
+						backgroundColor: colors.map(c => c.bg),
+						borderColor: colors.map(c => c.border),
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.6
 					}
 				]
 			},
 			options: {
 				responsive: true,
+                maintainAspectRatio: false,
 				plugins: {
 					tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#0f172a',
+                        bodyColor: '#334155',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
 						callbacks: {
 							label: (context) => formatCurrency(context.parsed.y)
 						}
-					}
-				}
+					},
+                    legend: {
+                        display: false
+                    }
+				},
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        border: { display: false },
+                        ticks: {
+                            callback: (value) => formatCurrency(value as number)
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
 			}
 		});
 
-		// Case Type Units chart
 		caseTypeChart = new Chart(caseTypeChartCanvas, {
 			type: 'bar',
 			data: {
 				labels: Object.keys(data.summary.caseTypeTotals),
 				datasets: [
 					{
-						label: 'Units per Case Type',
+						label: 'Units',
 						data: Object.values(data.summary.caseTypeTotals) as number[],
-						backgroundColor: [
-							'rgba(54, 162, 235, 0.5)',
-							'rgba(255, 206, 86, 0.5)',
-							'rgba(75, 192, 192, 0.5)',
-							'rgba(153, 102, 255, 0.5)',
-							'rgba(255, 159, 64, 0.5)'
-						],
-						borderColor: [
-							'rgb(54, 162, 235)',
-							'rgb(255, 206, 86)',
-							'rgb(75, 192, 192)',
-							'rgb(153, 102, 255)',
-							'rgb(255, 159, 64)'
-						],
-						borderWidth: 1
+						backgroundColor: colors.map(c => c.bg),
+						borderColor: colors.map(c => c.border),
+						borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.7
 					}
 				]
 			},
 			options: {
 				responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // Makes it a horizontal bar chart for better readability
 				plugins: {
-					title: {
-						display: true,
-						text: 'Case Type Distribution'
-					},
+					title: { display: false },
 					tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#0f172a',
+                        bodyColor: '#334155',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
 						callbacks: {
-							label: (context) => `${context.parsed.y} units`
+							label: (context) => `${context.parsed.x} units`
 						}
-					}
+					},
+                    legend: { display: false }
 				},
 				scales: {
 					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Number of Units'
-						}
-					}
+                        grid: { display: false },
+                        border: { display: false }
+					},
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        border: { display: false }
+                    }
 				}
 			}
 		});
 
-		// Payment chart
 		paymentChart = new Chart(paymentChartCanvas, {
 			type: 'doughnut',
 			data: {
@@ -241,29 +317,42 @@
 					{
 						data: [data.summary.paymentStatusData.paid, data.summary.paymentStatusData.unpaid],
 						backgroundColor: [
-							'rgba(75, 192, 192, 0.5)',
-							'rgba(255, 99, 132, 0.5)'
+							'rgba(16, 185, 129, 0.8)', // Emerald
+							'rgba(244, 63, 94, 0.8)'   // Rose
 						],
 						borderColor: [
-							'rgb(75, 192, 192)',
-							'rgb(255, 99, 132)'
+							'#ffffff',
+							'#ffffff'
 						],
-						borderWidth: 1
+						borderWidth: 2,
+                        hoverOffset: 4
 					}
 				]
 			},
 			options: {
 				responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
 				plugins: {
-					title: {
-						display: true,
-						text: 'Payment Status Distribution'
-					},
+					title: { display: false },
 					tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#0f172a',
+                        bodyColor: '#334155',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
 						callbacks: {
-							label: (context) => formatCurrency(context.parsed)
+							label: (context) => ` ${formatCurrency(context.parsed)}`
 						}
-					}
+					},
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
 				}
 			}
 		});
@@ -276,7 +365,6 @@
 		};
 	});
 
-	// Update filters and URL
 	function updateFilters(updates: Record<string, string>) {
 		const url = new URL(window.location.href);
 		Object.entries(updates).forEach(([key, value]) => {
@@ -286,72 +374,76 @@
 	}
 </script>
 
-<div class="mx-auto max-w-6xl px-4 py-8">
-	<div class="mb-6 flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Data Summary</h1>
-		<div class="text-sm text-text-muted">
-			Showing data for: <span class="font-semibold text-text-secondary">{data.selectedPeriod === 'month' ? 'Monthly View' : 'Daily View'}</span>
+<div class="mx-auto max-w-7xl px-4 py-8 bg-[#fafafa] min-h-screen">
+	<!-- Header -->
+	<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+		<div>
+			<h1 class="text-3xl font-bold text-slate-900 tracking-tight">Analytics Dashboard</h1>
+			<p class="mt-1 text-sm text-slate-500">
+				Comprehensive view of revenue, cases, and performance.
+			</p>
+		</div>
+		<div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
+			<span class="relative flex h-2 w-2">
+				<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+				<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+			</span>
+			{data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Data Active
 		</div>
 	</div>
 
-	<!-- Filters Card -->
-	<div class="mb-8 rounded-lg border border-border bg-surface p-6 shadow-sm">
-		<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">
-			Filter & Navigate
-		</h2>
+	<!-- Controls Section -->
+	<div class="mb-8 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-end">
-			<!-- Period selector -->
-			<div class="flex flex-col">
-				<label for="period" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">View by</label>
+			<div class="flex flex-col gap-1.5">
+				<label for="period" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">View By</label>
 				<select
 					id="period"
-					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
+					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={data.selectedPeriod}
 					on:change={handlePeriodChange}
 				>
-					<option value="year">Yearly</option>
-					<option value="month">Monthly</option>
-					<option value="day">Daily</option>
+					<option value="year">Yearly Overview</option>
+					<option value="month">Monthly Breakdown</option>
+					<option value="day">Daily Details</option>
 				</select>
 			</div>
 
-			<!-- Date filters -->
-			<div class="flex flex-col">
-				<label for="startDate" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Start Date</label>
+			<div class="flex flex-col gap-1.5">
+				<label for="startDate" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Start Date</label>
 				<input
 					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
 					id="startDate"
 					min={data.selectedPeriod === 'year' ? '2000' : undefined}
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
+					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={formatDateForInput(data.dateRange.start || getMonthStart(new Date()))}
 					on:change={(e) => handleDateChange(e, 'startDate')}
 				/>
 			</div>
 			
-			<div class="flex flex-col">
-				<label for="endDate" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">End Date</label>
+			<div class="flex flex-col gap-1.5">
+				<label for="endDate" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">End Date</label>
 				<input
 					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
 					id="endDate"
 					min={data.selectedPeriod === 'year' ? '2000' : undefined}
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
+					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={formatDateForInput(data.dateRange.end || getMonthEnd(new Date()))}
 					on:change={(e) => handleDateChange(e, 'endDate')}
 				/>
 			</div>
 
-			<!-- Clinic filter -->
-			<div class="flex flex-col">
-				<label for="clinic" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Filter by Clinic</label>
+			<div class="flex flex-col gap-1.5">
+				<label for="clinic" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Filter Clinic</label>
 				<select
 					id="clinic"
-					class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
+					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={data.selectedClinic}
 					on:change={filterByClinic}
 				>
-					<option value="all">All Clinics</option>
+					<option value="all">All Clinics (Combined)</option>
 					{#each data.clinics as clinic}
 						<option value={clinic.id}>{clinic.name}</option>
 					{/each}
@@ -360,58 +452,101 @@
 		</div>
 	</div>
 
-	<!-- Summary cards -->
-	<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Total Cases</p>
-			<p class="text-2xl font-bold text-text-primary">{data.summary.totalCases}</p>
+	<!-- Key Metrics -->
+	<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-50 opacity-50"></div>
+			<div class="relative z-10">
+				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Total Cases</p>
+				<p class="mt-2 text-3xl font-bold text-slate-900">{data.summary.totalCases}</p>
+			</div>
 		</div>
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Total Amount</p>
-			<p class="text-2xl font-bold text-text-primary">{formatCurrency(data.summary.totalAmount)}</p>
+
+		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-indigo-50 opacity-50"></div>
+			<div class="relative z-10">
+				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Total Revenue</p>
+				<p class="mt-2 text-3xl font-bold text-indigo-600">{formatCurrency(data.summary.totalAmount)}</p>
+			</div>
 		</div>
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm relative overflow-hidden">
-			<div class="absolute top-0 right-0 w-2 h-full bg-green-500"></div>
-			<p class="mb-1 text-[10px] font-semibold tracking-wider text-text-muted uppercase">Paid Amount</p>
-			<p class="text-2xl font-bold text-green-600">{formatCurrency(data.summary.paidAmount)}</p>
+
+		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+			<div class="absolute left-0 top-0 h-full w-1.5 bg-emerald-500"></div>
+			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-50 opacity-50"></div>
+			<div class="relative z-10 pl-2">
+				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Collected (Paid)</p>
+				<p class="mt-2 text-3xl font-bold text-emerald-600">{formatCurrency(data.summary.paidAmount)}</p>
+			</div>
 		</div>
 	</div>
 
-	<!-- Case Types Summary -->
-	<div class="mb-8 rounded-lg border border-border bg-white p-6 shadow-sm">
-		<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Case Types Distribution Overview</h2>
-		<div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-			{#each Object.entries(data.summary.caseTypeTotals) as [type, count]}
-				<div class="rounded bg-surface p-4 border border-surface-alt">
-					<h3 class="mb-1 text-[10px] font-medium tracking-wider text-text-muted uppercase">{type}</h3>
-					<p class="text-lg font-semibold text-text-primary">{count} units</p>
+	<!-- Main Charts Grid -->
+	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+		
+		<!-- Revenue Flow (Main Chart) -->
+		<div class="col-span-1 lg:col-span-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+			<div class="mb-6 flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-bold text-slate-900">Revenue Flow</h2>
+					<p class="text-sm text-slate-500">Earnings tracked over the selected period per clinic</p>
 				</div>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Charts -->
-	<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm lg:col-span-2">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">
-				{data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Revenue Flow
-			</h2>
-			<canvas bind:this={dailyChartCanvas}></canvas>
+			</div>
+			<div class="h-[400px] w-full">
+				<canvas bind:this={dailyChartCanvas}></canvas>
+			</div>
 		</div>
 
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Payment Status Spread</h2>
-			<canvas bind:this={paymentChartCanvas}></canvas>
+		<!-- Top Clinics -->
+		<div class="col-span-1 lg:col-span-2 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+			<div class="mb-6">
+				<h2 class="text-lg font-bold text-slate-900">Clinic Performance</h2>
+				<p class="text-sm text-slate-500">Total revenue generated per location</p>
+			</div>
+			<div class="h-[300px] w-full">
+				<canvas bind:this={clinicChartCanvas}></canvas>
+			</div>
 		</div>
 
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Revenue per Clinic</h2>
-			<canvas bind:this={clinicChartCanvas}></canvas>
+		<!-- Payment Ratio -->
+		<div class="col-span-1 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+			<div class="mb-6">
+				<h2 class="text-lg font-bold text-slate-900">Collection Status</h2>
+				<p class="text-sm text-slate-500">Paid vs Unpaid ratio</p>
+			</div>
+			<div class="h-[250px] w-full relative">
+				<canvas bind:this={paymentChartCanvas}></canvas>
+				<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-20px]">
+					<div class="text-sm text-slate-500 font-medium">Total Volume</div>
+					<div class="text-lg font-bold text-slate-900">{formatCurrency(data.summary.totalAmount)}</div>
+				</div>
+			</div>
 		</div>
 
-		<div class="rounded-lg border border-border bg-white p-6 shadow-sm">
-			<h2 class="mb-4 text-sm font-semibold tracking-wider text-text-muted uppercase">Case Type Volume Distribution</h2>
-			<canvas bind:this={caseTypeChartCanvas}></canvas>
+		<!-- Case Types Distribution -->
+		<div class="col-span-1 lg:col-span-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+			<div class="mb-6">
+				<h2 class="text-lg font-bold text-slate-900">Case Volume Distribution</h2>
+				<p class="text-sm text-slate-500">Breakdown of performed case types</p>
+			</div>
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<div class="col-span-1 lg:col-span-2 h-[350px] w-full">
+					<canvas bind:this={caseTypeChartCanvas}></canvas>
+				</div>
+				<div class="col-span-1 flex flex-col justify-center gap-3">
+					{#each Object.entries(data.summary.caseTypeTotals).sort(([,a], [,b]) => b - a).slice(0, 5) as [type, count], i}
+						<div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors">
+							<div class="flex items-center gap-3">
+								<div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: {colors[i % colors.length].bg}; color: {colors[i % colors.length].border}">
+									#{i + 1}
+								</div>
+								<span class="font-medium text-sm text-slate-700">{type}</span>
+							</div>
+							<span class="font-bold text-slate-900">{count} <span class="text-xs font-normal text-slate-500">units</span></span>
+						</div>
+					{/each}
+				</div>
+			</div>
 		</div>
+
 	</div>
 </div>

@@ -122,7 +122,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	};
 
 	// Prepare chart data with proper typing
-	const chartData = ordersWithItems.reduce(
+	const chartDataRaw = ordersWithItems.reduce(
 		(acc, order) => {
 			const date = new Date(order.orderDate);
 			let key = format(date, 'yyyy-MM-dd');
@@ -132,15 +132,28 @@ export const load: PageServerLoad = async ({ url }) => {
 				key = format(date, 'yyyy');
 			}
 
-			acc[key] = (acc[key] || 0) + Number(order.orderTotal || 0);
+			const clinicName = order.clinicName || 'Unknown';
+			if (!acc[key]) {
+				acc[key] = { total: 0 };
+			}
+			acc[key][clinicName] = (acc[key][clinicName] || 0) + Number(order.orderTotal || 0);
+			acc[key].total += Number(order.orderTotal || 0);
 			return acc;
 		},
-		{} as Record<string, number>
+		{} as Record<string, Record<string, number>>
 	);
 
-	const sortedChartData = Object.fromEntries(
-		Object.entries(chartData).sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
-	);
+	const sortedChartLabels = Object.keys(chartDataRaw).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+	const activeClinics = Array.from(new Set(ordersWithItems.map(o => o.clinicName || 'Unknown'))).sort();
+
+	const chartData = {
+		labels: sortedChartLabels,
+		datasets: activeClinics.map(clinic => ({
+			label: clinic,
+			data: sortedChartLabels.map(label => chartDataRaw[label][clinic] || 0)
+		})),
+		totals: sortedChartLabels.map(label => chartDataRaw[label].total || 0)
+	};
 
 	const clinicChartData = ordersWithItems.reduce(
 		(acc, order) => {
@@ -167,7 +180,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			start: startDate,
 			end: endDate
 		},
-		chartData: sortedChartData,
+		chartData,
 		clinicChartData: sortedClinicChartData
 	} as const;
 };
