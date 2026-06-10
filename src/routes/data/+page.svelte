@@ -5,219 +5,297 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let dailyChartCanvas: HTMLCanvasElement | undefined = $state();
+	let revenueChartCanvas: HTMLCanvasElement | undefined = $state();
 	let clinicChartCanvas: HTMLCanvasElement | undefined = $state();
 	let caseTypeChartCanvas: HTMLCanvasElement | undefined = $state();
 	let paymentChartCanvas: HTMLCanvasElement | undefined = $state();
 
-    const colors = [
-        { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.2)' }, // Indigo
-        { border: '#0ea5e9', bg: 'rgba(14, 165, 233, 0.2)' }, // Sky
-        { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)' }, // Amber
-        { border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' }, // Emerald
-        { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.2)' }, // Pink
-        { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)' }, // Violet
-    ];
-
 	let showClinicDropdown = $state(false);
 
-	// Handle period change
-	function handlePeriodChange(event: Event) {
-		const select = event.target as HTMLSelectElement;
-		updateFilters({ period: select.value });
+	// ── Palette ──────────────────────────────────────────────
+	const palette = [
+		{ solid: '#6366f1', soft: 'rgba(99,102,241,0.15)',  mid: 'rgba(99,102,241,0.6)'  },
+		{ solid: '#0ea5e9', soft: 'rgba(14,165,233,0.15)',  mid: 'rgba(14,165,233,0.6)'  },
+		{ solid: '#10b981', soft: 'rgba(16,185,129,0.15)',  mid: 'rgba(16,185,129,0.6)'  },
+		{ solid: '#f59e0b', soft: 'rgba(245,158,11,0.15)',  mid: 'rgba(245,158,11,0.6)'  },
+		{ solid: '#ec4899', soft: 'rgba(236,72,153,0.15)',  mid: 'rgba(236,72,153,0.6)'  },
+		{ solid: '#8b5cf6', soft: 'rgba(139,92,246,0.15)',  mid: 'rgba(139,92,246,0.6)'  },
+	];
+
+	// Shared tooltip style
+	const tooltipBase = {
+		backgroundColor: 'rgba(255,255,255,0.97)',
+		titleColor: '#0f172a',
+		bodyColor: '#475569',
+		borderColor: '#e2e8f0',
+		borderWidth: 1,
+		padding: 14,
+		boxPadding: 5,
+		usePointStyle: true,
+		cornerRadius: 10,
+	};
+
+	// ── Formatters ───────────────────────────────────────────
+	const formatCurrency = (n: number) =>
+		new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(n);
+
+	const formatCompact = (n: number) =>
+		n >= 1_000_000 ? `₱${(n / 1_000_000).toFixed(1)}M`
+		: n >= 1_000 ? `₱${(n / 1_000).toFixed(0)}K`
+		: `₱${n.toFixed(0)}`;
+
+	const formatPct = (n: number | null) =>
+		n === null ? '—' : `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
+
+	// ── Filters ──────────────────────────────────────────────
+	function handlePeriodChange(e: Event) {
+		updateFilters({ period: (e.target as HTMLSelectElement).value });
 	}
 
-	// Handle date changes
-	function handleDateChange(event: Event, field: 'startDate' | 'endDate') {
-		const input = event.target as HTMLInputElement;
+	function handleDateChange(e: Event, field: 'startDate' | 'endDate') {
+		const input = e.target as HTMLInputElement;
 		const value =
-			data.selectedPeriod === 'month'
-				? input.value + '-01'
-				: data.selectedPeriod === 'year'
-				? input.value + '-01-01'
-				: input.value;
+			data.selectedPeriod === 'month' ? input.value + '-01'
+			: data.selectedPeriod === 'year'  ? input.value + '-01-01'
+			: input.value;
 		updateFilters({ [field]: value });
 	}
 
-	// Handle clinic filtering
-	function toggleClinic(clinicId: string | number) {
-		let newClinics = [...data.selectedClinics];
-		const idStr = clinicId.toString();
-		if (newClinics.includes(idStr)) {
-			newClinics = newClinics.filter(id => id !== idStr);
-		} else {
-			newClinics.push(idStr);
-		}
-		updateFilters({ clinics: newClinics.join(',') });
+	function toggleClinic(id: string | number) {
+		const idStr = id.toString();
+		const next = data.selectedClinics.includes(idStr)
+			? data.selectedClinics.filter(x => x !== idStr)
+			: [...data.selectedClinics, idStr];
+		updateFilters({ clinics: next.join(',') });
 	}
 
 	function toggleAllClinics() {
-		if (data.selectedClinics.length > 0) {
-			updateFilters({ clinics: '' }); // Reset to all
-		}
+		if (data.selectedClinics.length > 0) updateFilters({ clinics: '' });
 	}
 
-	// Format currency
-	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'PHP'
-		}).format(amount);
+	function getMonthStart(d = new Date()) {
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+	}
+	function getMonthEnd(d = new Date()) {
+		const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+		return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}-${String(last.getDate()).padStart(2, '0')}`;
+	}
+
+	const formatDateForInput = (s: string) => {
+		const d = new Date(s);
+		if (data.selectedPeriod === 'month') return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+		if (data.selectedPeriod === 'year')  return `${d.getFullYear()}`;
+		return s || getMonthStart();
 	};
 
-	function getMonthStart(date: Date): string {
-		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+	function updateFilters(updates: Record<string, string>) {
+		const url = new URL(window.location.href);
+		for (const [k, v] of Object.entries(updates)) {
+			if (v) url.searchParams.set(k, v);
+			else   url.searchParams.delete(k);
+		}
+		goto(url.toString(), { replaceState: true, invalidateAll: true });
 	}
 
-	function getMonthEnd(date: Date): string {
-		const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-		return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-	}
+	// ── Derived KPI extras ───────────────────────────────────
+	const topCaseType = $derived(() => {
+		const entries = Object.entries(data.summary.caseTypeTotals);
+		if (!entries.length) return null;
+		return entries.reduce((best, cur) => cur[1] > best[1] ? cur : best);
+	});
 
-	// Handle date format for input
-	const formatDateForInput = (dateString: string) => {
-		const date = new Date(dateString);
-		if (data.selectedPeriod === 'month') {
-			return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-		}
-		if (data.selectedPeriod === 'year') {
-			return `${date.getFullYear()}`;
-		}
-		return dateString || getMonthStart(new Date());
-	};
-
-	// --- Unified reactive chart effects ---
-	// Each $effect reads data directly so Svelte tracks the dependency.
-	// The chart is destroyed and recreated on every data change to avoid
-	// Chart.js stale-state issues with partial updates.
-
+	// ── Charts ────────────────────────────────────────────────
+	// Revenue Flow — stacked area
 	$effect(() => {
-		if (!dailyChartCanvas) return;
+		if (!revenueChartCanvas) return;
 
-		// Read all reactive data first so Svelte tracks them as dependencies
-		const labels = data.chartData.labels;
-		const datasets = data.chartData.datasets.map((dataset, i) => {
-			const color = colors[i % colors.length];
+		Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+		Chart.defaults.color = '#64748b';
+
+		const labels  = data.chartData.labels;
+		const totals  = data.chartData.totals;
+		const datasets = data.chartData.datasets.map((ds, i) => {
+			const c = palette[i % palette.length];
 			return {
-				label: dataset.label,
-				data: dataset.data,
-				backgroundColor: color.bg,
-				borderColor: color.border,
-				borderWidth: 2,
+				label: ds.label,
+				data: ds.data,
+				backgroundColor: c.soft,
+				borderColor: c.solid,
+				borderWidth: 2.5,
 				tension: 0.4,
 				fill: true,
-				pointBackgroundColor: color.border,
-				pointRadius: 4,
-				pointHoverRadius: 6
+				pointBackgroundColor: '#fff',
+				pointBorderColor: c.solid,
+				pointBorderWidth: 2,
+				pointRadius: labels.length > 20 ? 2 : 4,
+				pointHoverRadius: 6,
+				pointHoverBackgroundColor: c.solid,
 			};
 		});
 
-		Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
-		Chart.defaults.color = '#64748b';
-
-		const chart = new Chart(dailyChartCanvas, {
+		const chart = new Chart(revenueChartCanvas, {
 			type: 'line',
 			data: { labels, datasets },
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
 				interaction: { mode: 'index', intersect: false },
+				animation: { duration: 600, easing: 'easeInOutQuart' },
 				plugins: {
 					tooltip: {
-						backgroundColor: 'rgba(255, 255, 255, 0.95)',
-						titleColor: '#0f172a',
-						bodyColor: '#334155',
-						borderColor: '#e2e8f0',
-						borderWidth: 1,
-						padding: 12,
-						boxPadding: 4,
-						usePointStyle: true,
+						...tooltipBase,
 						callbacks: {
-							label: (context) => `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`
+							title: ([ctx]) => ctx.label,
+							label: ctx => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`,
+							afterBody: (items) => {
+								const total = totals[items[0].dataIndex];
+								return total != null ? [`\nTotal: ${formatCurrency(total)}`] : [];
+							}
 						}
 					},
-					title: { display: false },
 					legend: {
 						position: 'top',
 						align: 'end',
-						labels: { usePointStyle: true, boxWidth: 8, padding: 20 }
+						labels: { usePointStyle: true, pointStyleWidth: 10, boxWidth: 8, padding: 18, font: { size: 12 } }
 					}
 				},
 				scales: {
 					y: {
+						stacked: false,
 						beginAtZero: true,
 						grid: { color: '#f1f5f9' },
 						border: { display: false },
-						ticks: { callback: (value) => formatCurrency(value as number), padding: 8 }
+						ticks: {
+							callback: v => formatCompact(v as number),
+							padding: 10,
+							maxTicksLimit: 6
+						}
 					},
 					x: {
-						type: 'category',
 						grid: { display: false },
 						border: { display: false },
-						ticks: { maxRotation: 45, minRotation: 45, padding: 8 }
+						ticks: {
+							maxRotation: labels.length > 12 ? 45 : 0,
+							minRotation: labels.length > 12 ? 45 : 0,
+							padding: 8,
+							maxTicksLimit: 16,
+							font: { size: 11 }
+						}
 					}
 				}
 			}
 		});
-
 		return () => chart.destroy();
 	});
 
+	// Clinic Performance — stacked layered horizontal bar (Collected + Outstanding = Total)
 	$effect(() => {
 		if (!clinicChartCanvas) return;
 
-		const labels = Object.keys(data.clinicChartData);
-		const values = Object.values(data.clinicChartData) as number[];
+		// Sort clinics by total revenue descending so best performer is at top
+		const clinics    = [...data.clinicBreakdown].sort((a, b) => b.total - a.total);
+		const labels     = clinics.map(c => c.name);
+		const collected  = clinics.map(c => c.paid);
+		const outstanding = clinics.map(c => Math.max(0, c.total - c.paid));
+		const totals     = clinics.map(c => c.total);
 
 		const chart = new Chart(clinicChartCanvas, {
 			type: 'bar',
 			data: {
 				labels,
-				datasets: [{
-					label: 'Total Revenue',
-					data: values,
-					backgroundColor: colors.map(c => c.bg),
-					borderColor: colors.map(c => c.border),
-					borderWidth: 1,
-					borderRadius: 6,
-					barPercentage: 0.6
-				}]
+				datasets: [
+					{
+						label: 'Collected',
+						data: collected,
+						backgroundColor: 'rgba(16,185,129,0.75)',
+						borderColor: '#059669',
+						borderWidth: 0,
+						borderRadius: { topLeft: 0, bottomLeft: 6, topRight: 0, bottomRight: 0 },
+						borderSkipped: false,
+						stack: 'clinic',
+					},
+					{
+						label: 'Outstanding',
+						data: outstanding,
+						backgroundColor: 'rgba(251,113,133,0.65)',
+						borderColor: '#e11d48',
+						borderWidth: 0,
+						borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 6, bottomRight: 6 },
+						borderSkipped: false,
+						stack: 'clinic',
+					}
+				]
 			},
 			options: {
+				indexAxis: 'y',
 				responsive: true,
 				maintainAspectRatio: false,
+				animation: { duration: 700, easing: 'easeInOutQuart' },
 				plugins: {
 					tooltip: {
-						backgroundColor: 'rgba(255, 255, 255, 0.95)',
-						titleColor: '#0f172a',
-						bodyColor: '#334155',
-						borderColor: '#e2e8f0',
-						borderWidth: 1,
-						padding: 12,
-						callbacks: { label: (context) => formatCurrency(context.parsed.y) }
+						...tooltipBase,
+						mode: 'index',
+						callbacks: {
+							title: ([ctx]) => ctx.label,
+							label: ctx => {
+								const val  = ctx.parsed.x;
+								const icon = ctx.dataset.label === 'Collected' ? '✓' : '!';
+								return ` ${icon}  ${ctx.dataset.label}: ${formatCurrency(val)}`;
+							},
+							afterBody: (items) => {
+								const idx   = items[0]?.dataIndex ?? 0;
+								const total = totals[idx] ?? 0;
+								const col   = collected[idx] ?? 0;
+								const rate  = total > 0 ? ((col / total) * 100).toFixed(1) : '0';
+								return [``, `   Total Billed: ${formatCurrency(total)}`, `   Collection Rate: ${rate}%`];
+							}
+						}
 					},
-					legend: { display: false }
+					legend: {
+						position: 'top',
+						align: 'end',
+						labels: {
+							usePointStyle: true,
+							pointStyle: 'rectRounded',
+							pointStyleWidth: 14,
+							boxWidth: 10,
+							padding: 18,
+							font: { size: 12 }
+						}
+					}
 				},
 				scales: {
-					y: {
+					x: {
+						stacked: true,
 						beginAtZero: true,
-						grid: { color: '#f1f5f9' },
+						grid: { color: '#f1f5f9', lineWidth: 1 },
 						border: { display: false },
-						ticks: { callback: (value) => formatCurrency(value as number) }
+						ticks: {
+							callback: v => formatCompact(v as number),
+							maxTicksLimit: 5,
+							font: { size: 11 }
+						}
 					},
-					x: { grid: { display: false }, border: { display: false } }
+					y: {
+						stacked: true,
+						grid: { display: false },
+						border: { display: false },
+						ticks: { font: { size: 12 }, padding: 4 }
+					}
 				}
 			}
 		});
-
 		return () => chart.destroy();
 	});
 
+	// Case Type Distribution — horizontal bar (sorted desc)
 	$effect(() => {
 		if (!caseTypeChartCanvas) return;
 
-		const labels = Object.keys(data.summary.caseTypeTotals);
-		const values = Object.values(data.summary.caseTypeTotals) as number[];
+		const sorted = Object.entries(data.summary.caseTypeTotals)
+			.sort(([, a], [, b]) => a - b); // ascending so top shows at top in horizontal bar
+		const labels = sorted.map(([k]) => k);
+		const values = sorted.map(([, v]) => v);
 
 		const chart = new Chart(caseTypeChartCanvas, {
 			type: 'bar',
@@ -226,295 +304,412 @@
 				datasets: [{
 					label: 'Units',
 					data: values,
-					backgroundColor: colors.map(c => c.bg),
-					borderColor: colors.map(c => c.border),
-					borderWidth: 1,
-					borderRadius: 6,
-					barPercentage: 0.7
+					backgroundColor: labels.map((_, i) => palette[i % palette.length].mid),
+					borderColor: labels.map((_, i) => palette[i % palette.length].solid),
+					borderWidth: 0,
+					borderRadius: 5,
+					borderSkipped: false,
 				}]
 			},
 			options: {
+				indexAxis: 'y',
 				responsive: true,
 				maintainAspectRatio: false,
-				indexAxis: 'y',
+				animation: { duration: 600 },
 				plugins: {
-					title: { display: false },
 					tooltip: {
-						backgroundColor: 'rgba(255, 255, 255, 0.95)',
-						titleColor: '#0f172a',
-						bodyColor: '#334155',
-						borderColor: '#e2e8f0',
-						borderWidth: 1,
-						padding: 12,
-						callbacks: { label: (context) => `${context.parsed.x} units` }
+						...tooltipBase,
+						callbacks: {
+							label: ctx => ` ${ctx.parsed.x} units`
+						}
 					},
 					legend: { display: false }
 				},
 				scales: {
-					y: { grid: { display: false }, border: { display: false } },
-					x: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } }
+					x: {
+						beginAtZero: true,
+						grid: { color: '#f1f5f9' },
+						border: { display: false },
+						ticks: { stepSize: 1, font: { size: 11 } }
+					},
+					y: {
+						grid: { display: false },
+						border: { display: false },
+						ticks: { font: { size: 12 } }
+					}
 				}
 			}
 		});
-
 		return () => chart.destroy();
 	});
 
+	// Collection Doughnut
 	$effect(() => {
 		if (!paymentChartCanvas) return;
 
-		const paid = data.summary.paymentStatusData.paid;
+		const paid   = data.summary.paymentStatusData.paid;
 		const unpaid = data.summary.paymentStatusData.unpaid;
 
 		const chart = new Chart(paymentChartCanvas, {
 			type: 'doughnut',
 			data: {
-				labels: ['Paid', 'Unpaid'],
+				labels: ['Collected', 'Outstanding'],
 				datasets: [{
 					data: [paid, unpaid],
-					backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(244, 63, 94, 0.8)'],
-					borderColor: ['#ffffff', '#ffffff'],
+					backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(248,113,113,0.85)'],
+					borderColor: ['#10b981', '#f87171'],
 					borderWidth: 2,
-					hoverOffset: 4
+					hoverOffset: 6
 				}]
 			},
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
-				cutout: '70%',
+				cutout: '72%',
+				animation: { duration: 600 },
 				plugins: {
-					title: { display: false },
 					tooltip: {
-						backgroundColor: 'rgba(255, 255, 255, 0.95)',
-						titleColor: '#0f172a',
-						bodyColor: '#334155',
-						borderColor: '#e2e8f0',
-						borderWidth: 1,
-						padding: 12,
-						callbacks: { label: (context) => ` ${formatCurrency(context.parsed)}` }
+						...tooltipBase,
+						callbacks: {
+							label: ctx => ` ${ctx.label}: ${formatCurrency(ctx.parsed)}`
+						}
 					},
 					legend: {
 						position: 'bottom',
-						labels: { usePointStyle: true, padding: 20 }
+						labels: { usePointStyle: true, pointStyleWidth: 10, padding: 20, font: { size: 12 } }
 					}
 				}
 			}
 		});
-
 		return () => chart.destroy();
 	});
-
-	function updateFilters(updates: Record<string, string>) {
-		const url = new URL(window.location.href);
-		Object.entries(updates).forEach(([key, value]) => {
-			if (value) {
-				url.searchParams.set(key, value);
-			} else {
-				url.searchParams.delete(key);
-			}
-		});
-		goto(url.toString(), { replaceState: true, invalidateAll: true });
-	}
 </script>
 
-<div class="mx-auto max-w-7xl px-4 py-8 bg-[#fafafa] min-h-screen">
-	<!-- Header -->
-	<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-		<div>
-			<h1 class="text-3xl font-bold text-slate-900 tracking-tight">Analytics Dashboard</h1>
-			<p class="mt-1 text-sm text-slate-500">
-				Comprehensive view of revenue, cases, and performance.
-			</p>
-		</div>
-		<div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
-			<span class="relative flex h-2 w-2">
-				<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-				<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+<div class="min-h-screen bg-slate-50/60 px-4 py-8">
+	<div class="mx-auto max-w-7xl space-y-8">
+
+		<!-- ── Header ───────────────────────────────────────────────────── -->
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div>
+				<h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Analytics Dashboard</h1>
+				<p class="mt-1 text-sm text-slate-500">Revenue, cases, and clinic performance for the selected period.</p>
+			</div>
+			<span class="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm sm:self-auto">
+				<span class="relative flex h-2 w-2">
+					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+					<span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+				</span>
+				{data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} View
 			</span>
-			{data.selectedPeriod === 'month' ? 'Monthly' : data.selectedPeriod === 'year' ? 'Yearly' : 'Daily'} Data Active
 		</div>
-	</div>
 
-	<!-- Controls Section -->
-	<div class="mb-8 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-end">
-			<div class="flex flex-col gap-1.5">
-				<label for="period" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">View By</label>
-				<select
-					id="period"
-					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-					value={data.selectedPeriod}
-					onchange={handlePeriodChange}
-				>
-					<option value="year">Yearly Overview</option>
-					<option value="month">Monthly Breakdown</option>
-					<option value="day">Daily Details</option>
-				</select>
-			</div>
+		<!-- ── Filters ──────────────────────────────────────────────────── -->
+		<div class="rounded-2xl border border-slate-200/70 bg-white px-6 py-5 shadow-sm">
+			<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
 
-			<div class="flex flex-col gap-1.5">
-				<label for="startDate" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Start Date</label>
-				<input
-					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
-					id="startDate"
-					min={data.selectedPeriod === 'year' ? '2000' : undefined}
-					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-					value={formatDateForInput(data.dateRange.start || getMonthStart(new Date()))}
-					onchange={(e) => handleDateChange(e, 'startDate')}
-				/>
-			</div>
-			
-			<div class="flex flex-col gap-1.5">
-				<label for="endDate" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">End Date</label>
-				<input
-					type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
-					id="endDate"
-					min={data.selectedPeriod === 'year' ? '2000' : undefined}
-					max={data.selectedPeriod === 'year' ? '2100' : undefined}
-					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-					value={formatDateForInput(data.dateRange.end || getMonthEnd(new Date()))}
-					onchange={(e) => handleDateChange(e, 'endDate')}
-				/>
-			</div>
+				<div class="flex flex-col gap-1.5">
+					<label for="period" class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">View By</label>
+					<select
+						id="period"
+						class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+						value={data.selectedPeriod}
+						onchange={handlePeriodChange}
+					>
+						<option value="year">Yearly Overview</option>
+						<option value="month">Monthly Breakdown</option>
+						<option value="day">Daily Details</option>
+					</select>
+				</div>
 
-			<div class="flex flex-col gap-1.5 relative">
-				<label class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Filter Clinic</label>
-				<button 
-					type="button"
-					class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-left flex justify-between items-center"
-					onclick={() => showClinicDropdown = !showClinicDropdown}
-				>
-					<span class="truncate">
-						{data.selectedClinics.length === 0 ? 'All Clinics' : `${data.selectedClinics.length} Selected`}
-					</span>
-					<svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-					</svg>
-				</button>
+				<div class="flex flex-col gap-1.5">
+					<label for="startDate" class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Start</label>
+					<input
+						id="startDate"
+						type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
+						min={data.selectedPeriod === 'year' ? '2000' : undefined}
+						max={data.selectedPeriod === 'year' ? '2100' : undefined}
+						class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+						value={formatDateForInput(data.dateRange.start || getMonthStart())}
+						onchange={(e) => handleDateChange(e, 'startDate')}
+					/>
+				</div>
 
-				{#if showClinicDropdown}
-					<div class="absolute top-full left-0 z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
-						<label class="flex cursor-pointer items-center px-4 py-2 hover:bg-slate-50">
-							<input 
-								type="checkbox" 
-								class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-								checked={data.selectedClinics.length === 0}
-								onchange={toggleAllClinics}
-							/>
-							<span class="ml-2 text-sm text-slate-700 font-medium">All Clinics (Combined)</span>
-						</label>
-						{#each data.clinics as clinic}
-							<label class="flex cursor-pointer items-center px-4 py-2 hover:bg-slate-50">
-								<input 
-									type="checkbox" 
-									class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-									checked={data.selectedClinics.includes(clinic.id.toString())}
-									onchange={() => toggleClinic(clinic.id)}
-								/>
-								<span class="ml-2 text-sm text-slate-700">{clinic.name}</span>
+				<div class="flex flex-col gap-1.5">
+					<label for="endDate" class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">End</label>
+					<input
+						id="endDate"
+						type={data.selectedPeriod === 'month' ? 'month' : data.selectedPeriod === 'year' ? 'number' : 'date'}
+						min={data.selectedPeriod === 'year' ? '2000' : undefined}
+						max={data.selectedPeriod === 'year' ? '2100' : undefined}
+						class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+						value={formatDateForInput(data.dateRange.end || getMonthEnd())}
+						onchange={(e) => handleDateChange(e, 'endDate')}
+					/>
+				</div>
+
+				<div class="relative flex flex-col gap-1.5">
+					<label class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Clinic Filter</label>
+					<button
+						type="button"
+						class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+						onclick={() => showClinicDropdown = !showClinicDropdown}
+					>
+						<span class="truncate">
+							{data.selectedClinics.length === 0 ? 'All Clinics' : `${data.selectedClinics.length} selected`}
+						</span>
+						<svg class="h-4 w-4 shrink-0 text-slate-400 transition-transform {showClinicDropdown ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+
+					{#if showClinicDropdown}
+						<div class="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+							<label class="flex cursor-pointer items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-slate-50">
+								<input type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" checked={data.selectedClinics.length === 0} onchange={toggleAllClinics} />
+								<span class="font-medium text-slate-700">All Clinics</span>
 							</label>
-						{/each}
+							<div class="border-t border-slate-100"></div>
+							{#each data.clinics as clinic}
+								<label class="flex cursor-pointer items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-slate-50">
+									<input type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" checked={data.selectedClinics.includes(clinic.id.toString())} onchange={() => toggleClinic(clinic.id)} />
+									<span class="text-slate-600">{clinic.name}</span>
+								</label>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<!-- ── KPI Cards ─────────────────────────────────────────────────── -->
+		<div class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+
+			<!-- Total Cases -->
+			<div class="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition hover:shadow-md">
+				<div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-sky-50"></div>
+				<div class="relative">
+					<div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100">
+						<svg class="h-4.5 w-4.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+						</svg>
+					</div>
+					<p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Total Cases</p>
+					<p class="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">{data.summary.totalCases.toLocaleString()}</p>
+					{#if topCaseType() !== null}
+						<p class="mt-1.5 truncate text-xs text-slate-500">Top: <span class="font-medium text-slate-700">{topCaseType()![0]}</span></p>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Total Revenue -->
+			<div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5 shadow-sm transition hover:shadow-md">
+				<div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-indigo-100/50"></div>
+				<div class="relative">
+					<div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100">
+						<svg class="h-4.5 w-4.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					</div>
+					<p class="text-[11px] font-semibold uppercase tracking-widest text-indigo-400">Total Revenue</p>
+					<p class="mt-1 text-2xl font-bold text-indigo-700 sm:text-3xl">{formatCompact(data.summary.totalAmount)}</p>
+					{#if data.summary.revenueTrendPct !== null}
+						<p class="mt-1.5 text-xs font-medium {data.summary.revenueTrendPct >= 0 ? 'text-emerald-600' : 'text-red-500'}">
+							{formatPct(data.summary.revenueTrendPct)} vs earlier period
+						</p>
+					{:else}
+						<p class="mt-1.5 text-xs text-slate-400">No trend data</p>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Collected -->
+			<div class="relative overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition hover:shadow-md">
+				<div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-emerald-100/50"></div>
+				<div class="relative">
+					<div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100">
+						<svg class="h-4.5 w-4.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					</div>
+					<p class="text-[11px] font-semibold uppercase tracking-widest text-emerald-500">Collected</p>
+					<p class="mt-1 text-2xl font-bold text-emerald-700 sm:text-3xl">{formatCompact(data.summary.paidAmount)}</p>
+					<p class="mt-1.5 text-xs text-slate-500">
+						<span class="font-semibold text-emerald-600">{data.summary.collectionRate.toFixed(1)}%</span> collection rate
+					</p>
+				</div>
+			</div>
+
+			<!-- Outstanding + Avg Order Value -->
+			<div class="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition hover:shadow-md">
+				<div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-amber-100/50"></div>
+				<div class="relative">
+					<div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100">
+						<svg class="h-4.5 w-4.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					</div>
+					<p class="text-[11px] font-semibold uppercase tracking-widest text-amber-500">Outstanding</p>
+					<p class="mt-1 text-2xl font-bold text-amber-700 sm:text-3xl">{formatCompact(data.summary.unpaidAmount)}</p>
+					<p class="mt-1.5 text-xs text-slate-500">
+						Avg order: <span class="font-semibold text-slate-700">{formatCompact(data.summary.avgOrderValue)}</span>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- ── Revenue Flow Chart ──────────────────────────────────────────── -->
+		<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+			<div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+				<div>
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Revenue Flow</h2>
+					<p class="text-sm text-slate-500">Revenue tracked over the selected period, per clinic</p>
+				</div>
+				{#if data.chartData.labels.length === 0}
+					<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">No data</span>
+				{/if}
+			</div>
+			{#if data.chartData.labels.length > 0}
+				<div class="h-[380px] w-full">
+					<canvas bind:this={revenueChartCanvas}></canvas>
+				</div>
+			{:else}
+				<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+					No revenue data for this period.
+				</div>
+			{/if}
+		</div>
+
+		<!-- ── Bottom Row: Clinics + Payment ─────────────────────────────── -->
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+			<!-- Clinic Performance (spans 2 cols) -->
+			<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm lg:col-span-2">
+				<div class="mb-5">
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Clinic Performance</h2>
+					<p class="text-sm text-slate-500">Revenue collected vs billed per location</p>
+				</div>
+
+				{#if data.clinicBreakdown.length > 0}
+					<div class="h-[260px] w-full">
+						<canvas bind:this={clinicChartCanvas}></canvas>
+					</div>
+
+					<!-- Clinic Summary Table -->
+					<div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
+						<table class="w-full text-sm">
+							<thead>
+								<tr class="border-b border-slate-100 bg-slate-50 text-left">
+									<th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Clinic</th>
+									<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Revenue</th>
+									<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Collected</th>
+									<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate</th>
+									<th class="hidden px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400 sm:table-cell">Cases</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each data.clinicBreakdown as clinic, i}
+									<tr class="border-b border-slate-50 transition hover:bg-slate-50 last:border-0">
+										<td class="px-4 py-3 font-medium text-slate-800">
+											<div class="flex items-center gap-2">
+												<span class="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style="background:{palette[i % palette.length].solid}"></span>
+												{clinic.name}
+											</div>
+										</td>
+										<td class="px-4 py-3 text-right font-semibold text-slate-700">{formatCompact(clinic.total)}</td>
+										<td class="px-4 py-3 text-right text-emerald-600">{formatCompact(clinic.paid)}</td>
+										<td class="px-4 py-3 text-right">
+											<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold {clinic.collectionRate >= 80 ? 'bg-emerald-50 text-emerald-700' : clinic.collectionRate >= 50 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600'}">
+												{clinic.collectionRate.toFixed(0)}%
+											</span>
+										</td>
+										<td class="hidden px-4 py-3 text-right text-slate-500 sm:table-cell">{clinic.cases}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{:else}
+					<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+						No clinic data available.
 					</div>
 				{/if}
 			</div>
-		</div>
-	</div>
 
-	<!-- Key Metrics -->
-	<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-50 opacity-50"></div>
-			<div class="relative z-10">
-				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Total Cases</p>
-				<p class="mt-2 text-3xl font-bold text-slate-900">{data.summary.totalCases}</p>
-			</div>
-		</div>
-
-		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-indigo-50 opacity-50"></div>
-			<div class="relative z-10">
-				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Total Revenue</p>
-				<p class="mt-2 text-3xl font-bold text-indigo-600">{formatCurrency(data.summary.totalAmount)}</p>
-			</div>
-		</div>
-
-		<div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-			<div class="absolute left-0 top-0 h-full w-1.5 bg-emerald-500"></div>
-			<div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-50 opacity-50"></div>
-			<div class="relative z-10 pl-2">
-				<p class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Collected (Paid)</p>
-				<p class="mt-2 text-3xl font-bold text-emerald-600">{formatCurrency(data.summary.paidAmount)}</p>
-			</div>
-		</div>
-	</div>
-
-	<!-- Main Charts Grid -->
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-		
-		<!-- Revenue Flow (Main Chart) -->
-		<div class="col-span-1 lg:col-span-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-			<div class="mb-6 flex items-center justify-between">
-				<div>
-					<h2 class="text-lg font-bold text-slate-900">Revenue Flow</h2>
-					<p class="text-sm text-slate-500">Earnings tracked over the selected period per clinic</p>
+			<!-- Collection Status Doughnut -->
+			<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+				<div class="mb-5">
+					<h2 class="text-base font-bold text-slate-900 sm:text-lg">Collection Status</h2>
+					<p class="text-sm text-slate-500">Paid vs outstanding balance</p>
 				</div>
-			</div>
-			<div class="h-[400px] w-full">
-				<canvas bind:this={dailyChartCanvas}></canvas>
-			</div>
-		</div>
+				<div class="relative h-[200px] w-full">
+					<canvas bind:this={paymentChartCanvas}></canvas>
+					<div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center" style="padding-bottom: 30px">
+						<p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total</p>
+						<p class="text-xl font-bold text-slate-900">{formatCompact(data.summary.totalAmount)}</p>
+					</div>
+				</div>
 
-		<!-- Top Clinics -->
-		<div class="col-span-1 lg:col-span-2 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-			<div class="mb-6">
-				<h2 class="text-lg font-bold text-slate-900">Clinic Performance</h2>
-				<p class="text-sm text-slate-500">Total revenue generated per location</p>
-			</div>
-			<div class="h-[300px] w-full">
-				<canvas bind:this={clinicChartCanvas}></canvas>
-			</div>
-		</div>
-
-		<!-- Payment Ratio -->
-		<div class="col-span-1 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-			<div class="mb-6">
-				<h2 class="text-lg font-bold text-slate-900">Collection Status</h2>
-				<p class="text-sm text-slate-500">Paid vs Unpaid ratio</p>
-			</div>
-			<div class="h-[250px] w-full relative">
-				<canvas bind:this={paymentChartCanvas}></canvas>
-				<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-20px]">
-					<div class="text-sm text-slate-500 font-medium">Total Volume</div>
-					<div class="text-lg font-bold text-slate-900">{formatCurrency(data.summary.totalAmount)}</div>
+				<!-- Mini stats below donut -->
+				<div class="mt-4 grid grid-cols-2 gap-3">
+					<div class="rounded-xl bg-emerald-50 p-3 text-center">
+						<p class="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Collected</p>
+						<p class="mt-0.5 text-sm font-bold text-emerald-700">{formatCompact(data.summary.paidAmount)}</p>
+						<p class="text-xs text-emerald-600">{data.summary.collectionRate.toFixed(1)}%</p>
+					</div>
+					<div class="rounded-xl bg-red-50 p-3 text-center">
+						<p class="text-[10px] font-semibold uppercase tracking-wider text-red-400">Outstanding</p>
+						<p class="mt-0.5 text-sm font-bold text-red-600">{formatCompact(data.summary.unpaidAmount)}</p>
+						<p class="text-xs text-red-500">{(100 - data.summary.collectionRate).toFixed(1)}%</p>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Case Types Distribution -->
-		<div class="col-span-1 lg:col-span-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-			<div class="mb-6">
-				<h2 class="text-lg font-bold text-slate-900">Case Volume Distribution</h2>
-				<p class="text-sm text-slate-500">Breakdown of performed case types</p>
+		<!-- ── Case Type Distribution ──────────────────────────────────────── -->
+		<div class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+			<div class="mb-5">
+				<h2 class="text-base font-bold text-slate-900 sm:text-lg">Case Volume by Type</h2>
+				<p class="text-sm text-slate-500">Units produced per dental case category</p>
 			</div>
-			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-				<div class="col-span-1 lg:col-span-2 h-[350px] w-full">
-					<canvas bind:this={caseTypeChartCanvas}></canvas>
-				</div>
-				<div class="col-span-1 flex flex-col justify-center gap-3">
-					{#each Object.entries(data.summary.caseTypeTotals).sort(([,a], [,b]) => b - a).slice(0, 5) as [type, count], i}
-						<div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors">
-							<div class="flex items-center gap-3">
-								<div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: {colors[i % colors.length].bg}; color: {colors[i % colors.length].border}">
-									#{i + 1}
-								</div>
-								<span class="font-medium text-sm text-slate-700">{type}</span>
-							</div>
-							<span class="font-bold text-slate-900">{count} <span class="text-xs font-normal text-slate-500">units</span></span>
+
+			{#if Object.keys(data.summary.caseTypeTotals).length > 0}
+				<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
+					<!-- Chart takes 3 of 5 cols -->
+					<div class="lg:col-span-3">
+						<div class="h-[320px] w-full">
+							<canvas bind:this={caseTypeChartCanvas}></canvas>
 						</div>
-					{/each}
+					</div>
+
+					<!-- Ranked list takes 2 of 5 cols -->
+					<div class="flex flex-col gap-2.5 lg:col-span-2 lg:justify-center">
+						{#each Object.entries(data.summary.caseTypeTotals).sort(([,a],[,b]) => b - a) as [type, count], i}
+							{@const total = Object.values(data.summary.caseTypeTotals).reduce((s, v) => s + v, 0)}
+							{@const pct = total > 0 ? (count / total) * 100 : 0}
+							{@const c = palette[i % palette.length]}
+							<div class="group flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3 transition hover:bg-slate-100/70">
+								<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" style="background:{c.soft}; color:{c.solid}">
+									{i + 1}
+								</div>
+								<div class="min-w-0 flex-1">
+									<p class="truncate text-sm font-medium text-slate-700">{type}</p>
+									<div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+										<div class="h-full rounded-full transition-all duration-500" style="width:{pct}%; background:{c.solid}"></div>
+									</div>
+								</div>
+								<div class="text-right shrink-0">
+									<p class="text-sm font-bold text-slate-900">{count}</p>
+									<p class="text-[10px] text-slate-400">{pct.toFixed(0)}%</p>
+								</div>
+							</div>
+						{/each}
+					</div>
 				</div>
-			</div>
+			{:else}
+				<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
+					No case type data available.
+				</div>
+			{/if}
 		</div>
 
 	</div>
