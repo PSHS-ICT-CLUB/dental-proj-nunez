@@ -24,6 +24,8 @@
         { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)' }, // Violet
     ];
 
+	let showClinicDropdown = $state(false);
+
 	// Handle period change
 	function handlePeriodChange(event: Event) {
 		const select = event.target as HTMLSelectElement;
@@ -43,9 +45,21 @@
 	}
 
 	// Handle clinic filtering
-	function filterByClinic(event: Event) {
-		const select = event.target as HTMLSelectElement;
-		updateFilters({ clinic: select.value });
+	function toggleClinic(clinicId: string | number) {
+		let newClinics = [...data.selectedClinics];
+		const idStr = clinicId.toString();
+		if (newClinics.includes(idStr)) {
+			newClinics = newClinics.filter(id => id !== idStr);
+		} else {
+			newClinics.push(idStr);
+		}
+		updateFilters({ clinics: newClinics.join(',') });
+	}
+
+	function toggleAllClinics() {
+		if (data.selectedClinics.length > 0) {
+			updateFilters({ clinics: '' }); // Reset to all
+		}
 	}
 
 	// Format currency
@@ -185,15 +199,7 @@
 						}
 					},
 					x: {
-						type: data.selectedPeriod === 'day' ? 'time' : 'category',
-						time: {
-							unit: data.selectedPeriod === 'year' ? 'year' : data.selectedPeriod === 'day' ? 'day' : 'month',
-							displayFormats: {
-								day: 'MMM d, yyyy',
-								month: 'MMM yyyy',
-								year: 'yyyy'
-							}
-						},
+						type: 'category',
                         grid: {
                             display: false
                         },
@@ -401,7 +407,7 @@
 					id="period"
 					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={data.selectedPeriod}
-					on:change={handlePeriodChange}
+					onchange={handlePeriodChange}
 				>
 					<option value="year">Yearly Overview</option>
 					<option value="month">Monthly Breakdown</option>
@@ -418,7 +424,7 @@
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
 					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={formatDateForInput(data.dateRange.start || getMonthStart(new Date()))}
-					on:change={(e) => handleDateChange(e, 'startDate')}
+					onchange={(e) => handleDateChange(e, 'startDate')}
 				/>
 			</div>
 			
@@ -431,23 +437,49 @@
 					max={data.selectedPeriod === 'year' ? '2100' : undefined}
 					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
 					value={formatDateForInput(data.dateRange.end || getMonthEnd(new Date()))}
-					on:change={(e) => handleDateChange(e, 'endDate')}
+					onchange={(e) => handleDateChange(e, 'endDate')}
 				/>
 			</div>
 
-			<div class="flex flex-col gap-1.5">
-				<label for="clinic" class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Filter Clinic</label>
-				<select
-					id="clinic"
-					class="w-full rounded-xl border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-					value={data.selectedClinic}
-					on:change={filterByClinic}
+			<div class="flex flex-col gap-1.5 relative">
+				<label class="text-xs font-semibold tracking-wider text-slate-500 uppercase">Filter Clinic</label>
+				<button 
+					type="button"
+					class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-left flex justify-between items-center"
+					onclick={() => showClinicDropdown = !showClinicDropdown}
 				>
-					<option value="all">All Clinics (Combined)</option>
-					{#each data.clinics as clinic}
-						<option value={clinic.id}>{clinic.name}</option>
-					{/each}
-				</select>
+					<span class="truncate">
+						{data.selectedClinics.length === 0 ? 'All Clinics' : `${data.selectedClinics.length} Selected`}
+					</span>
+					<svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+					</svg>
+				</button>
+
+				{#if showClinicDropdown}
+					<div class="absolute top-full left-0 z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+						<label class="flex cursor-pointer items-center px-4 py-2 hover:bg-slate-50">
+							<input 
+								type="checkbox" 
+								class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+								checked={data.selectedClinics.length === 0}
+								onchange={toggleAllClinics}
+							/>
+							<span class="ml-2 text-sm text-slate-700 font-medium">All Clinics (Combined)</span>
+						</label>
+						{#each data.clinics as clinic}
+							<label class="flex cursor-pointer items-center px-4 py-2 hover:bg-slate-50">
+								<input 
+									type="checkbox" 
+									class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+									checked={data.selectedClinics.includes(clinic.id.toString())}
+									onchange={() => toggleClinic(clinic.id)}
+								/>
+								<span class="ml-2 text-sm text-slate-700">{clinic.name}</span>
+							</label>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>

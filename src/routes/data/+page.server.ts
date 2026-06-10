@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { and, eq, gte, lte } from 'drizzle-orm';
+import { and, eq, gte, lte, inArray } from 'drizzle-orm';
 import { orders, orderItems, clinics, caseTypes, records, doctors } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
 import { format } from 'date-fns';
@@ -38,7 +38,10 @@ type Summary = {
 };
 
 export const load: PageServerLoad = async ({ url }) => {
-	const clinicId = url.searchParams.get('clinic') || 'all';
+	const clinicsParam = url.searchParams.get('clinics') || '';
+	const clinicIds = clinicsParam 
+		? clinicsParam.split(',').filter(id => id && !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10))
+		: [];
 	const startDate = url.searchParams.get('startDate') || new Date().toISOString().split('T')[0];
 	const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 	const period = url.searchParams.get('period') || 'month';
@@ -65,11 +68,11 @@ export const load: PageServerLoad = async ({ url }) => {
 		.leftJoin(doctors, eq(records.doctorId, doctors.doctorId))
 		.leftJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
 		.where(
-			clinicId !== 'all' && !isNaN(parseInt(clinicId, 10))
+			clinicIds.length > 0
 				? and(
 					gte(orders.orderDate, startDate),
 					lte(orders.orderDate, endDate),
-					eq(doctors.clinicId, parseInt(clinicId, 10))
+					inArray(doctors.clinicId, clinicIds)
 				)
 				: and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate))
 		);
@@ -174,7 +177,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			id: clinic.clinicId,
 			name: clinic.clinicName
 		})),
-		selectedClinic: clinicId,
+		selectedClinics: clinicsParam ? clinicsParam.split(',') : [],
 		selectedPeriod: period,
 		dateRange: {
 			start: startDate,
