@@ -813,6 +813,48 @@
 							</tbody>
 						</table>
 					</div>
+
+					<!-- Dentist Performance Table -->
+					<div class="mt-8">
+						<h3 class="text-sm font-bold text-slate-900 sm:text-base mb-3">Dentist Performance</h3>
+						<div class="overflow-x-auto rounded-xl border border-slate-100">
+							<table class="w-full text-sm">
+								<thead>
+									<tr class="border-b border-slate-100 bg-slate-50 text-left">
+										<th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Dentist</th>
+										<th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Clinic</th>
+										<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Revenue</th>
+										<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Collected</th>
+										<th class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate</th>
+										<th class="hidden px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-400 sm:table-cell">Cases</th>
+										<th class="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each data.dentistBreakdown as dentist, i}
+										<tr class="border-b border-slate-50 transition hover:bg-slate-50 last:border-0">
+											<td class="px-4 py-3 font-medium text-slate-800">{dentist.doctorName}</td>
+											<td class="px-4 py-3 text-slate-600">{dentist.clinicName}</td>
+											<td class="px-4 py-3 text-right font-semibold text-slate-700">{formatCompact(dentist.total)}</td>
+											<td class="px-4 py-3 text-right text-emerald-600">{formatCompact(dentist.paid)}</td>
+											<td class="px-4 py-3 text-right">
+												<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold {dentist.collectionRate >= 80 ? 'bg-emerald-50 text-emerald-700' : dentist.collectionRate >= 50 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600'}">
+													{dentist.collectionRate.toFixed(0)}%
+												</span>
+											</td>
+											<td class="hidden px-4 py-3 text-right text-slate-500 sm:table-cell">{dentist.cases}</td>
+											<td class="px-4 py-3 text-center">
+												<a href={`/soa/${encodeURIComponent(dentist.clinicName)}/${encodeURIComponent(dentist.doctorName)}`} class="inline-flex items-center justify-center rounded-md bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100">
+													Generate SOA
+												</a>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
 				{:else}
 					<div class="flex h-48 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">
 						No clinic data available.
