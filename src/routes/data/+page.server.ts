@@ -11,6 +11,7 @@ type OrderWithItems = {
 	orderTotal: number;
 	paidAmount: number | null;
 	doctorId: number;
+	doctorName: string;
 	clinicName: string;
 	items: {
 		caseTypeId: number;
@@ -34,6 +35,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		orderTotal: orders.orderTotal,
 		paidAmount: orders.paidAmount,
 		doctorId: records.doctorId,
+		doctorName: doctors.doctorName,
 		clinicName: clinics.clinicName,
 		items: {
 			caseTypeId: orderItems.caseTypeId,
@@ -106,6 +108,26 @@ export const load: PageServerLoad = async ({ url }) => {
 			.sort(([, a], [, b]) => b.total - a.total)
 			.map(([name, vals]) => [name, vals.total])
 	);
+
+
+	// --- Dentist breakdown ---
+	const dentistRevenueMap: Record<string, { total: number; paid: number; cases: number; clinicName: string; doctorName: string }> = {};
+	for (const order of ordersWithItems) {
+		const clinicName = order.clinicName || 'Unknown';
+		const doctorName = order.doctorName || 'Unknown';
+		const key = `${clinicName}_${doctorName}`;
+		if (!dentistRevenueMap[key]) dentistRevenueMap[key] = { total: 0, paid: 0, cases: 0, clinicName, doctorName };
+		dentistRevenueMap[key].total += Number(order.orderTotal || 0);
+		dentistRevenueMap[key].paid += Number(order.paidAmount || 0);
+		dentistRevenueMap[key].cases += 1;
+	}
+
+	const dentistBreakdown = Object.values(dentistRevenueMap)
+		.sort((a, b) => b.total - a.total)
+		.map(vals => ({
+			...vals,
+			collectionRate: vals.total > 0 ? (vals.paid / vals.total) * 100 : 0
+		}));
 
 	const clinicBreakdown = Object.entries(clinicRevenueMap)
 		.sort(([, a], [, b]) => b.total - a.total)
@@ -200,6 +222,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		chartData,
 		clinicChartData: sortedClinicChartData,
 		clinicBreakdown,
+		dentistBreakdown,
 		collectionRateTrend,
 		avgOrderValuePerClinic
 	} as const;
