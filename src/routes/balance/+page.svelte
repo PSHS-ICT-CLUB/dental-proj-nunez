@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageProps } from './$types';
 	const { data }: PageProps = $props();
 	const balances: any[] = data?.balances || [];
@@ -41,8 +42,8 @@
 		if (selectedMonth) {
 			const date = new Date(selectedYear, selectedMonth - 1, 1);
 			const lastDay = new Date(selectedYear, selectedMonth, 0);
-			startDate = date.toISOString().split('T')[0];
-			endDate = lastDay.toISOString().split('T')[0];
+			startDate = toLocalDateString(date);
+			endDate = toLocalDateString(lastDay);
 		}
 	}
 

@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { records, doctors, clinics, orders, orderItems, caseTypes } from '$lib/server/db/schema';
 import { eq, and, gte, lte, sql, desc, isNotNull } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
+import { toLocalDateString } from '$lib/utils/date';
 
 export const load: PageServerLoad = async ({ url }) => {
 	try {
@@ -14,8 +15,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		const startOfMonth = new Date(year, month - 1, 1);
 		const endOfMonth = new Date(year, month, 0);
 
-		const startDateStr = startOfMonth.toISOString().split('T')[0];
-		const endDateStr = endOfMonth.toISOString().split('T')[0];
+		const startDateStr = toLocalDateString(startOfMonth);
+		const endDateStr = toLocalDateString(endOfMonth);
 
 		// Fetch records with expected delivery dates and finishBy dates concurrently
 		const [deliveryRecords, finishByRecords] = await Promise.all([

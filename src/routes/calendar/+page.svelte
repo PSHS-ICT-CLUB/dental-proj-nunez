@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import { goto } from '$app/navigation';
 	import type { PageProps } from './$types';
 
@@ -206,7 +207,7 @@
 								{@const deliveries = deliveryByDate[fullDate] || []}
 								{@const finishBys = finishByDate[fullDate] || []}
 								{@const totalRecords = deliveries.length + finishBys.length}
-								{@const isToday = fullDate === new Date().toISOString().split('T')[0]}
+								{@const isToday = fullDate === toLocalDateString()}
 								{@const isSelected = selectedDate === fullDate}
 								{@const hasRecords = totalRecords > 0}
 

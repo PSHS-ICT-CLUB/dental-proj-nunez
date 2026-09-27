@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 
@@ -7,7 +8,7 @@
 	let isSubmitting = $state(false);
 
 	let today = new Date();
-	let selectedDate = $state(today.toISOString().split('T')[0]);
+	let selectedDate = $state(toLocalDateString(today));
 
 	// Format currency
 	function fmt(v: unknown) {

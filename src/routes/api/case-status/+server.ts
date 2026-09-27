@@ -1,4 +1,4 @@
-import { json, error } from '@sveltejs/kit';
+import { json, error, isHttpError } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { records } from '$lib/server/db/schema';
 import { eq, sql } from 'drizzle-orm';
@@ -85,7 +85,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       record: updatedRecord[0]
     });
   } catch (err) {
-    if (err instanceof Error && 'status' in err) {
+    if (isHttpError(err)) {
       // It's a SvelteKit error
       throw err;
     }

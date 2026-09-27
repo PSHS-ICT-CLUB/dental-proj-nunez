@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageProps } from './$types';
 	import { formatDate, generateRecordsSummary, getCurrentDateTime, getRecordDateRange } from '$lib';
 	import { enhance } from '$app/forms';
@@ -103,8 +104,8 @@
 		if (selectedMonth) {
 			const date = new Date(selectedYear, selectedMonth - 1, 1);
 			const lastDay = new Date(selectedYear, selectedMonth, 0);
-			startDate = date.toISOString().split('T')[0];
-			endDate = lastDay.toISOString().split('T')[0];
+			startDate = toLocalDateString(date);
+			endDate = toLocalDateString(lastDay);
 		}
 	}
 
@@ -427,7 +428,7 @@
 									{@const deliveries = deliveryByDate[fullDate] || []}
 									{@const finishBys = finishByDate[fullDate] || []}
 									{@const totalRecords = deliveries.length + finishBys.length}
-									{@const isToday = fullDate === new Date().toISOString().split('T')[0]}
+									{@const isToday = fullDate === toLocalDateString()}
 									{@const hasRecords = totalRecords > 0}
 									{@const isSelected = selectedCalendarDate === fullDate}
 									<button

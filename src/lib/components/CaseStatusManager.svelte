@@ -102,7 +102,7 @@
 	{#if availableStatuses.length > 0}
 		<div class="status-actions relative mt-3">
 			<button
-				on:click={toggleStatusMenu}
+				onclick={toggleStatusMenu}
 				disabled={isLoading || isChangingStatus}
 				class="btn btn-primary w-full"
 			>
@@ -115,7 +115,7 @@
 				>
 					{#each availableStatuses as status}
 						<button
-							on:click={() => changeStatus(status)}
+							onclick={() => changeStatus(status)}
 							disabled={isChangingStatus}
 							class="status-option hover:bg-surface-alt w-full px-4 py-2 text-left text-sm transition-colors first:rounded-t-md last:rounded-b-md disabled:opacity-50"
 						>

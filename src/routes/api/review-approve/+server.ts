@@ -1,10 +1,11 @@
-import { json, error } from '@sveltejs/kit';
+import { json, error, isHttpError } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { records, history } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
 import { CASE_STATUSES, canChangeToStatus } from '$lib/utils/caseStatusUtils';
 import { supabase } from '$lib/server/supabase';
+import { toLocalDateString } from '$lib/utils/date';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   try {
@@ -73,7 +74,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             historyType: 'review',
             recordId,
             imageUrl: publicUrlData.publicUrl,
-            historyDate: now.toISOString().split('T')[0],
+            historyDate: toLocalDateString(now),
             historyTime: now.toLocaleTimeString('en-GB', {
               hour: '2-digit',
               minute: '2-digit',
@@ -104,7 +105,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       imagesUploaded: uploadedUrls.length
     });
   } catch (err: any) {
-    if (err instanceof Error && 'status' in err) {
+    if (isHttpError(err)) {
       throw err;
     }
     console.error('Error approving case:', err);

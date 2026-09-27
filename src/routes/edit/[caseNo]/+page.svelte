@@ -796,7 +796,7 @@
 					bind:value={assignedTechnicians}
 					class="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:ring-primary"
 					placeholder="Enter one or more technician names (e.g. Juan, Maria, Pedro)"
-				/>
+				></textarea>
 				<p class="mt-1 text-xs text-text-muted">
 					You can assign multiple technicians by separating names with commas.
 				</p>

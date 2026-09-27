@@ -3,6 +3,7 @@ import { and, eq, gte, lte, inArray } from 'drizzle-orm';
 import { orders, orderItems, clinics, caseTypes, records, doctors } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
 import { format } from 'date-fns';
+import { toLocalDateString } from '$lib/utils/date';
 
 // Define types based on schema
 type OrderWithItems = {
@@ -25,8 +26,8 @@ export const load: PageServerLoad = async ({ url }) => {
 	const clinicIds = clinicsParam
 		? clinicsParam.split(',').filter(id => id && !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10))
 		: [];
-	const startDate = url.searchParams.get('startDate') || new Date().toISOString().split('T')[0];
-	const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
+	const startDate = url.searchParams.get('startDate') || toLocalDateString();
+	const endDate = url.searchParams.get('endDate') || toLocalDateString();
 	const period = url.searchParams.get('period') || 'month';
 
 	const baseQuery = {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageData, PageProps } from './$types';
 	import { getStatusWorkflow, getAvailableStatusesForRole, getStatusConfig, type CaseStatus } from '$lib/utils/caseStatusUtils';
 	import { invalidateAll } from '$app/navigation';
@@ -31,7 +32,7 @@
     let showOutCameraModal = $state(false);
 
     onMount(() => {
-        date = new Date().toISOString().split('T')[0];
+        date = toLocalDateString();
         time = new Date().toLocaleTimeString('en-GB', {
             hour: '2-digit',
             minute: '2-digit'
@@ -250,7 +251,7 @@
                                                     if (result.type === 'success' && result.data?.success) { 
                                                         successMessage = result.data.message; 
                                                         record.dateOut = date;
-                                                        date = new Date().toISOString().split('T')[0]; 
+                                                        date = toLocalDateString(); 
                                                         time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); 
                                                         in_file = undefined; handleInImageChange(); 
                                                     } else if (result.type === 'success' && !result.data?.success) { 
@@ -339,7 +340,7 @@
                                                     if (result.type === 'success' && result.data?.success) { 
                                                         successMessage = result.data.message; 
                                                         record.caseStatus = 'delivered'; 
-                                                        date = new Date().toISOString().split('T')[0]; 
+                                                        date = toLocalDateString(); 
                                                         time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); 
                                                         out_file = undefined; handleOutImageChange(); 
                                                     } else if (result.type === 'redirect') { 

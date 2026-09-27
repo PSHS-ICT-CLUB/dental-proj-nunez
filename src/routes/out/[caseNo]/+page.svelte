@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import { onMount, onDestroy } from 'svelte';
 	import type { PageProps } from './$types';
 	import CameraModal from '$lib/components/CameraModal.svelte';
@@ -49,7 +50,7 @@
 	}
 
 	onMount(() => {
-		date = new Date().toISOString().split('T')[0];
+		date = toLocalDateString();
 		time = new Date().toLocaleTimeString('en-GB', {
 			hour: '2-digit',
 			minute: '2-digit'
