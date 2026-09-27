@@ -94,8 +94,8 @@
 			>
 				<p class="mb-1 font-semibold">⚠️ Action Not Available</p>
 				<p>
-					This case cannot be taken out for action yet. The status must be changed to "to be
-					deliver" before you can proceed.
+					This case cannot be taken out for action yet. The status must be "pending" before
+					you can proceed.
 				</p>
 			</div>
 		{:else}
@@ -127,7 +127,7 @@
 					This case is not ready for action. Current status: <strong>{record.caseStatus}</strong>
 				</p>
 				<p class="mt-2 text-sm">
-					The case status must be "to be deliver" to proceed. Please contact a manager to update the
+					The case status must be "pending" to proceed. Please contact a manager to update the
 					status.
 				</p>
 			</div>

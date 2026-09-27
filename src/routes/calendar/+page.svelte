@@ -85,7 +85,7 @@
 			const dateValue = dateField === 'dateDropoff' ? record.dateDropoff : record.finishBy;
 			if (!dateValue) return;
 
-			const dateKey = dateValue.split('T')[0];
+			const dateKey = dateValue.slice(0, 10); // timestamptz strings use a space, not 'T'
 
 			if (!grouped[dateKey]) {
 				grouped[dateKey] = [];

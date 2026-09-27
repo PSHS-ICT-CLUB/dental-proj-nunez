@@ -302,7 +302,7 @@
 		records.forEach((record) => {
 			const dateValue = record[dateField];
 			if (!dateValue) return;
-			const dateKey = dateValue.split('T')[0];
+			const dateKey = dateValue.slice(0, 10); // timestamptz strings use a space, not 'T'
 			if (!grouped[dateKey]) grouped[dateKey] = [];
 			grouped[dateKey].push(record);
 		});

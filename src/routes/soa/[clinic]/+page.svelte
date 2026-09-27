@@ -6,7 +6,8 @@
 	let table = $state(data.data);
 
 	console.log(data.data);
-	let keys = [3, 5, 7, 2, 9, 10];
+	let keys = ['doctorName', 'patientName', 'patientContact', 'description', 'caseStatus', 'datePickup'];
+	let displayKeys = ['Dentist', 'Patient Name', 'Patient Contact', 'Description', 'Case Status', 'Date Pickup'];
 </script>
 
 <div id="printarea" class="flex flex-col">
@@ -24,12 +25,8 @@
 		>
 			<thead class="bg-surface text-xs text-text-secondary uppercase dark:bg-secondary-dark dark:text-text-muted">
 				<tr>
-					{#each keys as key}
-						<th class="px-6 py-3"
-							>{Object.keys(table[0])
-								[key].replace(/([A-Z])/g, ' $1')
-								.trim()}</th
-						>
+					{#each displayKeys as displayKey}
+						<th class="px-6 py-3">{displayKey}</th>
 					{/each}
 					<th class="px-6 py-3 print:hidden"> HISTORY </th>
 				</tr>
@@ -38,10 +35,10 @@
 				{#each table as row, index}
 					<tr class="border-b border-border bg-white dark:border-secondary-dark dark:bg-primary-dark">
 						{#each keys as key}
-							<td class="max-w-[150px] truncate px-6 py-4">{row[Object.keys(table[0])[key]]}</td>
+							<td class="max-w-[150px] truncate px-6 py-4">{(row as any)[key] ?? ''}</td>
 						{/each}
 						<td class="px-6 py-4 print:hidden">
-							<a aria-label="history" href={`/history/${row[Object.keys(table[0])[2]]}`}>
+							<a aria-label="history" href={`/history/${row.recordId}`}>
 								LINK
 							</a></td
 						>

@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { clinics, doctors, records, orders, orderItems, caseTypes } from '$lib/server/db/schema';
-import { sql, eq, and } from 'drizzle-orm';
+import { sql, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -14,7 +14,10 @@ export const load: PageServerLoad = async ({ url }) => {
 			whereConditions.push(sql`records.date_pickup BETWEEN ${startDate} AND ${endDate}`);
 		}
 		if (caseTypeId && !isNaN(parseInt(caseTypeId))) {
-			whereConditions.push(eq(orderItems.caseTypeId, parseInt(caseTypeId)));
+			// EXISTS instead of joining orderItems, which would sum each order once per item
+			whereConditions.push(
+				sql`exists (select 1 from ${orderItems} where ${orderItems.orderId} = ${orders.orderId} and ${orderItems.caseTypeId} = ${parseInt(caseTypeId)})`
+			);
 		}
 
 		const baseQuery = db
@@ -31,7 +34,6 @@ export const load: PageServerLoad = async ({ url }) => {
 			.leftJoin(doctors, sql`${doctors.clinicId} = ${clinics.clinicId}`)
 			.leftJoin(records, sql`${records.doctorId} = ${doctors.doctorId}`)
 			.leftJoin(orders, sql`${orders.orderId} = ${records.orderId}`)
-			.leftJoin(orderItems, sql`${orderItems.orderId} = ${orders.orderId}`)
 			.groupBy(clinics.clinicId)
 			.orderBy(clinics.clinicName);
 
@@ -39,8 +41,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			baseQuery.where(and(...whereConditions));
 		}
 
-		const page = parseInt(url.searchParams.get('page') || '1');
-		const limit = parseInt(url.searchParams.get('limit') || '200');
+		const page = Math.max(1, parseInt(url.searchParams.get('page') || '') || 1);
+		const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '') || 200);
 		const offset = (page - 1) * limit;
 
 		const [balances, caseTypeData] = await Promise.all([

@@ -63,20 +63,22 @@ export const load: PageServerLoad = async ({ url }) => {
 		);
 
 	const ordersWithItems = (await ordersQuery) as unknown as OrderWithItems[];
+	// The orderItems join yields one row per item; order-level amounts must be counted once per order
+	const uniqueOrders = [...new Map(ordersWithItems.map((o) => [o.orderId, o])).values()];
 
 	// Get all clinics and case types
 	const allClinics = await db.select().from(clinics);
 	const allCaseTypes = await db.select().from(caseTypes);
 
 	// --- Summary Metrics ---
-	const totalAmount = ordersWithItems.reduce((sum, o) => sum + Number(o.orderTotal || 0), 0);
-	const paidAmount = ordersWithItems.reduce((sum, o) => sum + Number(o.paidAmount || 0), 0);
-	const unpaidAmount = ordersWithItems.reduce((sum, o) => {
+	const totalAmount = uniqueOrders.reduce((sum, o) => sum + Number(o.orderTotal || 0), 0);
+	const paidAmount = uniqueOrders.reduce((sum, o) => sum + Number(o.paidAmount || 0), 0);
+	const unpaidAmount = uniqueOrders.reduce((sum, o) => {
 		const total = Number(o.orderTotal || 0);
 		const paid = Number(o.paidAmount || 0);
 		return sum + Math.max(0, total - paid);
 	}, 0);
-	const totalCases = ordersWithItems.length;
+	const totalCases = uniqueOrders.length;
 	const collectionRate = totalAmount > 0 ? (paidAmount / totalAmount) * 100 : 0;
 	const avgOrderValue = totalCases > 0 ? totalAmount / totalCases : 0;
 
@@ -96,7 +98,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	// --- Clinic breakdown ---
 	const clinicRevenueMap: Record<string, { total: number; paid: number; cases: number }> = {};
-	for (const order of ordersWithItems) {
+	for (const order of uniqueOrders) {
 		const name = order.clinicName || 'Unknown';
 		if (!clinicRevenueMap[name]) clinicRevenueMap[name] = { total: 0, paid: 0, cases: 0 };
 		clinicRevenueMap[name].total += Number(order.orderTotal || 0);
@@ -113,7 +115,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	// --- Dentist breakdown ---
 	const dentistRevenueMap: Record<string, { total: number; paid: number; cases: number; clinicName: string; doctorName: string }> = {};
-	for (const order of ordersWithItems) {
+	for (const order of uniqueOrders) {
 		const clinicName = order.clinicName || 'Unknown';
 		const doctorName = order.doctorName || 'Unknown';
 		const key = `${clinicName}_${doctorName}`;
@@ -144,7 +146,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	// --- Revenue Flow chart data (grouped by period, per clinic) ---
 	const chartDataRaw: Record<string, Record<string, number>> = {};
-	for (const order of ordersWithItems) {
+	for (const order of uniqueOrders) {
 		const date = new Date(order.orderDate);
 		let key = format(date, 'yyyy-MM-dd');
 		if (period === 'month') key = format(date, 'MMMM yyyy');
@@ -157,7 +159,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 
 	const sortedChartLabels = Object.keys(chartDataRaw).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-	const activeClinics = Array.from(new Set(ordersWithItems.map(o => o.clinicName || 'Unknown'))).sort();
+	const activeClinics = Array.from(new Set(uniqueOrders.map(o => o.clinicName || 'Unknown'))).sort();
 
 	const chartData = {
 		labels: sortedChartLabels,
@@ -169,9 +171,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	};
 
 	// --- Collection Rate per period (for trend line chart) ---
-	// Build a parallel per-period paid/total map from ordersWithItems
+	// Build a parallel per-period paid/total map from uniqueOrders
 	const collRateRaw: Record<string, { paid: number; total: number }> = {};
-	for (const order of ordersWithItems) {
+	for (const order of uniqueOrders) {
 		const date = new Date(order.orderDate);
 		let key = format(date, 'yyyy-MM-dd');
 		if (period === 'month') key = format(date, 'MMMM yyyy');
