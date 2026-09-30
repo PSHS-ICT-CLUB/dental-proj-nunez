@@ -633,8 +633,9 @@
 				</div>
 
 				<div class="relative flex flex-col gap-1.5">
-					<label class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Clinic Filter</label>
+					<label for="clinicFilter" class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Clinic Filter</label>
 					<button
+						id="clinicFilter"
 						type="button"
 						class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
 						onclick={() => showClinicDropdown = !showClinicDropdown}

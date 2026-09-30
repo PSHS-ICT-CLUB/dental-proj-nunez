@@ -776,7 +776,7 @@
 	<div class=" w-full rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-4 text-xl font-semibold">Income</h2>
 		<div class="overflow-x-auto">
-			{#each financialData.weekly as week}
+			{#each financialData.weekly as week, weekIndex}
 				<div class="mb-8">
 					<h3 class="mb-4 text-lg font-semibold">Week: {week.weekRange}</h3>
 
@@ -1097,8 +1097,9 @@
 								<h5 class="mb-3 text-sm font-semibold tracking-wider text-text-secondary uppercase">Add Weekly Staff Salary</h5>
 								<div class="flex flex-col sm:flex-row gap-4 items-end">
 									<div class="flex-1 w-full">
-										<label class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Staff Name</label>
+										<label for={`salaryStaffName_${weekIndex}`} class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Staff Name</label>
 										<input
+											id={`salaryStaffName_${weekIndex}`}
 											type="text"
 											class="w-full rounded-md border-border py-2 px-3 text-sm shadow-sm focus:border-primary focus:ring-primary"
 											placeholder="Enter staff name"
@@ -1116,12 +1117,13 @@
 										/>
 									</div>
 									<div class="flex-1 w-full">
-										<label class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Amount (PHP)</label>
+										<label for={`salaryAmount_${weekIndex}`} class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Amount (PHP)</label>
 										<div class="relative">
 											<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 												<span class="text-text-muted sm:text-sm">&#8369;</span>
 											</div>
 											<input
+												id={`salaryAmount_${weekIndex}`}
 												type="number"
 												class="block w-full rounded border border-border py-2 pl-8 pr-3 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
 												placeholder="Weekly salary amount"

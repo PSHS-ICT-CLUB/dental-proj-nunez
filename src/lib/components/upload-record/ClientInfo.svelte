@@ -233,9 +233,9 @@
 
 	<!-- Jaw Selection -->
 	<div>
-		<label class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase">
+		<span class="mb-2 block text-[10px] font-bold tracking-wider text-text-muted uppercase">
 			Jaw Selection
-		</label>
+		</span>
 		<div class="flex w-full rounded-md border border-border" role="group">
 			<button
 				type="button"

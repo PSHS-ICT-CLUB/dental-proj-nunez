@@ -194,7 +194,7 @@
 				</svg>
 			{/if}
 			<p class="text-sm font-medium">{toastMessage}</p>
-			<button onclick={() => (showToast = false)} class="ml-auto text-text-muted hover:text-text-secondary">
+			<button aria-label="Close" onclick={() => (showToast = false)} class="ml-auto text-text-muted hover:text-text-secondary">
 				<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 				</svg>

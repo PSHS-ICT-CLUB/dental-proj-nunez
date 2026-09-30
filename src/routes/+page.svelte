@@ -725,10 +725,11 @@
 
 			<div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-7">
 				<div class="relative" bind:this={clinicContainer}>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_clinic" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Clinic</label
 					>
 					<input
+						id="filter_clinic"
 						type="text"
 						bind:value={clinicSearch}
 						placeholder="Search clinic..."
@@ -769,10 +770,11 @@
 				</div>
 
 				<div>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_case_type" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Case Type</label
 					>
 					<select
+						id="filter_case_type"
 						name="case_type_id"
 						bind:value={caseTypeId}
 						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -785,10 +787,11 @@
 				</div>
 
 				<div>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_case_no" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Case Number</label
 					>
 					<input
+						id="filter_case_no"
 						type="text"
 						name="case_no"
 						bind:value={caseNo}
@@ -798,10 +801,11 @@
 				</div>
 
 				<div>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_patient_name" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Patient Name</label
 					>
 					<input
+						id="filter_patient_name"
 						type="text"
 						name="patient_name"
 						bind:value={patientName}
@@ -811,10 +815,11 @@
 				</div>
 
 				<div>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_payment" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Payment</label
 					>
 					<select
+						id="filter_payment"
 						name="payment_status"
 						bind:value={paymentStatus}
 						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -826,10 +831,11 @@
 				</div>
 
 				<div>
-					<label class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
+					<label for="filter_status" class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 						>Status</label
 					>
 					<select
+						id="filter_status"
 						name="case_status"
 						bind:value={caseStatus}
 						class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -849,11 +855,12 @@
 			>
 				<div class="flex flex-col items-center gap-2 sm:flex-row">
 					<div class="w-full sm:flex-1">
-						<label
+						<label for="filter_start_date"
 							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Start Date</label
 						>
 						<input
+							id="filter_start_date"
 							type="date"
 							name="start_date"
 							bind:value={startDate}
@@ -861,11 +868,12 @@
 						/>
 					</div>
 					<div class="w-full sm:flex-1">
-						<label
+						<label for="filter_end_date"
 							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>End Date</label
 						>
 						<input
+							id="filter_end_date"
 							type="date"
 							name="end_date"
 							bind:value={endDate}
@@ -876,11 +884,12 @@
 
 				<div class="flex flex-col items-center gap-2 sm:flex-row">
 					<div class="w-full sm:flex-1">
-						<label
+						<label for="filter_month"
 							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Filter by Month</label
 						>
 						<select
+							id="filter_month"
 							bind:value={selectedMonth}
 							onchange={handleMonthFilter}
 							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -894,11 +903,12 @@
 						</select>
 					</div>
 					<div class="w-full sm:w-24">
-						<label
+						<label for="filter_year"
 							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Year</label
 						>
 						<select
+							id="filter_year"
 							bind:value={selectedYear}
 							onchange={handleMonthFilter}
 							class="border-border w-full rounded border p-1.5 text-xs shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -912,11 +922,12 @@
 
 				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
 					<div class="w-full sm:flex-1">
-						<label
+						<label for="filter_record_id"
 							class="text-text-muted mb-1 block text-[10px] font-medium tracking-wider uppercase"
 							>Record ID</label
 						>
 						<input
+							id="filter_record_id"
 							type="number"
 							name="record_id"
 							bind:value={recordId}

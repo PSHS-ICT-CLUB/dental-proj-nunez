@@ -633,8 +633,9 @@
 							<!-- Case Type & No -->
 							<div class="flex gap-2 sm:col-span-1 lg:col-span-4">
 								<div class="flex-1">
-									<label class="mb-1 block text-xs font-semibold text-text-secondary">Case Type</label>
+									<label for={`caseType_${i}`} class="mb-1 block text-xs font-semibold text-text-secondary">Case Type</label>
 									<select
+										id={`caseType_${i}`}
 										class="block w-full rounded-md border border-border bg-white py-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
 										value={item.caseTypeId}
 										onchange={(e) =>
@@ -648,8 +649,9 @@
 									</select>
 								</div>
 								<div class="w-16 shrink-0">
-									<label class="mb-1 block text-xs font-semibold text-text-secondary">No.</label>
+									<label for={`caseNoDisplay_${i}`} class="mb-1 block text-xs font-semibold text-text-secondary">No.</label>
 									<input
+										id={`caseNoDisplay_${i}`}
 										type="text"
 										value={item.caseNo}
 										disabled
@@ -661,8 +663,9 @@
 
 							<!-- Description -->
 							<div class="sm:col-span-1 lg:col-span-4">
-								<label class="mb-1 block text-xs font-semibold text-text-secondary">Description</label>
+								<label for={`description_${i}`} class="mb-1 block text-xs font-semibold text-text-secondary">Description</label>
 								<input
+									id={`description_${i}`}
 									type="text"
 									value={item.orderDescription || ''}
 									oninput={(e) => updateOrderItem(i, 'orderDescription', e.currentTarget.value)}
@@ -674,8 +677,9 @@
 							<!-- Units & Cost -->
 							<div class="flex gap-3 sm:col-span-2 lg:col-span-4">
 								<div class="w-20 shrink-0">
-									<label class="mb-1 block text-xs font-semibold text-text-secondary">Units</label>
+									<label for={`units_${i}`} class="mb-1 block text-xs font-semibold text-text-secondary">Units</label>
 									<input
+										id={`units_${i}`}
 										type="number"
 										value={item.itemQuantity}
 										min="1"
@@ -685,7 +689,7 @@
 									/>
 								</div>
 								<div class="flex-1">
-									<label class="mb-1 block text-xs font-semibold text-text-secondary">Cost per Unit</label
+									<label for={`costPerUnit_${i}`} class="mb-1 block text-xs font-semibold text-text-secondary">Cost per Unit</label
 									>
 									<div class="relative">
 										<div
@@ -694,6 +698,7 @@
 											<span class="text-text-muted sm:text-sm">₱</span>
 										</div>
 										<input
+											id={`costPerUnit_${i}`}
 											type="number"
 											value={item.itemCost}
 											step="0.01"
@@ -723,7 +728,7 @@
 
 			<!-- Delivery Details -->
 			<div class="md:col-span-2">
-				<label class="mb-3 block text-sm font-bold text-text-secondary">Delivery Details (Optional)</label
+				<span class="mb-3 block text-sm font-bold text-text-secondary">Delivery Details (Optional)</span
 				>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<div>

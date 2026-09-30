@@ -265,17 +265,17 @@
 											
 											<div class="grid grid-cols-2 gap-3 mb-4">
 												<div>
-													<label class="block text-xs font-semibold text-text-secondary mb-1">IN Date</label>
-													<input type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+													<label for="in_date" class="block text-xs font-semibold text-text-secondary mb-1">IN Date</label>
+													<input id="in_date" type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
 												</div>
 												<div>
-													<label class="block text-xs font-semibold text-text-secondary mb-1">IN Time</label>
-													<input type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+													<label for="in_time" class="block text-xs font-semibold text-text-secondary mb-1">IN Time</label>
+													<input id="in_time" type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
 												</div>
 											</div>
 											
 											<div class="mb-4">
-												<label class="block text-xs font-semibold text-text-secondary mb-1">IN Image</label>
+												<span class="block text-xs font-semibold text-text-secondary mb-1">IN Image</span>
 												<div class="flex items-center gap-2 mb-2">
 													<button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-surface border border-border px-2 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt disabled:opacity-50" onclick={() => showInCameraModal = true}>
 														<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -292,7 +292,7 @@
 														{#each in_img_urls as url, i}
 															<div class="relative rounded overflow-hidden border border-border h-16">
 																<img src={url} alt="Preview" class="w-full h-full object-cover" />
-																<button type="button" class="absolute top-0 right-0 bg-red-600/80 text-white rounded-bl-md w-6 h-6 flex items-center justify-center" onclick={() => removeInImage(i)} disabled={isSubmittingAction}>
+																<button type="button" class="absolute top-0 right-0 bg-red-600/80 text-white rounded-bl-md w-6 h-6 flex items-center justify-center" aria-label="Remove image" onclick={() => removeInImage(i)} disabled={isSubmittingAction}>
 																	<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
 																</button>
 															</div>
@@ -356,17 +356,17 @@
                                             
                                             <div class="grid grid-cols-2 gap-3 mb-4">
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Date</label>
-                                                    <input type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
+                                                    <label for="out_date" class="block text-xs font-semibold text-text-secondary mb-1">OUT Date</label>
+                                                    <input id="out_date" type="date" name="date" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={date} disabled={isSubmittingAction} />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Time</label>
-                                                    <input type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
+                                                    <label for="out_time" class="block text-xs font-semibold text-text-secondary mb-1">OUT Time</label>
+                                                    <input id="out_time" type="time" name="time" class="block w-full rounded-md border border-border px-3 py-1.5 text-sm" required bind:value={time} disabled={isSubmittingAction} />
                                                 </div>
                                             </div>
                                             
                                             <div class="mb-4">
-                                                <label class="block text-xs font-semibold text-text-secondary mb-1">OUT Image</label>
+                                                <span class="block text-xs font-semibold text-text-secondary mb-1">OUT Image</span>
                                                 <div class="flex items-center gap-2 mb-2">
                                                     <button type="button" disabled={isSubmittingAction} class="flex-1 flex items-center justify-center gap-1 rounded bg-surface border border-border px-2 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt disabled:opacity-50" onclick={() => showOutCameraModal = true}>
                                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -383,7 +383,7 @@
                                                         {#each out_img_urls as url, i}
                                                             <div class="relative rounded overflow-hidden border border-border h-16">
                                                                 <img src={url} alt="Preview" class="w-full h-full object-cover" />
-                                                                <button type="button" class="absolute top-0 right-0 bg-red-600/80 text-white rounded-bl-md w-6 h-6 flex items-center justify-center" onclick={() => removeOutImage(i)} disabled={isSubmittingAction}>
+                                                                <button type="button" class="absolute top-0 right-0 bg-red-600/80 text-white rounded-bl-md w-6 h-6 flex items-center justify-center" aria-label="Remove image" onclick={() => removeOutImage(i)} disabled={isSubmittingAction}>
                                                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                                                 </button>
                                                             </div>

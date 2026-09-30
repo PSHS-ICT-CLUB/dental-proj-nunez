@@ -199,8 +199,8 @@
 				</div>
 
 				<div>
-					<label class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
-						>Assigned Technicians</label
+					<span class="block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+						>Assigned Technicians</span
 					>
 
 					{#if selectedTechnicians.length > 0}
@@ -213,6 +213,7 @@
 									<button
 										type="button"
 										onclick={() => removeTechnician(tech)}
+										aria-label="Remove technician"
 										class="hover:text-indigo-900"
 									>
 										<svg

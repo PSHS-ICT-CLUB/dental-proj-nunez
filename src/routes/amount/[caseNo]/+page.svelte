@@ -80,7 +80,7 @@
 						<div class="text-sm font-medium">
 							{bannerMessage !== 'true' ? bannerMessage : (bannerType === 'success' ? 'Payment submitted successfully.' : 'An error occurred.')}
 						</div>
-						<button type="button" class="ml-auto inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {bannerType === 'success' ? 'text-green-500 hover:bg-success-light focus:ring-green-600' : 'text-red-500 hover:bg-error-light focus:ring-red-600'}" onclick={closeBanner}>
+						<button type="button" aria-label="Close" class="ml-auto inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {bannerType === 'success' ? 'text-green-500 hover:bg-success-light focus:ring-green-600' : 'text-red-500 hover:bg-error-light focus:ring-red-600'}" onclick={closeBanner}>
 							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
 							</svg>
@@ -113,8 +113,9 @@
 										<!-- Case Type & No -->
 										<div class="sm:col-span-1 lg:col-span-4 flex gap-2">
 											<div class="flex-1">
-												<label class="block text-xs font-semibold text-text-secondary mb-1">Case Type</label>
+												<label for={`caseType_${i}`} class="block text-xs font-semibold text-text-secondary mb-1">Case Type</label>
 												<select
+													id={`caseType_${i}`}
 													class="block w-full rounded-md border border-border bg-surface py-2 text-sm shadow-sm text-text-secondary cursor-not-allowed"
 													value={item.caseTypeId}
 													disabled
@@ -125,8 +126,9 @@
 												</select>
 											</div>
 											<div class="w-16 shrink-0">
-												<label class="block text-xs font-semibold text-text-secondary mb-1">No.</label>
+												<label for={`caseNoDisplay_${i}`} class="block text-xs font-semibold text-text-secondary mb-1">No.</label>
 												<input
+													id={`caseNoDisplay_${i}`}
 													type="text"
 													value={item.caseNo}
 													disabled
@@ -138,8 +140,9 @@
 
 										<!-- Description -->
 										<div class="sm:col-span-1 lg:col-span-4">
-											<label class="block text-xs font-semibold text-text-secondary mb-1">Description</label>
+											<label for={`description_${i}`} class="block text-xs font-semibold text-text-secondary mb-1">Description</label>
 											<input
+												id={`description_${i}`}
 												type="text"
 												value={item.orderDescription || ''}
 												disabled
@@ -151,8 +154,9 @@
 										<!-- Units & Cost -->
 										<div class="sm:col-span-2 lg:col-span-4 flex gap-3">
 											<div class="w-20 shrink-0">
-												<label class="block text-xs font-semibold text-text-secondary mb-1">Units</label>
+												<label for={`units_${i}`} class="block text-xs font-semibold text-text-secondary mb-1">Units</label>
 												<input
+													id={`units_${i}`}
 													type="number"
 													value={item.itemQuantity}
 													min="1"
@@ -161,12 +165,13 @@
 												/>
 											</div>
 											<div class="flex-1">
-												<label class="block text-xs font-semibold text-text-secondary mb-1">Cost per Unit</label>
+												<label for={`costPerUnit_${i}`} class="block text-xs font-semibold text-text-secondary mb-1">Cost per Unit</label>
 												<div class="relative">
 													<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 														<span class="text-text-muted sm:text-sm">₱</span>
 													</div>
 													<input
+														id={`costPerUnit_${i}`}
 														type="number"
 														value={item.itemCost}
 														step="0.01"
