@@ -47,7 +47,14 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
 	default: async ({ request, params }) => {
 		const data = await request.formData();
-		const orderId = parseInt(data.get('orderId').toString());
+		const orderId = parseInt(data.get('orderId')?.toString() || '');
+		if (isNaN(orderId)) {
+			return { success: false, error: 'Invalid order' };
+		}
+		// Excess is overpayment only; don't trust the client's unclamped difference
+		const totalAmount = parseFloat(data.get('total_amount')?.toString() || '0') || 0;
+		const paidAmount = parseFloat(data.get('paid_amount')?.toString() || '0') || 0;
+		const excessPayment = Math.max(0, paidAmount - totalAmount);
 		const orderItemsData = JSON.parse(data.get('orderItems')?.toString() || '[]');
 
 		try {
@@ -58,7 +65,7 @@ export const actions = {
 					.set({
 						orderTotal: data.get('total_amount')?.toString(),
 						paidAmount: data.get('paid_amount')?.toString(),
-						excessPayment: data.get('excess_payment')?.toString(),
+						excessPayment: excessPayment.toString(),
 						paymentMethod: data.get('final_payment_method')?.toString()
 					} as any)
 					.where(eq(orders.orderId, orderId));

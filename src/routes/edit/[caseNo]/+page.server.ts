@@ -146,7 +146,8 @@ export const actions = {
 			const currentItems = await db
 				.select({
 					orderItemId: orderItems.orderItemId,
-					caseTypeId: orderItems.caseTypeId
+					caseTypeId: orderItems.caseTypeId,
+					caseNo: orderItems.caseNo
 				})
 				.from(orderItems)
 				.where(eq(orderItems.orderId, orderIdNum));
@@ -179,16 +180,22 @@ export const actions = {
 				for (const [index, item] of orderItemsData.entries()) {
 					// Find the current item to compare case type
 					const currentItem = currentItems.find((ci) => ci.orderItemId === item.orderItemId);
+					let caseNo = formData.get(`caseNo_${index}`)?.toString() || currentItem?.caseNo || '0';
 					if (currentItem && currentItem.caseTypeId !== item.caseTypeId) {
-						await tx
+						// Allocate the next number for the new case type atomically and format it
+						// like upload-record (ABBRV-00001); the client only sends a bare guess.
+						const [updatedCaseType] = await tx
 							.update(caseTypes)
-							.set({
-								numberOfCases: parseInt(formData.get(`caseNo_${index}`)?.toString() || '0')
-							})
-							.where(eq(caseTypes.caseTypeId, item.caseTypeId));
-						console.log(
-							`Updated case type ${item.caseTypeId} with new case number: ${formData.get(`caseNo_${index}`)}`
-						);
+							.set({ numberOfCases: sql`${caseTypes.numberOfCases} + 1` })
+							.where(eq(caseTypes.caseTypeId, item.caseTypeId))
+							.returning({
+								newCases: caseTypes.numberOfCases,
+								typeAbbrv: caseTypes.caseTypeAbbrv
+							});
+						if (!updatedCaseType) {
+							throw new Error(`Case type ${item.caseTypeId} not found.`);
+						}
+						caseNo = `${updatedCaseType.typeAbbrv}-${String(updatedCaseType.newCases).padStart(5, '0')}`;
 					}
 
 					// Always update order item regardless of case type changes
@@ -196,7 +203,7 @@ export const actions = {
 						.update(orderItems)
 						.set({
 							caseTypeId: item.caseTypeId,
-							caseNo: formData.get(`caseNo_${index}`)?.toString() || '0',
+							caseNo,
 							itemQuantity: item.itemQuantity,
 							itemCost: item.itemCost,
 							orderDescription: item.orderDescription

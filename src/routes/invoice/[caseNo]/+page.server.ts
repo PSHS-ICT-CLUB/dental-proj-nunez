@@ -3,6 +3,7 @@ import { records, orders, orderItems, doctors, clinics, caseTypes } from '$lib/s
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
+import { toLocalDateString } from '$lib/utils/date';
 
 export const load = (async ({ params }) => {
 	const { caseNo } = params;
@@ -55,7 +56,7 @@ export const load = (async ({ params }) => {
 				result[0].invoiceDate ||
 				result[0].dateDropoff ||
 				result[0].datePickup ||
-				new Date().toISOString().split('T')[0],
+				toLocalDateString(),
 			clinic_name: result[0].clinicName,
 			patient_name: result[0].patientName,
 			doctor_name: result[0].doctorName,

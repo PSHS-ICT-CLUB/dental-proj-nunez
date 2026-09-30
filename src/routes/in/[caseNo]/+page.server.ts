@@ -49,10 +49,11 @@ export const actions = {
 				return { success: false, error: 'Record not found' };
 			}
 
-			if (recordCheck[0].caseStatus !== 'to be deliver') {
+			// Must match canActionCase() and the IN action in status/[recordId]
+			if (recordCheck[0].caseStatus !== 'pending') {
 				return {
 					success: false,
-					error: `Case cannot be taken out for action. Current status: ${recordCheck[0].caseStatus}. Status must be "to be deliver" to proceed.`
+					error: `Case cannot be taken out for action. Current status: ${recordCheck[0].caseStatus}. Status must be "pending" to proceed.`
 				};
 			}
 

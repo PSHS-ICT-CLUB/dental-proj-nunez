@@ -99,47 +99,57 @@ export const actions: Actions = {
     const itemId = parseInt(idStr, 10);
     let quantity = parseInt(quantityStr, 10);
 
+    if (isNaN(itemId) || isNaN(quantity)) {
+      return { success: false, error: 'Invalid item or quantity' };
+    }
+
     if (quantity <= 0 && actionType !== 'ADJUSTMENT') {
       return { success: false, error: 'Quantity must be greater than zero' };
     }
 
+    if (quantity < 0) {
+      return { success: false, error: 'Stock cannot be negative' };
+    }
+
     try {
-      // Get current item
-      const [item] = await db.select().from(inventoryItems).where(eq(inventoryItems.id, itemId));
-      if (!item) return { success: false, error: 'Item not found' };
+      // Lock the row so concurrent adjustments can't overwrite each other
+      return await db.transaction(async (tx) => {
+        const [item] = await tx.select().from(inventoryItems).where(eq(inventoryItems.id, itemId)).for('update');
+        if (!item) return { success: false, error: 'Item not found' };
 
-      let newStock = item.currentStock;
-      let actualChange = quantity;
+        let newStock = item.currentStock;
+        let actualChange = quantity;
 
-      if (actionType === 'IN') {
-        newStock += quantity;
-      } else if (actionType === 'OUT') {
-        if (item.currentStock < quantity) {
-          return { success: false, error: 'Insufficient stock!' };
+        if (actionType === 'IN') {
+          newStock += quantity;
+        } else if (actionType === 'OUT') {
+          if (item.currentStock < quantity) {
+            return { success: false, error: 'Insufficient stock!' };
+          }
+          newStock -= quantity;
+        } else if (actionType === 'ADJUSTMENT') {
+          // quantity here is the NEW total stock
+          actualChange = Math.abs(quantity - item.currentStock);
+          newStock = quantity;
         }
-        newStock -= quantity;
-      } else if (actionType === 'ADJUSTMENT') {
-        // quantity here is the NEW total stock
-        actualChange = Math.abs(quantity - item.currentStock);
-        newStock = quantity;
-      }
 
-      // 1. Update stock
-      await db.update(inventoryItems)
-        .set({ currentStock: newStock } as any)
-        .where(eq(inventoryItems.id, itemId));
+        // 1. Update stock
+        await tx.update(inventoryItems)
+          .set({ currentStock: newStock } as any)
+          .where(eq(inventoryItems.id, itemId));
 
-      // 2. Insert log
-      // We can get user from locals.user.id if Auth is set up, but currently other routes use 'created_by'
-      // In Dental project, user session might be available. If not, we will leave createdBy null for now.
-      await db.insert(inventoryLogs).values({
-        itemId,
-        actionType,
-        quantity: actionType === 'ADJUSTMENT' ? quantity : actualChange,
-        remarks: actionType === 'ADJUSTMENT' ? `Adjusted to ${quantity}. ${remarks}` : remarks
-      } as typeof inventoryLogs.$inferInsert);
+        // 2. Insert log
+        // We can get user from locals.user.id if Auth is set up, but currently other routes use 'created_by'
+        // In Dental project, user session might be available. If not, we will leave createdBy null for now.
+        await tx.insert(inventoryLogs).values({
+          itemId,
+          actionType,
+          quantity: actionType === 'ADJUSTMENT' ? quantity : actualChange,
+          remarks: actionType === 'ADJUSTMENT' ? `Adjusted to ${quantity}. ${remarks}` : remarks
+        } as typeof inventoryLogs.$inferInsert);
 
-      return { success: true, message: 'Stock updated successfully' };
+        return { success: true, message: 'Stock updated successfully' };
+      });
     } catch (error) {
       console.error('Error adjusting stock:', error);
       return { success: false, error: 'Failed to adjust stock' };

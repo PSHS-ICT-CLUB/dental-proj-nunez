@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageProps } from './$types';
 	const { data }: PageProps = $props();
 	const balances: any[] = data?.balances || [];
@@ -41,8 +42,8 @@
 		if (selectedMonth) {
 			const date = new Date(selectedYear, selectedMonth - 1, 1);
 			const lastDay = new Date(selectedYear, selectedMonth, 0);
-			startDate = date.toISOString().split('T')[0];
-			endDate = lastDay.toISOString().split('T')[0];
+			startDate = toLocalDateString(date);
+			endDate = toLocalDateString(lastDay);
 		}
 	}
 
@@ -164,8 +165,9 @@
 		<form method="GET" class="space-y-4">
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				<div>
-					<label class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Start Date</label>
+					<label for="start_date" class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Start Date</label>
 					<input
+						id="start_date"
 						type="date"
 						name="start_date"
 						bind:value={startDate}
@@ -173,8 +175,9 @@
 					/>
 				</div>
 				<div>
-					<label class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">End Date</label>
+					<label for="end_date" class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">End Date</label>
 					<input
+						id="end_date"
 						type="date"
 						name="end_date"
 						bind:value={endDate}
@@ -182,8 +185,9 @@
 					/>
 				</div>
 				<div>
-					<label class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Case Type</label>
+					<label for="case_type_id" class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Case Type</label>
 					<select
+						id="case_type_id"
 						name="case_type_id"
 						bind:value={selectedCaseTypeId}
 						class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -199,8 +203,9 @@
 			<div class="flex flex-col justify-between gap-4 border-t border-border pt-4 sm:flex-row sm:items-end">
 				<div class="flex flex-1 gap-4">
 					<div class="flex-1">
-						<label class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Quick Month Filter</label>
+						<label for="selectedMonth" class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Quick Month Filter</label>
 						<select
+							id="selectedMonth"
 							bind:value={selectedMonth}
 							onchange={handleMonthFilter}
 							class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -214,8 +219,9 @@
 						</select>
 					</div>
 					<div class="w-24">
-						<label class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Year</label>
+						<label for="selectedYear" class="mb-1 block text-[10px] font-medium text-text-muted uppercase tracking-wider">Year</label>
 						<select
+							id="selectedYear"
 							bind:value={selectedYear}
 							onchange={handleMonthFilter}
 							class="w-full rounded border border-border p-2 text-sm shadow-sm focus:border-primary focus:ring-1 focus:ring-primary"

@@ -78,20 +78,11 @@ export const load: PageServerLoad = async ({ params }) => {
 			.where(sql`${history.recordId} = ${params.caseNo}`)
 			.orderBy(desc(history.historyDate));
 
-		// Convert imageData Buffer to base64 string
-		const processedHistory = caseHistory.map((item: any) => {
-			if (item.imageData) {
-				const base64Data = Buffer.from(item.imageData).toString('base64');
-				return {
-					...item,
-					imageData: `data:image/jpeg;base64,${base64Data}`
-				};
-			}
-			return {
-				...item,
-				imageData: null
-			};
-		});
+		// Images are stored in Supabase; history rows carry imageUrl (there is no imageData column)
+		const processedHistory = caseHistory.map((item) => ({
+			...item,
+			imageData: item.imageUrl || null
+		}));
 
 		// Get inventory usage linked to this record
 		const inventoryUsages = await db

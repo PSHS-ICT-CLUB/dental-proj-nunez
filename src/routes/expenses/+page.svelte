@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 
@@ -7,7 +8,7 @@
 	let isSubmitting = $state(false);
 
 	let today = new Date();
-	let selectedDate = $state(today.toISOString().split('T')[0]);
+	let selectedDate = $state(toLocalDateString(today));
 
 	// Format currency
 	function fmt(v: unknown) {
@@ -55,10 +56,11 @@
 				};
 			}}>
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+					<label for="month" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>Quick Month Filter</label
 					>
 					<select
+						id="month"
 						name="month"
 						bind:value={selectedMonth}
 						onchange={changeMonth}
@@ -72,10 +74,11 @@
 					</select>
 				</div>
 				<div>
-					<label class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase"
+					<label for="year" class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase"
 						>Year</label
 					>
 					<select
+						id="year"
 						name="year"
 						bind:value={selectedYear}
 						onchange={changeMonth}

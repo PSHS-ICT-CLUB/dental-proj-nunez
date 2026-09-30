@@ -155,6 +155,10 @@ export const load: PageServerLoad = async ({ url }) => {
 				.from(recordInventoryUsages)
 				.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
 				.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+				// Same joins as the records query so the shared filter conditions resolve
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
 				.where(and(...conditions))
 		]);
 
@@ -268,6 +272,10 @@ export const load: PageServerLoad = async ({ url }) => {
 				.from(recordInventoryUsages)
 				.innerJoin(inventoryItems, eq(recordInventoryUsages.itemId, inventoryItems.id))
 				.innerJoin(records, eq(recordInventoryUsages.recordId, records.recordId))
+				// Same joins as the records query so the shared filter conditions resolve
+				.innerJoin(orders, eq(records.orderId, orders.orderId))
+				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
 				.where(and(...conditions))
 		]);
 

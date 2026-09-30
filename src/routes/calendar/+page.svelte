@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toLocalDateString } from '$lib/utils/date';
 	import { goto } from '$app/navigation';
 	import type { PageProps } from './$types';
 
@@ -84,7 +85,7 @@
 			const dateValue = dateField === 'dateDropoff' ? record.dateDropoff : record.finishBy;
 			if (!dateValue) return;
 
-			const dateKey = dateValue.split('T')[0];
+			const dateKey = dateValue.slice(0, 10); // timestamptz strings use a space, not 'T'
 
 			if (!grouped[dateKey]) {
 				grouped[dateKey] = [];
@@ -206,7 +207,7 @@
 								{@const deliveries = deliveryByDate[fullDate] || []}
 								{@const finishBys = finishByDate[fullDate] || []}
 								{@const totalRecords = deliveries.length + finishBys.length}
-								{@const isToday = fullDate === new Date().toISOString().split('T')[0]}
+								{@const isToday = fullDate === toLocalDateString()}
 								{@const isSelected = selectedDate === fullDate}
 								{@const hasRecords = totalRecords > 0}
 

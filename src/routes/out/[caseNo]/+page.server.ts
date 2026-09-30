@@ -40,7 +40,8 @@ export const actions = {
 				.update(records)
 				.set({
 					actualDropoff: data.get('date')?.toString(),
-					caseStatus: data.get('finished') ? 'finished' : 'pending'
+					// Same transition as status/[recordId]; never regress the case to 'pending'
+					caseStatus: data.get('finished') ? 'delivered' : 'to be deliver'
 				} as any)
 				.where(eq(records.recordId, recordId));
 

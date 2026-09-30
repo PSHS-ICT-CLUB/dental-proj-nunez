@@ -12,6 +12,7 @@ import { desc, eq, and, sql, isNotNull } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyAdminPassword, isPasswordSet } from '$lib/server/auth';
+import { toLocalDateString } from '$lib/utils/date';
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const session = await locals.auth();
@@ -21,8 +22,8 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const currentYear = now.getFullYear();
 	const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
 	const endOfMonth = new Date(currentYear, currentMonth, 0);
-	const startDateStr = startOfMonth.toISOString().split('T')[0];
-	const endDateStr = endOfMonth.toISOString().split('T')[0];
+	const startDateStr = toLocalDateString(startOfMonth);
+	const endDateStr = toLocalDateString(endOfMonth);
 
 	try {
 		let whereConditions = [];
@@ -173,8 +174,8 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 				);
 		}
 
-		const page = parseInt(url.searchParams.get('page') || '1');
-		const limit = parseInt(url.searchParams.get('limit') || '200');
+		const page = Math.max(1, parseInt(url.searchParams.get('page') || '') || 1);
+		const limit = Math.max(1, parseInt(url.searchParams.get('limit') || '') || 200);
 		const offset = (page - 1) * limit;
 
 		const [
