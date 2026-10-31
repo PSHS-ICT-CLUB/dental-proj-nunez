@@ -7,7 +7,6 @@
 
 	let { data, form }: PageProps = $props();
 	let { currentMonth, currentYear, recordData, supplies, inventoryUsages } = data;
-	const payroll = (data as { payroll?: any[] }).payroll ?? [];
 	let selectedMonth = $state(currentMonth);
 	let selectedYear = $state(currentYear);
 	let caseStatusValue = $state('finished');
@@ -168,13 +167,7 @@
 
 	function recalculateFinancialData() {
 		// Calculate weekly data
-		const weeklyRaw = groupTransactionsByWeek(
-			recordData,
-			supplies,
-			staffSalaries,
-			inventoryUsages || [],
-			payroll
-		);
+		const weeklyRaw = groupTransactionsByWeek(recordData, supplies, staffSalaries, inventoryUsages || []);
 		// Apply week sort (week 4 → 1 or 1 → 4)
 		const weekly = weekSortDirection === 'asc' ? weeklyRaw : [...weeklyRaw].reverse();
 
@@ -285,7 +278,7 @@
 			date: string;
 			description: string;
 			amount: number;
-			type: 'supply' | 'salary' | 'inventory' | 'payroll';
+			type: 'supply' | 'salary' | 'inventory';
 		}>;
 		inventoryUsages: Array<{
 			usageId: number;
@@ -306,8 +299,7 @@
 		records: any[],
 		supplies: any[],
 		salaries: any[],
-		inventoryUsagesData: any[],
-		payrollData: any[] = []
+		inventoryUsagesData: any[]
 	): WeeklyTransactions[] {
 		const weeklyData = new Map<string, WeeklyTransactions>();
 
@@ -417,22 +409,6 @@
                     weekData.weeklyProfit = weekData.totalAmount - weekData.totalExpenses;
 				}
 			}
-		});
-
-		// Group posted payroll payouts (from /payroll batches) by pay date
-		payrollData.forEach((entry) => {
-			const [y, m, d] = String(entry.payDate).split('-').map(Number);
-			const weekData = getWeekData(new Date(y, m - 1, d));
-			const amount = parseFloat(entry.amount || 0);
-
-			weekData.expenses.push({
-				date: entry.payDate,
-				description: `Payroll - ${entry.employeeName}${entry.setName ? ` (${entry.setName})` : ''}`,
-				amount,
-				type: 'payroll'
-			});
-			weekData.totalExpenses += amount;
-			weekData.weeklyProfit = weekData.totalAmount - weekData.totalExpenses;
 		});
 
 		// Add staff salaries to each week
@@ -1080,8 +1056,6 @@
 																	? 'bg-purple-100 text-purple-800'
 																	: expense.type === 'inventory'
 																	? 'bg-teal-100 text-teal-800'
-																	: expense.type === 'payroll'
-																	? 'bg-indigo-100 text-indigo-800'
 																	: ''
 														}`}
 													>
@@ -1120,10 +1094,7 @@
 
 							<!-- Weekly Staff Salary Input -->
 							<div class="mt-4 rounded-lg bg-surface p-4 border border-border">
-								<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-									<h5 class="text-sm font-semibold tracking-wider text-text-secondary uppercase">Add Weekly Staff Salary</h5>
-									<a href="/payroll" class="text-xs font-medium text-primary hover:underline print:hidden">Post saved payroll sets →</a>
-								</div>
+								<h5 class="mb-3 text-sm font-semibold tracking-wider text-text-secondary uppercase">Add Weekly Staff Salary</h5>
 								<div class="flex flex-col sm:flex-row gap-4 items-end">
 									<div class="flex-1 w-full">
 										<label for={`salaryStaffName_${weekIndex}`} class="mb-1 block text-[10px] font-medium tracking-wider text-text-muted uppercase">Staff Name</label>

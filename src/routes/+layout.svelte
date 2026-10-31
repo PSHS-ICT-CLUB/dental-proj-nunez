@@ -26,7 +26,6 @@
 		{ label: 'Calendar', href: '/calendar' },
 		{ label: 'Balances', href: '/balance' },
 		{ label: 'Expenses', href: '/expenses', color: 'text-red-400' },
-		{ label: 'Payroll', href: '/payroll' },
 		{ label: 'Inventory', href: '/inventory', color: 'text-emerald-400' }
 	];
 
@@ -45,8 +44,6 @@
 				return 'Sales';
 			case '/expenses':
 				return 'Expenses';
-			case '/payroll':
-				return 'Payroll';
 			case '/edit-info':
 			case '/status':
 				return 'Edit Info';
