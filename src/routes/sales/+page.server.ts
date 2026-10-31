@@ -9,7 +9,9 @@ import {
 	orders,
 	orderItems,
 	inventoryItems,
-	recordInventoryUsages
+	recordInventoryUsages,
+	payrollBatches,
+	payrollEntries
 } from '$lib/server/db/schema';
 import { desc, sql, and, eq, isNotNull, between } from 'drizzle-orm';
 import { convertFileToBytea } from '$lib';
@@ -42,6 +44,20 @@ const formatDate = (date: Date): string => {
 
 	return `${year}-${month}-${day}`;
 };
+/** Posted payroll payouts whose batch pay date falls within [start, end]. */
+const loadPayroll = (start: string, end: string) =>
+	db
+		.select({
+			entryId: payrollEntries.id,
+			payDate: payrollBatches.payDate,
+			employeeName: payrollEntries.employeeName,
+			amount: payrollEntries.amount,
+			setName: payrollBatches.setName
+		})
+		.from(payrollEntries)
+		.innerJoin(payrollBatches, eq(payrollEntries.batchId, payrollBatches.id))
+		.where(between(payrollBatches.payDate, start, end));
+
 export const load: PageServerLoad = async ({ url }) => {
 	const searchParams = url.searchParams;
 	const status = searchParams.get('status') || null;
@@ -80,7 +96,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
 		// Query for exact date with proper joins
-		const [recordData, supplies, allClinics, inventoryUsages] = await Promise.all([
+		const [recordData, supplies, allClinics, inventoryUsages, payroll] = await Promise.all([
 			db
 				.select({
 					record: {
@@ -159,7 +175,9 @@ export const load: PageServerLoad = async ({ url }) => {
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.where(and(...conditions))
+				.where(and(...conditions)),
+
+			loadPayroll(exactDate, exactDate)
 		]);
 
 		return {
@@ -169,7 +187,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			recordData,
 			supplies,
 			clinics: allClinics,
-			inventoryUsages
+			inventoryUsages,
+			payroll
 		};
 	} else {
 		const currentDate = new Date();
@@ -197,7 +216,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			clinicId && clinicId !== '' ? eq(clinics.clinicId, parseInt(clinicId)) : undefined
 		].filter((condition): condition is NonNullable<typeof condition> => condition !== undefined);
 
-		const [recordData, supplies, allClinics, inventoryUsages] = await Promise.all([
+		const [recordData, supplies, allClinics, inventoryUsages, payroll] = await Promise.all([
 			db
 				.select({
 					record: {
@@ -276,7 +295,9 @@ export const load: PageServerLoad = async ({ url }) => {
 				.innerJoin(orders, eq(records.orderId, orders.orderId))
 				.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
 				.innerJoin(clinics, eq(doctors.clinicId, clinics.clinicId))
-				.where(and(...conditions))
+				.where(and(...conditions)),
+
+			loadPayroll(formatDate(startDate), formatDate(endDate))
 		]);
 
 		return {
@@ -285,7 +306,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			recordData,
 			supplies,
 			clinics: allClinics,
-			inventoryUsages
+			inventoryUsages,
+			payroll
 		};
 	}
 };

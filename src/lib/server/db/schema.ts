@@ -325,3 +325,81 @@ export const technicians = pgTable('technicians', {
 		sql`CURRENT_TIMESTAMP`
 	)
 });
+
+// ============================================
+// Payroll
+// ============================================
+
+/** A reusable, named set of employee payouts (e.g. "Weekly Lab Staff"). */
+export const payrollSets = pgTable('payroll_sets', {
+	id: serial('id').primaryKey().notNull(),
+	name: varchar('name', { length: 255 }).notNull().unique(),
+	description: text('description'),
+	createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).default(
+		sql`CURRENT_TIMESTAMP`
+	)
+});
+
+/** One employee line within a saved payroll set. */
+export const payrollSetItems = pgTable(
+	'payroll_set_items',
+	{
+		id: serial('id').primaryKey().notNull(),
+		setId: integer('set_id')
+			.notNull()
+			.references(() => payrollSets.id, { onDelete: 'cascade' }),
+		technicianId: integer('technician_id').references(() => technicians.id, {
+			onDelete: 'set null'
+		}),
+		employeeName: varchar('employee_name', { length: 255 }).notNull(),
+		amount: numeric('amount', { precision: 12, scale: 2 }).notNull().default('0'),
+		notes: text('notes'),
+		sortOrder: integer('sort_order').notNull().default(0)
+	},
+	(table) => [index('payroll_set_items_set_id_idx').on(table.setId)]
+);
+
+/** A generated payroll run: one posting of payouts for a pay date. */
+export const payrollBatches = pgTable(
+	'payroll_batches',
+	{
+		id: serial('id').primaryKey().notNull(),
+		setId: integer('set_id').references(() => payrollSets.id, { onDelete: 'set null' }),
+		// Snapshot of the set name so history stays readable if the set is renamed/deleted
+		setName: varchar('set_name', { length: 255 }),
+		payDate: date('pay_date').notNull(),
+		periodStart: date('period_start'),
+		periodEnd: date('period_end'),
+		notes: text('notes'),
+		createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		)
+	},
+	(table) => [index('payroll_batches_pay_date_idx').on(table.payDate)]
+);
+
+/** An individual employee payout posted as part of a payroll batch. */
+export const payrollEntries = pgTable(
+	'payroll_entries',
+	{
+		id: serial('id').primaryKey().notNull(),
+		batchId: integer('batch_id')
+			.notNull()
+			.references(() => payrollBatches.id, { onDelete: 'cascade' }),
+		technicianId: integer('technician_id').references(() => technicians.id, {
+			onDelete: 'set null'
+		}),
+		employeeName: varchar('employee_name', { length: 255 }).notNull(),
+		amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+		notes: text('notes'),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).default(
+			sql`CURRENT_TIMESTAMP`
+		)
+	},
+	(table) => [index('payroll_entries_batch_id_idx').on(table.batchId)]
+);
