@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
 import { records, orders, orderItems, doctors, clinics, caseTypes } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
@@ -22,6 +22,7 @@ export const load = (async ({ params }) => {
 				orderTotal: orders.orderTotal,
 				paidAmount: orders.paidAmount,
 				paymentStatus: orders.paymentStatus,
+				clinicId: clinics.clinicId,
 				clinicName: clinics.clinicName,
 				doctorName: doctors.doctorName,
 				deliveryCourier: records.deliveryCourier,
@@ -51,6 +52,26 @@ export const load = (async ({ params }) => {
 			throw error(404, 'Invoice not found');
 		}
 
+		const orderTotal = Number(result[0].orderTotal) || 0;
+		const paidAmount = Number(result[0].paidAmount) || 0;
+		const balance = Math.max(orderTotal - paidAmount, 0);
+
+		// Outstanding balance from the clinic's other unpaid cases
+		const [prev] = await db
+			.select({
+				previousBalance: sql<string>`COALESCE(SUM(GREATEST(${orders.orderTotal} - COALESCE(${orders.paidAmount}, 0), 0)), 0)`
+			})
+			.from(records)
+			.innerJoin(orders, eq(records.orderId, orders.orderId))
+			.innerJoin(doctors, eq(records.doctorId, doctors.doctorId))
+			.where(
+				and(
+					eq(doctors.clinicId, result[0].clinicId),
+					ne(records.recordId, result[0].recordId)
+				)
+			);
+		const previousBalance = Number(prev?.previousBalance) || 0;
+
 		const invoice = {
 			date:
 				result[0].invoiceDate ||
@@ -61,6 +82,10 @@ export const load = (async ({ params }) => {
 			patient_name: result[0].patientName,
 			doctor_name: result[0].doctorName,
 			total_amount: result[0].orderTotal,
+			paid_amount: paidAmount,
+			balance,
+			previous_balance: previousBalance,
+			total_balance: balance + previousBalance,
 			record_id: result[0].recordId,
 			withholding_tax: 0, // Add if you have this in your schema
 			items: result.map((item) => ({
@@ -78,7 +103,6 @@ export const load = (async ({ params }) => {
 			delivery_fee: result[0].deliveryFee,
 			assigned_technicians: result[0].assignedTechnicians
 		};
-		console.log(invoice);
 		return {
 			invoice
 		};

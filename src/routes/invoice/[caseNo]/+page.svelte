@@ -15,6 +15,8 @@
 	let subtotal = +invoice.total_amount || 0;
 	let withholdingTax = invoice.withholding_tax || 0;
 	let totalDue = subtotal - withholdingTax;
+	const peso = (n: number) =>
+		`₱${(Number(n) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 	onMount(() => {
 		window.print();
@@ -133,7 +135,23 @@
 		<div class="totals-section">
 			<div class="total-row">
 				<label for="total_amount_span">TOTAL AMOUNT:</label>
-				<span id="total_amount_span" class="total-amount">₱{subtotal}</span>
+				<span id="total_amount_span" class="total-amount">{peso(subtotal)}</span>
+			</div>
+			<div class="total-row">
+				<span>AMOUNT PAID:</span>
+				<span>{peso(invoice.paid_amount)}</span>
+			</div>
+			<div class="total-row">
+				<span>BALANCE (THIS CASE):</span>
+				<span>{peso(invoice.balance)}</span>
+			</div>
+			<div class="total-row">
+				<span>PREVIOUS BALANCE:</span>
+				<span>{peso(invoice.previous_balance)}</span>
+			</div>
+			<div class="total-row grand-total">
+				<span>TOTAL BALANCE DUE:</span>
+				<span>{peso(invoice.total_balance)}</span>
 			</div>
 		</div>
 	</div>
@@ -234,6 +252,25 @@
 		align-items: center;
 		font-weight: bold;
 		font-size: 1em;
+	}
+
+	.totals-section {
+		min-width: 280px;
+	}
+
+	.total-row {
+		gap: 16px;
+		padding: 1px 0;
+	}
+
+	.total-row span:last-child {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.grand-total {
+		border-top: 1px solid #000;
+		margin-top: 3px;
+		padding-top: 3px;
 	}
 
 	.copy-label {
